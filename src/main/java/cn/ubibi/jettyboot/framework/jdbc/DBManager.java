@@ -21,7 +21,7 @@ public class DBManager {
     }
 
 
-    private DataSource createDataSource(String propertiesPath){
+    protected DataSource createDataSource(String propertiesPath){
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
         Properties p = null;
         try {

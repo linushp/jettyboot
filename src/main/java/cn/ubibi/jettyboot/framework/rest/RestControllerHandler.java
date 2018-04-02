@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
+import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import com.alibaba.fastjson.JSON;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -33,16 +34,61 @@ public class RestControllerHandler {
     }
 
 
-    private boolean handleMethodPath(String path1, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws InvocationTargetException, IOException, InstantiationException, IllegalAccessException {
+    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws InstantiationException, InvocationTargetException, IllegalAccessException, IOException {
+
+        String reqPath = request.getPathInfo();
+
+        Class<?> clazz = this.restControllerClazz;
+        if (clazz == null) {
+            clazz = this.restController.getClass();
+        }
+
+        RestMapping classRestMappings = clazz.getAnnotation(RestMapping.class);
+        if (classRestMappings.path() != null) {
+            String[] classPathList = classRestMappings.path();
+            for (String classPath : classPathList) {
+
+                if (isMatchClassPath(reqPath, classPath)) {
+
+                    Method[] methods = clazz.getMethods();
+                    if (methods != null) {
+                        for (Method method : methods) {
+
+                            RestGetMapping methodAnnotation1 = method.getAnnotation(RestGetMapping.class);
+                            RestPostMapping methodAnnotation2 = method.getAnnotation(RestPostMapping.class);
+                            RestMapping methodAnnotation3 = method.getAnnotation(RestMapping.class);
+                            boolean handleResult = false;
+                            if (methodAnnotation1 != null) {
+                                handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method);
+                            } else if (methodAnnotation2 != null) {
+                                handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method);
+                            } else if (methodAnnotation3 != null) {
+                                handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method);
+                            }
+
+                            if (handleResult) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return false;
+    }
+
+
+    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws InvocationTargetException, IOException, InstantiationException, IllegalAccessException {
         if (method.equalsIgnoreCase(request.getMethod())) {
 
+            String reqPath = request.getPathInfo();
+
             for (String path22 : path2) {
-                String path = pathJoin(path1, path22);
-                String reqPath = request.getPathInfo();
-
-                boolean isOK = isHandleMethodPath(path, reqPath);
-
-                if (isOK) {
+                String path = pathJoin(classPath, path22);
+                boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
+                if (isMethodMatchOK) {
                     handleMethod(request, response, methodFunc, path);
                     return true;
                 }
@@ -65,51 +111,25 @@ public class RestControllerHandler {
         }
 
 
-        Object invokeResult = null;
+        Object invokeResult;
         try {
             invokeResult = method.invoke(controller, paramsObjects);
-        }
-        catch (Throwable e){
+        } catch (Throwable e) {
             logger.info(e);
-//            e.printStackTrace();
-
-            response.setContentType("text/html;charset=utf-8");
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            PrintWriter writer = response.getWriter();
-            writer.println(e);
-            writer.println(e.getCause());
-            writer.println(e.getMessage());
-
-            writer.flush();
-            writer.close();
-            response.flushBuffer();
-
-            return;
+            invokeResult = e.toString() + e.getCause() + e.getMessage();
         }
 
 
-        if (invokeResult instanceof String) {
-            response.setContentType("text/html;charset=utf-8");
-            response.setStatus(HttpServletResponse.SC_OK);
-            PrintWriter writer = response.getWriter();
-            writer.println(invokeResult);
 
-            writer.flush();
-            writer.close();
-            response.flushBuffer();
-        } else if (invokeResult !=null){
 
-            response.setContentType("text/html;charset=utf-8");
-            response.setStatus(HttpServletResponse.SC_OK);
-            PrintWriter writer = response.getWriter();
-            if (invokeResult != null) {
-                writer.println(JSON.toJSONString(invokeResult));
-            } else {
-                writer.println("null");
-            }
-            writer.flush();
-            writer.close();
-            response.flushBuffer();
+        if (invokeResult instanceof IRestRender){
+            ((IRestRender) invokeResult).render(request,response);
+        }
+        else if (invokeResult instanceof String) {
+            new RestTextRender(invokeResult.toString()).render(request,response);
+        } else {
+            String jsonString = JSON.toJSONString(invokeResult);
+            new RestTextRender(jsonString).render(request,response);
         }
     }
 
@@ -121,15 +141,15 @@ public class RestControllerHandler {
 
         //   /user/:id
         //   /user/23332
-        String[] path1Array = configPath.split("/");
-        String[] path2Array = reqPath.split("/");
-        if (path1Array.length != path2Array.length) {
+        List<String> path1Array = removeEmpty(configPath.split("/"));
+        List<String> path2Array = removeEmpty(reqPath.split("/"));
+        if (path1Array.size() != path2Array.size()) {
             return false;
         }
 
-        for (int i = 0; i < path1Array.length; i++) {
-            String pp1 = path1Array[i];
-            String pp2 = path2Array[i];
+        for (int i = 0; i < path1Array.size(); i++) {
+            String pp1 = path1Array.get(i);
+            String pp2 = path2Array.get(i);
             if (!isPathEquals(pp1, pp2)) {
                 return false;
             }
@@ -170,51 +190,51 @@ public class RestControllerHandler {
     }
 
 
-    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws InstantiationException, InvocationTargetException, IllegalAccessException, IOException {
-
-
-        Class<?> clazz = this.restControllerClazz;
-        if (clazz == null) {
-            clazz = this.restController.getClass();
+    private boolean isMatchClassPath(String reqPath, String classPath) {
+        if (classPath == null || classPath.isEmpty() || "/".equals(classPath)) {
+            return true;
         }
 
-        RestMapping classRestMappings = clazz.getAnnotation(RestMapping.class);
-        if (classRestMappings.path() != null) {
-            String[] classPathList = classRestMappings.path();
-            for (String classPath : classPathList) {
+        if (reqPath.equals(classPath)) {
+            return true;
+        }
 
-                Method[] methods = clazz.getMethods();
-
-                if (methods != null) {
-                    for (Method method : methods) {
+        if (reqPath.startsWith(classPath)) {
+            return true;
+        }
 
 
-                        RestGetMapping methodAnnotation1 = method.getAnnotation(RestGetMapping.class);
-                        RestPostMapping methodAnnotation2 = method.getAnnotation(RestPostMapping.class);
-                        RestMapping methodAnnotation3 = method.getAnnotation(RestMapping.class);
-                        boolean handleResult = false;
-                        if (methodAnnotation1 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method);
-                        } else if (methodAnnotation2 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method);
-                        } else if (methodAnnotation3 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method);
-                        }
+        List<String> reqPathArray = removeEmpty(reqPath.split("/"));
+        List<String> classPathArray = removeEmpty(classPath.split("/"));
 
+        if (classPathArray.size() > reqPathArray.size()) {
+            return false;
+        }
 
-                        if (handleResult) {
-                            return true;
-                        }
-
-                    }
-                }
-
+        int classPathArraySize = classPathArray.size();
+        for (int i = 0; i < classPathArraySize; i++) {
+            String classPathArrI = classPathArray.get(i);
+            String reqPathArrI = reqPathArray.get(i);
+            if (!classPathArrI.equals(reqPathArrI)) {
+                return false;
             }
         }
 
-
-        return false;
+        return true;
     }
+
+    private List<String> removeEmpty(String[] split) {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            if (s != null && !s.isEmpty()) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
+
+
 
     private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) {
 

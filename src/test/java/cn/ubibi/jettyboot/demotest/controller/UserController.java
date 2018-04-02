@@ -83,7 +83,10 @@ public class UserController {
         Cookie[] cookies = request.getCookies();
 
         String aaa = request.getContextPath();
-        return userDAO.findById(uid);
+
+        return new PageRender("",userDAO.findById(uid));
+
+//        return userDAO.findById(uid);
 //        return "hello:" + uid + ":" + name;
     }
 
