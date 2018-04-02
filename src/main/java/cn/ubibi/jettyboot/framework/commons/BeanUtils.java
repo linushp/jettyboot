@@ -13,14 +13,12 @@ public class BeanUtils {
 
 
     /**
-     * 转换List<Map> 为  List<T>
-     *
-     * @param clazz
-     * @param values
-     * @return
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * map to bean list
+     * @param clazz the type of target bean
+     * @param values from values
+     * @param <T> type
+     * @return the target bean list
+     * @throws Exception 异常
      */
     public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values) throws Exception {
 

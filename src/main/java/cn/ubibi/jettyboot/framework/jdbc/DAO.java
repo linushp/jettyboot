@@ -102,13 +102,16 @@ public class DAO<T> {
     }
 
     /**
-     * findPage(0,30,"where `name` like concat('%',?,'%') or age > ?","order by id desc","zhang","30");
+     *
+     * 分页查询
      *
      * @param pageNo    页号从零开始
      * @param pageSize  每夜多少条数据
      * @param whereSql  条件
+     * @param orderBy 排序条件
      * @param whereArgs 条件参数
-     * @return
+     * @throws Exception 可能的异常
+     * @return 返回Page对象
      */
     public PageData<T> findPage(int pageNo, int pageSize, String whereSql, String orderBy, Object... whereArgs) throws Exception {
 
@@ -148,17 +151,17 @@ public class DAO<T> {
     /**
      * 根据Id删除
      *
-     * @param id
+     * @param id bean id
      */
     public void deleteById(Object id) {
         deleteByWhereSql("where id=?", id);
     }
 
     /**
-     * deleteWhere("where age > 30")
+     *  删除
      *
-     * @param whereSql
-     * @param whereArgs
+     * @param whereSql 条件
+     * @param whereArgs 参数
      */
     public void deleteByWhereSql(String whereSql, Object... whereArgs) {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
