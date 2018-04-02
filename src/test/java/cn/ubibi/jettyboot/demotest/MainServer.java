@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.demotest;
 
+import cn.ubibi.jettyboot.demotest.controller.MyExceptionHandler;
 import cn.ubibi.jettyboot.demotest.controller.UserController;
 import cn.ubibi.jettyboot.framework.rest.RestHandler;
 import org.eclipse.jetty.server.Server;
@@ -19,6 +20,7 @@ public class MainServer {
 
         RestHandler restHandler = new RestHandler();
         restHandler.addController(new UserController());
+        restHandler.addExceptionHandler(new MyExceptionHandler());
 
 
         Server server = new Server(8001);

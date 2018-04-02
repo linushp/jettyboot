@@ -165,6 +165,26 @@ public class BeanUtils {
     }
 
 
+    public static <T> void copyField(T targetObject, T fromObject)  {
+        if (fromObject == null) {
+            return;
+        }
+
+        try {
+            Field[] fields = fromObject.getClass().getDeclaredFields();
+            if (fields.length > 0) {
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    Object value = field.get(fromObject);
+                    field.set(targetObject, value);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private static class BeanField {
 
         private Field field;

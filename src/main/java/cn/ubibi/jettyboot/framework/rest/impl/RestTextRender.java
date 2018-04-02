@@ -16,7 +16,7 @@ public class RestTextRender implements IRestRender {
     }
 
     @Override
-    public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         response.setContentType("text/html;charset=utf-8");
 //        response.setContentType("application/json; charset=UTF-8");

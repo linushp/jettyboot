@@ -3,10 +3,7 @@ package cn.ubibi.jettyboot.demotest.controller;
 import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
 import cn.ubibi.jettyboot.framework.commons.PageData;
-import cn.ubibi.jettyboot.framework.rest.RestGetMapping;
-import cn.ubibi.jettyboot.framework.rest.RestMapping;
-import cn.ubibi.jettyboot.framework.rest.RestParams;
-import cn.ubibi.jettyboot.framework.rest.RestPostMapping;
+import cn.ubibi.jettyboot.framework.rest.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -27,17 +24,20 @@ public class UserController {
 
 
     @RestGetMapping(path = "/test")
-    public String getmm() throws Exception {
+    public String getmm(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
         userDAO.findAll();
-        return  "123";
+        if(reqParser instanceof IReqParser){
+            System.out.println("111");
+        }
+        return  "123---" + reqParser.getName() +"=====" + currentUser.getName();
     }
 
 
     @RestGetMapping(path = "/")
-    public PageData<UserEntity> getUserById3(RestParams restParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public PageData<UserEntity> getUserById3(ReqParams reqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        Integer pageSize = restParams.getRequestParam("pageSize","10").toInteger();
-        Integer pageNo = restParams.getRequestParam("pageNo","0").toInteger();
+        Integer pageSize = reqParams.getRequestParam("pageSize","10").toInteger();
+        Integer pageNo = reqParams.getRequestParam("pageNo","0").toInteger();
 
 
 
@@ -60,7 +60,7 @@ public class UserController {
 
 
     @RestGetMapping(path = "/:uid")
-    public Object getUserById(RestParams params, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Object getUserById(ReqParams params, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String uid =  params.getPathVariable("uid").toString();
         String name = params.getRequestParam("name").toString();
@@ -92,7 +92,7 @@ public class UserController {
 
 
     @RestPostMapping(path = "/new/:uid")
-    public String getUserById2(RestParams restParams, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public String getUserById2(ReqParams reqParams, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String aaa = request.getContextPath();
         return "123saaa";
     }

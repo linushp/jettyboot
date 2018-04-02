@@ -4,6 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.StringWrapper;
 import com.alibaba.fastjson.JSON;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RestParams {
+public class ReqParams {
     private HttpServletRequest request;
     private String targetPath;
 
@@ -20,7 +21,7 @@ public class RestParams {
     private byte[] _requestBody = null;
 
 
-    public RestParams(HttpServletRequest request, String targetPath) {
+    public ReqParams(HttpServletRequest request, String targetPath) {
         this.request = request;
         this.targetPath = targetPath;
     }
@@ -45,6 +46,20 @@ public class RestParams {
             valuesWrapper[i] = new StringWrapper(value);
         }
         return valuesWrapper;
+    }
+
+    public String getCookieValue(String cookieName){
+        Cookie[] cookies = this.request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     public <T> T getRequestParamObject(Class<? extends T> clazz) {
@@ -107,7 +122,7 @@ public class RestParams {
 
         int len = request.getContentLength();
         if (len <= 0) {
-            return new byte[0];
+            return null;
         }
 
 

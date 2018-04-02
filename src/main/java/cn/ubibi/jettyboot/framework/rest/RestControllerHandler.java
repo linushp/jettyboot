@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
+import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import com.alibaba.fastjson.JSON;
 import org.eclipse.jetty.util.log.Log;
@@ -10,8 +11,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class RestControllerHandler {
     }
 
 
-    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws InstantiationException, InvocationTargetException, IllegalAccessException, IOException {
+    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String reqPath = request.getPathInfo();
 
@@ -76,11 +75,12 @@ public class RestControllerHandler {
         }
 
 
+        //路径不匹配
         return false;
     }
 
 
-    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws InvocationTargetException, IOException, InstantiationException, IllegalAccessException {
+    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws Exception {
         if (method.equalsIgnoreCase(request.getMethod())) {
 
             String reqPath = request.getPathInfo();
@@ -99,10 +99,8 @@ public class RestControllerHandler {
     }
 
 
-    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
+    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath) throws Exception {
 
-        Type[] paramsTypes = method.getGenericParameterTypes();
-        Object[] paramsObjects = getParamsObjects(paramsTypes, request, response, targetPath);
 
 
         Object controller = this.restController;
@@ -110,26 +108,22 @@ public class RestControllerHandler {
             controller = restControllerClazz.newInstance();
         }
 
-
         Object invokeResult;
         try {
+            Type[] paramsTypes = method.getGenericParameterTypes();
+            Object[] paramsObjects = getParamsObjects(paramsTypes, request, response, targetPath);
             invokeResult = method.invoke(controller, paramsObjects);
-        } catch (Throwable e) {
-            logger.info(e);
-            invokeResult = e.toString() + e.getCause() + e.getMessage();
+        } catch (Exception e) {
+            throw e;
         }
 
-
-
-
-        if (invokeResult instanceof IRestRender){
-            ((IRestRender) invokeResult).render(request,response);
-        }
-        else if (invokeResult instanceof String) {
-            new RestTextRender(invokeResult.toString()).render(request,response);
+        if (invokeResult instanceof IRestRender) {
+            ((IRestRender) invokeResult).doRender(request, response);
+        } else if (invokeResult instanceof String) {
+            new RestTextRender(invokeResult.toString()).doRender(request, response);
         } else {
             String jsonString = JSON.toJSONString(invokeResult);
-            new RestTextRender(jsonString).render(request,response);
+            new RestTextRender(jsonString).doRender(request, response);
         }
     }
 
@@ -236,21 +230,64 @@ public class RestControllerHandler {
 
 
 
-    private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) {
+
+    private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
+
+        //同一个请求中只有一个ReqParams实例
+        ReqParams jettyBootReqParams = getRestParams(request, targetPath);
 
         List<Object> objects = new ArrayList<Object>();
 
         for (Type type : paramsTypes) {
-            if (type.equals(ServletRequest.class) || type.equals(HttpServletRequest.class)) {
+
+
+            if (IReqBodyParser.class.isAssignableFrom((Class<?>) type)) {
+                Object obj = ((Class<?>) type).newInstance();
+
+                try {
+                    BeanUtils.copyField(obj, jettyBootReqParams.getRequestBodyObject(obj.getClass()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                objects.add(obj);
+
+            } else if (IReqParamParser.class.isAssignableFrom((Class<?>) type)) {
+
+                Object obj = ((Class<?>) type).newInstance();
+                BeanUtils.copyField(obj, jettyBootReqParams.getRequestParamObject(obj.getClass()));
+                objects.add(obj);
+
+            } else if (IReqParser.class.isAssignableFrom((Class<?>) type)) {
+
+                Class clazz = (Class) type;
+                IReqParser m = (IReqParser) clazz.newInstance();
+
+                m.doParse(jettyBootReqParams, request, targetPath);
+
+                objects.add(m);
+
+            } else if (type.equals(ServletRequest.class) || type.equals(HttpServletRequest.class)) {
                 objects.add(request);
             } else if (type.equals(ServletResponse.class) || type.equals(HttpServletResponse.class)) {
                 objects.add(response);
-            } else if (type.equals(RestParams.class)) {
-                objects.add(new RestParams(request, targetPath));
+            } else if (type.equals(ReqParams.class)) {
+                objects.add(jettyBootReqParams);
             } else {
                 objects.add(null);
             }
         }
+
         return objects.toArray();
+    }
+
+
+    private ReqParams getRestParams(HttpServletRequest request, String targetPath) {
+        ReqParams jettyBootReqParams = (ReqParams) request.getAttribute("jettyBootReqParams");
+        if (jettyBootReqParams == null) {
+            jettyBootReqParams = new ReqParams(request, targetPath);
+            request.setAttribute("jettyBootReqParams", jettyBootReqParams);
+        }
+        return jettyBootReqParams;
     }
 }
