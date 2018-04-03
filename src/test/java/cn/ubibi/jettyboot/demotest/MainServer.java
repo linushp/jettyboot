@@ -2,11 +2,14 @@ package cn.ubibi.jettyboot.demotest;
 
 import cn.ubibi.jettyboot.demotest.controller.MyExceptionHandler;
 import cn.ubibi.jettyboot.demotest.controller.UserController;
+import cn.ubibi.jettyboot.demotest.servlets.HelloServlet;
 import cn.ubibi.jettyboot.framework.rest.RestHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+
+import javax.servlet.http.HttpServlet;
 
 
 public class MainServer {
@@ -19,7 +22,11 @@ public class MainServer {
         long t1 = System.currentTimeMillis();
 
         RestHandler restHandler = new RestHandler();
-        restHandler.addController(new UserController());
+
+        restHandler.addController("/user",UserController.class);
+
+        restHandler.addServlet("/hello",new HelloServlet());
+
         restHandler.addExceptionHandler(new MyExceptionHandler());
 
 
@@ -34,7 +41,7 @@ public class MainServer {
 //        sessions.setHandler(restHandler);
 //
 //
-        ContextHandler context = new ContextHandler("/");
+        ContextHandler context = new ContextHandler("/api");
         context.setHandler(restHandler);
 
 

@@ -3,16 +3,14 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +21,25 @@ public class RestHandler extends AbstractHandler {
 
     private List<RestControllerHandler> restHandlers = new ArrayList<>();
     private List<IExceptionHandler> exceptionHandlers = new ArrayList<>();
+    private List<HttpServletWrapper> httpServletHandlers = new ArrayList<>();
 
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+        // 1. check Servlet Handler
+
+        for (HttpServletWrapper httpServletWrapper : httpServletHandlers){
+            if(httpServletWrapper.matched(target)){
+                httpServletWrapper.handle(request,response);
+                baseRequest.setHandled(true);
+                return;
+            }
+        }
+
+
+
+
+        //2. check rest controller handler
         for (RestControllerHandler restHandler : restHandlers){
             try {
                 if(restHandler.handle(request,response)){
@@ -72,14 +86,29 @@ public class RestHandler extends AbstractHandler {
         if(clazz == null){
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler(clazz));
+        restHandlers.add(new RestControllerHandler("",clazz));
     }
 
     public void addController(Object restController) throws Exception {
         if(restController == null){
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler(restController));
+        restHandlers.add(new RestControllerHandler("",restController));
+    }
+
+
+    public void addController(String path,Class<?> clazz) throws Exception {
+        if(clazz == null){
+            throw new Exception("addController can not null");
+        }
+        restHandlers.add(new RestControllerHandler(path,clazz));
+    }
+
+    public void addController(String path ,Object restController) throws Exception {
+        if(restController == null){
+            throw new Exception("addController can not null");
+        }
+        restHandlers.add(new RestControllerHandler(path,restController));
     }
 
 
@@ -90,4 +119,10 @@ public class RestHandler extends AbstractHandler {
         exceptionHandlers.add(exceptionHandler);
     }
 
+    public void addServlet(String path, HttpServlet httpServlet) throws Exception {
+        if(httpServlet == null || path == null || path.isEmpty()){
+            throw new Exception("addExceptionHandler can not null");
+        }
+        httpServletHandlers.add(new HttpServletWrapper(path,httpServlet));
+    }
 }

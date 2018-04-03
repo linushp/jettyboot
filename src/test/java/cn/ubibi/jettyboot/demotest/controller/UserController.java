@@ -15,7 +15,7 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
 
-@RestMapping(path = "/user")
+//@RestMapping(path = "/user")
 public class UserController {
 
     private static Logger logger = Log.getLogger(UserController.class);
@@ -84,7 +84,7 @@ public class UserController {
 
         String aaa = request.getContextPath();
 
-        return new PageRender("",userDAO.findById(uid));
+        return new PageRender("getUserById",userDAO.findById(uid));
 
 //        return userDAO.findById(uid);
 //        return "hello:" + uid + ":" + name;

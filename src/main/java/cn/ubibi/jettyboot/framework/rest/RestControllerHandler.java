@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
+import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import com.alibaba.fastjson.JSON;
 import org.eclipse.jetty.util.log.Log;
@@ -23,13 +24,16 @@ public class RestControllerHandler {
 
     private Class<?> restControllerClazz;
     private Object restController;
+    private String path;
 
-    public RestControllerHandler(Class<?> clazz) {
+    public RestControllerHandler(String path, Class<?> clazz) {
         this.restControllerClazz = clazz;
+        this.path = path;
     }
 
-    public RestControllerHandler(Object restController) {
+    public RestControllerHandler(String path, Object restController) {
         this.restController = restController;
+        this.path = path;
     }
 
 
@@ -37,37 +41,37 @@ public class RestControllerHandler {
 
         String reqPath = request.getPathInfo();
 
-        Class<?> clazz = this.restControllerClazz;
-        if (clazz == null) {
-            clazz = this.restController.getClass();
+        if (this.path!=null && !this.path.isEmpty() && !reqPath.startsWith(this.path)) {
+            return false;
         }
 
-        RestMapping classRestMappings = clazz.getAnnotation(RestMapping.class);
-        if (classRestMappings.path() != null) {
-            String[] classPathList = classRestMappings.path();
-            for (String classPath : classPathList) {
 
-                if (isMatchClassPath(reqPath, classPath)) {
+        Class<?> clazz = this.getControllerClass();
 
-                    Method[] methods = clazz.getMethods();
-                    if (methods != null) {
-                        for (Method method : methods) {
 
-                            RestGetMapping methodAnnotation1 = method.getAnnotation(RestGetMapping.class);
-                            RestPostMapping methodAnnotation2 = method.getAnnotation(RestPostMapping.class);
-                            RestMapping methodAnnotation3 = method.getAnnotation(RestMapping.class);
-                            boolean handleResult = false;
-                            if (methodAnnotation1 != null) {
-                                handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method);
-                            } else if (methodAnnotation2 != null) {
-                                handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method);
-                            } else if (methodAnnotation3 != null) {
-                                handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method);
-                            }
+        String[] classPathList = this.getClassPaths();
+        for (String classPath : classPathList) {
 
-                            if (handleResult) {
-                                return true;
-                            }
+            if (isMatchClassPath(reqPath, classPath)) {
+
+                Method[] methods = clazz.getMethods();
+                if (methods != null) {
+                    for (Method method : methods) {
+
+                        RestGetMapping methodAnnotation1 = method.getAnnotation(RestGetMapping.class);
+                        RestPostMapping methodAnnotation2 = method.getAnnotation(RestPostMapping.class);
+                        RestMapping methodAnnotation3 = method.getAnnotation(RestMapping.class);
+                        boolean handleResult = false;
+                        if (methodAnnotation1 != null) {
+                            handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method);
+                        } else if (methodAnnotation2 != null) {
+                            handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method);
+                        } else if (methodAnnotation3 != null) {
+                            handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method);
+                        }
+
+                        if (handleResult) {
+                            return true;
                         }
                     }
                 }
@@ -77,6 +81,27 @@ public class RestControllerHandler {
 
         //路径不匹配
         return false;
+    }
+
+
+    private Class<?> getControllerClass() {
+        Class<?> clazz = this.restControllerClazz;
+        if (clazz == null) {
+            clazz = this.restController.getClass();
+        }
+        return clazz;
+    }
+
+    private String[] getClassPaths() {
+        if (this.path != null && !this.path.isEmpty()) {
+            return new String[]{this.path};
+        }
+        Class<?> clazz = this.getControllerClass();
+        RestMapping classRestMappings = clazz.getAnnotation(RestMapping.class);
+        if (classRestMappings != null && classRestMappings.path() != null) {
+            return classRestMappings.path();
+        }
+        return new String[]{"/"};
     }
 
 
@@ -100,7 +125,6 @@ public class RestControllerHandler {
 
 
     private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath) throws Exception {
-
 
 
         Object controller = this.restController;
@@ -167,20 +191,17 @@ public class RestControllerHandler {
 
     private String pathJoin(String path1, String path2) {
 
-        //    "/user"  "/sdds"
-        //    "user"  "/sdds"
+        List<String> path1Arr = removeEmpty(path1.split("/"));
+        List<String> path2Arr = removeEmpty(path2.split("/"));
 
-        if (!path1.startsWith("/")) {
-            path1 = "/" + path1;
-        }
 
-        if (!path2.startsWith("/") && !path1.endsWith("/")) {
-            path2 = "/" + path2;
-        }
+        List<String> pathList = new ArrayList<>();
 
-        String path = path1 + path2;
+        pathList.addAll(path1Arr);
+        pathList.addAll(path2Arr);
 
-        return path;
+        String result = "/" + StringUtils.join(pathList, "/");
+        return result;
     }
 
 
@@ -227,8 +248,6 @@ public class RestControllerHandler {
         }
         return result;
     }
-
-
 
 
     private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
