@@ -23,9 +23,10 @@ public class MainServer {
 
         RestHandler restHandler = new RestHandler();
 
-        restHandler.addController("/user",UserController.class);
+        restHandler.addController("/user", new UserController());
 
-        restHandler.addServlet("/hello",new HelloServlet());
+//        restHandler.addServlet("/hello", new HelloServlet());
+        restHandler.addServlet("/hello*", new HelloServlet());
 
         restHandler.addExceptionHandler(new MyExceptionHandler());
 
@@ -51,7 +52,7 @@ public class MainServer {
 
         long t2 = System.currentTimeMillis();
 
-        logger.info("Server Started success , cost time " + (t2-t1) + " ms");
+        logger.info("Server Started success , cost time " + (t2 - t1) + " ms");
         server.join();
 
     }

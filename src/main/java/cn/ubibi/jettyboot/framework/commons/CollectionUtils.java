@@ -41,4 +41,15 @@ public class CollectionUtils {
         }
         return new List[]{keys, values};
     }
+
+    public static List<String> removeEmpty(String[] split) {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            if (s != null && !s.isEmpty()) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
 }

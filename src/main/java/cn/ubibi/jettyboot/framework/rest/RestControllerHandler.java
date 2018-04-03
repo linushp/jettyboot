@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
+import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import com.alibaba.fastjson.JSON;
@@ -41,15 +42,9 @@ public class RestControllerHandler {
 
         String reqPath = request.getPathInfo();
 
-        if (this.path!=null && !this.path.isEmpty() && !reqPath.startsWith(this.path)) {
-            return false;
-        }
-
-
         Class<?> clazz = this.getControllerClass();
-
-
         String[] classPathList = this.getClassPaths();
+
         for (String classPath : classPathList) {
 
             if (isMatchClassPath(reqPath, classPath)) {
@@ -159,8 +154,8 @@ public class RestControllerHandler {
 
         //   /user/:id
         //   /user/23332
-        List<String> path1Array = removeEmpty(configPath.split("/"));
-        List<String> path2Array = removeEmpty(reqPath.split("/"));
+        List<String> path1Array = CollectionUtils.removeEmpty(configPath.split("/"));
+        List<String> path2Array = CollectionUtils.removeEmpty(reqPath.split("/"));
         if (path1Array.size() != path2Array.size()) {
             return false;
         }
@@ -191,8 +186,8 @@ public class RestControllerHandler {
 
     private String pathJoin(String path1, String path2) {
 
-        List<String> path1Arr = removeEmpty(path1.split("/"));
-        List<String> path2Arr = removeEmpty(path2.split("/"));
+        List<String> path1Arr = CollectionUtils.removeEmpty(path1.split("/"));
+        List<String> path2Arr = CollectionUtils.removeEmpty(path2.split("/"));
 
 
         List<String> pathList = new ArrayList<>();
@@ -218,36 +213,10 @@ public class RestControllerHandler {
             return true;
         }
 
-
-        List<String> reqPathArray = removeEmpty(reqPath.split("/"));
-        List<String> classPathArray = removeEmpty(classPath.split("/"));
-
-        if (classPathArray.size() > reqPathArray.size()) {
-            return false;
-        }
-
-        int classPathArraySize = classPathArray.size();
-        for (int i = 0; i < classPathArraySize; i++) {
-            String classPathArrI = classPathArray.get(i);
-            String reqPathArrI = reqPathArray.get(i);
-            if (!classPathArrI.equals(reqPathArrI)) {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 
-    private List<String> removeEmpty(String[] split) {
-        List<String> result = new ArrayList<>();
-        for (int i = 0; i < split.length; i++) {
-            String s = split[i];
-            if (s != null && !s.isEmpty()) {
-                result.add(s);
-            }
-        }
-        return result;
-    }
+
 
 
     private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
