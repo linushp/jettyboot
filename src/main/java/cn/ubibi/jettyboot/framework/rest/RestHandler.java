@@ -22,15 +22,16 @@ public class RestHandler extends AbstractHandler {
     private List<RestControllerHandler> restHandlers = new ArrayList<>();
     private List<IExceptionHandler> exceptionHandlers = new ArrayList<>();
     private List<HttpServletWrapper> httpServletHandlers = new ArrayList<>();
+    private List<IRestMethodAspect> methodAspectList = new ArrayList<>();
 
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         // 1. check Servlet Handler
 
-        for (HttpServletWrapper httpServletWrapper : httpServletHandlers){
-            if(httpServletWrapper.matched(target)){
-                httpServletWrapper.handle(request,response);
+        for (HttpServletWrapper httpServletWrapper : httpServletHandlers) {
+            if (httpServletWrapper.matched(target)) {
+                httpServletWrapper.handle(request, response);
                 baseRequest.setHandled(true);
                 return;
             }
@@ -40,40 +41,41 @@ public class RestHandler extends AbstractHandler {
 
 
         //2. check rest controller handler
-        for (RestControllerHandler restHandler : restHandlers){
+        for (RestControllerHandler restHandler : restHandlers) {
             try {
-                if(restHandler.handle(request,response)){
+                if (restHandler.handle(request, response, methodAspectList)) {
                     baseRequest.setHandled(true);
                     return;
                 }
-            }catch (Exception e) {
-                boolean isHandled = handleException(e,request,response);
-                if(!isHandled){
+            } catch (Exception e) {
+                boolean isHandled = handleException(e, request, response);
+                if (!isHandled) {
 
                     logger.info(e);
 
                     //如果异常没有被处理
-                    if (e instanceof IOException ){
+                    if (e instanceof IOException) {
                         throw (IOException) e;
-                    }
-                    else if (e instanceof ServletException){
+                    } else if (e instanceof ServletException) {
                         throw (ServletException) e;
-                    }else {
+                    } else {
                         String nextLine = "    \n   ";
                         String exMsg = e.toString() + nextLine + e.getMessage() + nextLine + e.getCause();
-                        new RestTextRender(exMsg).doRender(request,response);
+                        new RestTextRender(exMsg).doRender(request, response);
                     }
                 }
+
+                baseRequest.setHandled(true);
+                return;
             }
         }
     }
 
 
-
     private boolean handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        for (IExceptionHandler exceptionHandler: exceptionHandlers){
-            boolean isHandled = exceptionHandler.handle(e,request,response);
-            if(isHandled){
+        for (IExceptionHandler exceptionHandler : exceptionHandlers) {
+            boolean isHandled = exceptionHandler.handle(e, request, response);
+            if (isHandled) {
                 return true;
             }
         }
@@ -81,48 +83,54 @@ public class RestHandler extends AbstractHandler {
     }
 
 
-
     public void addController(Class<?> clazz) throws Exception {
-        if(clazz == null){
+        if (clazz == null) {
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler("",clazz));
+        restHandlers.add(new RestControllerHandler("", clazz));
     }
 
     public void addController(Object restController) throws Exception {
-        if(restController == null){
+        if (restController == null) {
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler("",restController));
+        restHandlers.add(new RestControllerHandler("", restController));
     }
 
 
-    public void addController(String path,Class<?> clazz) throws Exception {
-        if(clazz == null){
+    public void addController(String path, Class<?> clazz) throws Exception {
+        if (clazz == null) {
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler(path,clazz));
+        restHandlers.add(new RestControllerHandler(path, clazz));
     }
 
-    public void addController(String path ,Object restController) throws Exception {
-        if(restController == null){
+    public void addController(String path, Object restController) throws Exception {
+        if (restController == null) {
             throw new Exception("addController can not null");
         }
-        restHandlers.add(new RestControllerHandler(path,restController));
+        restHandlers.add(new RestControllerHandler(path, restController));
     }
 
 
     public void addExceptionHandler(IExceptionHandler exceptionHandler) throws Exception {
-        if(exceptionHandler == null){
+        if (exceptionHandler == null) {
             throw new Exception("addExceptionHandler can not null");
         }
         exceptionHandlers.add(exceptionHandler);
     }
 
     public void addServlet(String path, HttpServlet httpServlet) throws Exception {
-        if(httpServlet == null || path == null || path.isEmpty()){
+        if (httpServlet == null || path == null || path.isEmpty()) {
             throw new Exception("addExceptionHandler can not null");
         }
-        httpServletHandlers.add(new HttpServletWrapper(path,httpServlet));
+        httpServletHandlers.add(new HttpServletWrapper(path, httpServlet));
+    }
+
+    public void addMethodAspect(IRestMethodAspect methodAspect) throws Exception {
+        if (methodAspect == null) {
+            throw new Exception("addMethodWrapper can not null");
+        }
+        methodAspectList.add(methodAspect);
     }
 }

@@ -1,12 +1,5 @@
-package cn.ubibi.jettyboot.demotest;
+package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.demotest.controller.MyExceptionHandler;
-import cn.ubibi.jettyboot.demotest.controller.UserController;
-import cn.ubibi.jettyboot.demotest.servlets.HelloServlet;
-import cn.ubibi.jettyboot.framework.rest.HttpServletWrapper;
-import cn.ubibi.jettyboot.framework.rest.IExceptionHandler;
-import cn.ubibi.jettyboot.framework.rest.RestControllerHandler;
-import cn.ubibi.jettyboot.framework.rest.RestHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 
 import javax.servlet.http.HttpServlet;
@@ -46,5 +39,9 @@ public class RestContextHandler extends ContextHandler{
 
     public void addServlet(String path, HttpServlet httpServlet) throws Exception {
         this.restHandler.addServlet(path,httpServlet);
+    }
+
+    public void addMethodAspect(IRestMethodAspect methodAspect) throws Exception {
+        this.restHandler.addMethodAspect(methodAspect);
     }
 }

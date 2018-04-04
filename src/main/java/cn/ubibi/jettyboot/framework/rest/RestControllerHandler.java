@@ -38,7 +38,7 @@ public class RestControllerHandler {
     }
 
 
-    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public boolean handle(HttpServletRequest request, HttpServletResponse response, List<IRestMethodAspect> methodWrappers) throws Exception {
 
         String reqPath = request.getPathInfo();
 
@@ -58,11 +58,11 @@ public class RestControllerHandler {
                         RestMapping methodAnnotation3 = method.getAnnotation(RestMapping.class);
                         boolean handleResult = false;
                         if (methodAnnotation1 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method);
+                            handleResult = handleMethodPath(classPath, methodAnnotation1.path(), methodAnnotation1.method(), request, response, method, methodWrappers);
                         } else if (methodAnnotation2 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method);
+                            handleResult = handleMethodPath(classPath, methodAnnotation2.path(), methodAnnotation2.method(), request, response, method, methodWrappers);
                         } else if (methodAnnotation3 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method);
+                            handleResult = handleMethodPath(classPath, methodAnnotation3.path(), methodAnnotation3.method(), request, response, method, methodWrappers);
                         }
 
                         if (handleResult) {
@@ -100,7 +100,7 @@ public class RestControllerHandler {
     }
 
 
-    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws Exception {
+    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc, List<IRestMethodAspect> methodWrappers) throws Exception {
         if (method.equalsIgnoreCase(request.getMethod())) {
 
             String reqPath = request.getPathInfo();
@@ -109,7 +109,7 @@ public class RestControllerHandler {
                 String path = pathJoin(classPath, path22);
                 boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
                 if (isMethodMatchOK) {
-                    handleMethod(request, response, methodFunc, path);
+                    handleMethod(request, response, methodFunc, path, methodWrappers);
                     return true;
                 }
             }
@@ -119,7 +119,7 @@ public class RestControllerHandler {
     }
 
 
-    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath) throws Exception {
+    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath, List<IRestMethodAspect> methodWrappers) throws Exception {
 
 
         Object controller = this.restController;
@@ -131,7 +131,22 @@ public class RestControllerHandler {
         try {
             Type[] paramsTypes = method.getGenericParameterTypes();
             Object[] paramsObjects = getParamsObjects(paramsTypes, request, response, targetPath);
+
+
+            ReqParams reqParams = getRestParams(request, targetPath);
+
+            for (IRestMethodAspect methodWrapper : methodWrappers) {
+                methodWrapper.invokeBefore(method, reqParams);
+            }
+
             invokeResult = method.invoke(controller, paramsObjects);
+
+
+            for (IRestMethodAspect methodWrapper : methodWrappers) {
+                methodWrapper.invokeAfter(method, reqParams, invokeResult);
+            }
+
+
         } catch (Exception e) {
             throw e;
         }
@@ -215,8 +230,6 @@ public class RestControllerHandler {
 
         return false;
     }
-
-
 
 
     private Object[] getParamsObjects(Type[] paramsTypes, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {

@@ -6,7 +6,7 @@
 
     <groupId>com.github.luanhaipeng</groupId>
     <artifactId>jettyboot</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <name>jettyboot</name>
     <description>jetty boot Library, simple mvc and data ORM framework</description>
     <url>https://github.com/luanhaipeng/jettyboot</url>
@@ -48,18 +48,18 @@
             <version>1.2.47</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.6</version>
-        </dependency>
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/mysql/mysql-connector-java &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>mysql</groupId>-->
+            <!--<artifactId>mysql-connector-java</artifactId>-->
+            <!--<version>5.1.6</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>c3p0</groupId>-->
+            <!--<artifactId>c3p0</artifactId>-->
+            <!--<version>0.9.1.2</version>-->
+        <!--</dependency>-->
 
 
     </dependencies>

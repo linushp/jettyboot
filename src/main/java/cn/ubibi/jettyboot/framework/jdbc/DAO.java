@@ -2,12 +2,10 @@ package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 public class DAO<T> {
@@ -18,11 +16,11 @@ public class DAO<T> {
     private DBAccess dbAccess;
 
 
-    public DAO(Class<T> clazz, String tableName, DataSource dataSource) {
+    public DAO(Class<T> clazz, String tableName, IConnectionFactory connectionFactory) {
         this.clazz = clazz;
         this.tableName = tableName;
         this.schemaName = "";
-        this.dbAccess = new DBAccess(dataSource);
+        this.dbAccess = new DBAccess(connectionFactory);
     }
 
     public DAO(Class<T> clazz, String tableName, Connection connection) {
@@ -70,9 +68,9 @@ public class DAO<T> {
         return dao;
     }
 
-    public DAO<T> use(DataSource dataSource) {
+    public DAO<T> use(IConnectionFactory connSource) {
         DAO<T> dao = this.clone();
-        dao.dbAccess = new DBAccess(dataSource);
+        dao.dbAccess = new DBAccess(connSource);
         return dao;
     }
 

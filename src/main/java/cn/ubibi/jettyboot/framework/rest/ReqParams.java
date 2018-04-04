@@ -145,4 +145,8 @@ public class ReqParams {
         String bodyString = new String(body, "utf-8");
         return JSON.parseObject(bodyString, clazz);
     }
+
+    public String getTargetPath(){
+        return this.targetPath;
+    }
 }

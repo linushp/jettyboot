@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.demotest.dao;
 
+import cn.ubibi.jettyboot.demotest.dao.base.MyBaseDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
 import cn.ubibi.jettyboot.framework.jdbc.DAO;
 import cn.ubibi.jettyboot.framework.commons.PageData;
@@ -8,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserDAO extends DAO<UserEntity> {
+public class UserDAO extends MyBaseDAO<UserEntity> {
 
     public UserDAO() {
-        super(UserEntity.class, "m_monster_item", MyDBManager.UDB.getDataSource());
+        super(UserEntity.class, "m_monster_item");
     }
 
 

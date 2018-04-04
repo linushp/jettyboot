@@ -1,16 +1,17 @@
 package cn.ubibi.jettyboot.demotest;
 
 import cn.ubibi.jettyboot.demotest.controller.MyExceptionHandler;
-import cn.ubibi.jettyboot.demotest.controller.PageRender;
 import cn.ubibi.jettyboot.demotest.controller.UserController;
+import cn.ubibi.jettyboot.demotest.dao.base.MyConnectionFactory;
 import cn.ubibi.jettyboot.demotest.servlets.HelloServlet;
-import cn.ubibi.jettyboot.framework.rest.RestHandler;
+import cn.ubibi.jettyboot.framework.rest.IRestMethodAspect;
+import cn.ubibi.jettyboot.framework.rest.ReqParams;
+import cn.ubibi.jettyboot.framework.rest.RestContextHandler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
-import javax.servlet.http.HttpServlet;
+import java.lang.reflect.Method;
 
 
 public class MainServer {
@@ -22,15 +23,30 @@ public class MainServer {
 
         long t1 = System.currentTimeMillis();
 
+        MyConnectionFactory.getInstance().init();
 
+
+        Server server = new Server(8001);
         RestContextHandler context = new RestContextHandler("/api");
 
         context.addController("/user",new UserController());
         context.addServlet("/hello*",new HelloServlet());
+        context.addMethodAspect(new IRestMethodAspect() {
+
+            @Override
+            public void invokeBefore(Method method, ReqParams reqParams) throws Exception {
+                System.out.println(method.getName());
+            }
+
+            @Override
+            public void invokeAfter(Method method, ReqParams reqParams, Object invokeResult) throws Exception {
+                System.out.println(method.getName());
+            }
+
+        });
         context.addExceptionHandler(new MyExceptionHandler());
 
 
-        Server server = new Server(8001);
 
 //
 //        DefaultSessionIdManager idManager = new DefaultSessionIdManager(server);

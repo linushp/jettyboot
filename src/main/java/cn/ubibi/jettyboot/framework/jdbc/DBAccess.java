@@ -2,18 +2,17 @@ package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
 public class DBAccess {
 
-    private DataSource dataSource;
+    private IConnectionFactory connectionFactory;
     private Connection connection;
     private boolean autoClose;
 
-    public DBAccess(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public DBAccess(IConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
         this.autoClose = true;
     }
 
@@ -208,7 +207,7 @@ public class DBAccess {
             return this.connection;
         }
 
-        Connection connection = dataSource.getConnection();
+        Connection connection = connectionFactory.getConnection();
         connection.setAutoCommit(true);
         return connection;
     }
