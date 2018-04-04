@@ -38,39 +38,47 @@ public class DAO<T> {
         return schemaName + "." + tableName;
     }
 
-    private DAO() {
+    public DAO() {
     }
 
-    public DAO<T> clone() {
-        DAO<T> dao = new DAO<>();
-        dao.tableName = this.tableName;
-        dao.schemaName = this.schemaName;
-        dao.clazz = this.clazz;
-        dao.dbAccess = this.dbAccess;
-        return dao;
+    public Object clone() {
+
+        try {
+            //获取的是子类的Class
+            Object o = this.getClass().newInstance();
+            BeanUtils.copyField(o,this);
+            return o;
+
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 
     public DAO<T> use(String tableName) {
-        DAO<T> dao = this.clone();
+        DAO dao = (DAO)this.clone();
         dao.tableName = tableName;
         return dao;
     }
 
     public DAO<T> useSchema(String schemaName) {
-        DAO<T> dao = this.clone();
+        DAO dao = (DAO)this.clone();
         dao.schemaName = schemaName;
         return dao;
     }
 
     public DAO<T> use(Connection connection) {
-        DAO<T> dao = this.clone();
+        DAO dao = (DAO)this.clone();
         dao.dbAccess = new DBAccess(connection);
         return dao;
     }
 
     public DAO<T> use(IConnectionFactory connSource) {
-        DAO<T> dao = this.clone();
+        DAO dao = (DAO)this.clone();
         dao.dbAccess = new DBAccess(connSource);
         return dao;
     }
