@@ -1,14 +1,10 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.PropertiesUtils;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.util.Properties;
 
 

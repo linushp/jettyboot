@@ -25,7 +25,7 @@ public class UserController {
 
     @RestGetMapping(path = "/test")
     public String getmm(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
-        userDAO.findAll();
+        new UserDAO().findAll();
         if(reqParser instanceof IReqParser){
             System.out.println("111");
         }
