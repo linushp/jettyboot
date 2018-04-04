@@ -2,10 +2,12 @@ package cn.ubibi.jettyboot.framework.rest;
 
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class HttpServletWrapper {
     private String path;
@@ -74,7 +76,25 @@ public class HttpServletWrapper {
     }
 
 
+    private void tryClose(HttpServletResponse response){
+        try {
+            response.flushBuffer();
+        } catch (IOException e) {
+        }
 
+        try {
+            PrintWriter writer = response.getWriter();
+            writer.close();
+        } catch (IllegalStateException e) {
+            try {
+                ServletOutputStream stream = response.getOutputStream();
+                stream.close();
+            } catch (IllegalStateException f) {
+            } catch (IOException f) {
+            }
+        } catch (IOException e) {
+        }
+    }
 
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
@@ -84,5 +104,7 @@ public class HttpServletWrapper {
         }
 
         httpServlet.service(request, response);
+
+        tryClose(response);
     }
 }

@@ -8,6 +8,7 @@ import cn.ubibi.jettyboot.framework.rest.IRestMethodAspect;
 import cn.ubibi.jettyboot.framework.rest.ReqParams;
 import cn.ubibi.jettyboot.framework.rest.RestContextHandler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
@@ -59,6 +60,8 @@ public class MainServer {
 //
 //        ContextHandler context = new ContextHandler("/api");
 //        context.setHandler(restHandler);
+
+
 
 
         server.setHandler(context);
