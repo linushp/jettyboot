@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.jdbc;
 import cn.ubibi.jettyboot.framework.commons.*;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -130,8 +131,40 @@ public class DAO<T> {
 
         int beginIndex = pageNo * pageSize;
 
-        String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
-        List<T> dataList = dbAccess.query(clazz, sqlList, whereArgs);
+        long totalCount = this.countByWhereSql(whereSql,whereArgs);
+
+        //totalCount 为0的时候可以不查询
+        List<T> dataList;
+        if(totalCount > 0){
+            String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
+            dataList = dbAccess.query(clazz, sqlList, whereArgs);
+        }else {
+            dataList = new ArrayList<>();
+        }
+
+
+
+        PageData<T> result = new PageData(dataList, totalCount, pageNo, pageSize);
+        return result;
+    }
+
+
+    /**
+     * 统计整个表的大小
+     * @return 数量
+     */
+    public Long countAll(){
+        return countByWhereSql("");
+    }
+
+
+    /**
+     * 统计数量多少
+     * @param whereSql 条件
+     * @param whereArgs 条件参数
+     * @return 数量
+     */
+    public Long countByWhereSql( String whereSql, Object... whereArgs){
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
         Object totalCount = dbAccess.queryValue(sqlCount, whereArgs);
         Long totalCountLong = 0L;
@@ -140,11 +173,8 @@ public class DAO<T> {
         } else {
             totalCountLong = new StringWrapper(totalCount.toString()).toLong();
         }
-
-        PageData<T> result = new PageData(dataList, totalCountLong, pageNo, pageSize);
-        return result;
+        return totalCountLong;
     }
-
 
     /**
      * 根据Id删除
