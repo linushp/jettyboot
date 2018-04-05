@@ -1,13 +1,9 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BeanUtils {
 
@@ -182,6 +178,28 @@ public class BeanUtils {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    public static Map<String, String> toMap(Properties p) {
+        Map<String, String> map = new HashMap<>();
+        if (p == null) {
+            return map;
+        }
+
+        Set<Map.Entry<Object, Object>> entrySet = p.entrySet();
+        for (Map.Entry<Object, Object> entry : entrySet) {
+            Object x = entry.getValue();
+            Object k = entry.getKey();
+            if (x != null && k != null) {
+                String xs = x.toString();
+                String keyString = k.toString();
+                map.put(keyString, xs);
+            }
+        }
+
+        return map;
     }
 
 

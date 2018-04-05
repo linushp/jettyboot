@@ -38,7 +38,7 @@ public class DAO<T> {
         return schemaName + "." + tableName;
     }
 
-    public DAO() {
+    private DAO() {
     }
 
     public Object clone() {
