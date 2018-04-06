@@ -1,7 +1,5 @@
 package cn.ubibi.jettyboot.framework.jdbc.model;
 
-import java.util.List;
-
 public class UpdateResult {
 
     private Long generatedKey;
