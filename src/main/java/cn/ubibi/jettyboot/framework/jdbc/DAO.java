@@ -190,8 +190,8 @@ public class DAO<T> {
      *
      * @param id bean id
      */
-    public void deleteById(Object id) {
-        deleteByWhereSql("where id=?", id);
+    public UpdateResult deleteById(Object id) {
+        return deleteByWhereSql("where id=?", id);
     }
 
     /**
@@ -200,18 +200,19 @@ public class DAO<T> {
      * @param whereSql 条件
      * @param whereArgs 参数
      */
-    public void deleteByWhereSql(String whereSql, Object... whereArgs) {
+    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
-        dbAccess.update(sql, whereArgs);
+        return dbAccess.update(sql, whereArgs);
     }
 
 
-    public void updateById(Map<String, Object> newValues, Object id) {
-        updateByWhereSql(newValues, "where id = ? ", id);
+    public UpdateResult updateById(Map<String, Object> newValues, Object id) {
+        return updateByWhereSql(newValues, "where id = ? ", id);
     }
 
 
-    public void updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
+
+    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
         if (newValues != null && !newValues.isEmpty()) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -227,9 +228,11 @@ public class DAO<T> {
                 values.addAll(whereArgsList);
             }
 
-            dbAccess.update(sql, values);
+           return dbAccess.update(sql, values);
         }
+        return new UpdateResult("params is empty");
     }
+
 
 
     /**
@@ -237,13 +240,17 @@ public class DAO<T> {
      *
      * @param objectList
      */
-    public void insertObjectList(List<Map<String, Object>> objectList) {
+    public List<UpdateResult> insertObjectList(List<Map<String, Object>> objectList) {
+        List<UpdateResult> results = new ArrayList<>();
         if (objectList != null && !objectList.isEmpty()) {
             for (Map<String, Object> obj : objectList) {
-                insertObject(obj);
+                UpdateResult result = insertObject(obj);
+                results.add(result);
             }
         }
+        return results;
     }
+
 
 
     public UpdateResult insertObject(Map<String, Object> newValues) {
@@ -263,21 +270,21 @@ public class DAO<T> {
             return dbAccess.update(sql, values);
         }
 
-        return null;
+        return new UpdateResult("params is empty");
     }
 
 
-    public void saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
-        saveOrUpdate(newValues, "where id = ?", id);
+    public UpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
+        return saveOrUpdate(newValues, "where id = ?", id);
     }
 
 
-    public void saveOrUpdate(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
+    public UpdateResult saveOrUpdate(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
         List<T> findResult = findByWhere(whereSql, whereArgs);
         if (findResult.isEmpty()) {
-            insertObject(newValues);
+           return insertObject(newValues);
         } else {
-            updateByWhereSql(newValues, whereSql, whereArgs);
+            return updateByWhereSql(newValues, whereSql, whereArgs);
         }
     }
 
@@ -290,6 +297,7 @@ public class DAO<T> {
         String whereSql = "where " + StringUtils.join(whereFields, " and ");
         return new WhereSqlAndArgs(whereSql, values);
     }
+
 
     protected static class WhereSqlAndArgs {
         public String whereSql;

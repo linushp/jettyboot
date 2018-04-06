@@ -70,6 +70,7 @@ public class DBAccess {
             return updateResult;
         } catch (Exception e) {
             e.printStackTrace();
+            updateResult.setErrMsg(e.getMessage());
         } finally {
             release(generatedKeyResultSet, preparedStatement, connection);
         }
