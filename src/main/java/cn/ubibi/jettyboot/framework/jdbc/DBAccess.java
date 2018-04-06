@@ -58,16 +58,16 @@ public class DBAccess {
             generatedKeyResultSet = preparedStatement.getGeneratedKeys();
             List<Map<String, Object>> mapList = resultSetToMapList(generatedKeyResultSet);
             if (mapList != null && !mapList.isEmpty()) {
-                Map<String, Object> map = mapList.get(0);
-                Object GENERATED_KEY = map.get("GENERATED_KEY");
-                if (GENERATED_KEY != null) {
-                    StringWrapper sw = new StringWrapper(GENERATED_KEY.toString());
-                    updateResult.setGeneratedKey(sw.toLong());
+                for (Map<String, Object> map : mapList) {
+                    Object GENERATED_KEY = map.get("GENERATED_KEY");
+                    if (GENERATED_KEY != null) {
+                        StringWrapper sw = new StringWrapper(GENERATED_KEY.toString());
+                        updateResult.getGeneratedKeys().add(sw.toLong());
+                    }
                 }
             }
-
-
             return updateResult;
+
         } catch (Exception e) {
             e.printStackTrace();
             updateResult.setErrMsg(e.getMessage());

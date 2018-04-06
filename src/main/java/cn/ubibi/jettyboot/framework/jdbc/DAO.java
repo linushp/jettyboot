@@ -4,10 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class DAO<T> {
@@ -47,7 +44,7 @@ public class DAO<T> {
         try {
             //获取的是子类的Class
             Object o = this.getClass().newInstance();
-            BeanUtils.copyField(o,this);
+            BeanUtils.copyField(o, this);
             return o;
 
         } catch (InstantiationException e) {
@@ -61,25 +58,25 @@ public class DAO<T> {
 
 
     public DAO<T> use(String tableName) {
-        DAO dao = (DAO)this.clone();
+        DAO dao = (DAO) this.clone();
         dao.tableName = tableName;
         return dao;
     }
 
     public DAO<T> useSchema(String schemaName) {
-        DAO dao = (DAO)this.clone();
+        DAO dao = (DAO) this.clone();
         dao.schemaName = schemaName;
         return dao;
     }
 
     public DAO<T> use(Connection connection) {
-        DAO dao = (DAO)this.clone();
+        DAO dao = (DAO) this.clone();
         dao.dbAccess = new DBAccess(connection);
         return dao;
     }
 
     public DAO<T> use(IConnectionFactory connSource) {
-        DAO dao = (DAO)this.clone();
+        DAO dao = (DAO) this.clone();
         dao.dbAccess = new DBAccess(connSource);
         return dao;
     }
@@ -110,16 +107,15 @@ public class DAO<T> {
     }
 
     /**
-     *
      * 分页查询
      *
      * @param pageNo    页号从零开始
      * @param pageSize  每夜多少条数据
      * @param whereSql  条件
-     * @param orderBy 排序条件
+     * @param orderBy   排序条件
      * @param whereArgs 条件参数
-     * @throws Exception 可能的异常
      * @return 返回Page对象
+     * @throws Exception 可能的异常
      */
     public PageData<T> findPage(int pageNo, int pageSize, String whereSql, String orderBy, Object... whereArgs) throws Exception {
 
@@ -140,17 +136,16 @@ public class DAO<T> {
 
         int beginIndex = pageNo * pageSize;
 
-        long totalCount = this.countByWhereSql(whereSql,whereArgs);
+        long totalCount = this.countByWhereSql(whereSql, whereArgs);
 
         //totalCount 为0的时候可以不查询
         List<T> dataList;
-        if(totalCount > 0){
+        if (totalCount > 0) {
             String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
             dataList = dbAccess.query(clazz, sqlList, whereArgs);
-        }else {
+        } else {
             dataList = new ArrayList<>();
         }
-
 
 
         PageData<T> result = new PageData(dataList, totalCount, pageNo, pageSize);
@@ -160,20 +155,22 @@ public class DAO<T> {
 
     /**
      * 统计整个表的大小
+     *
      * @return 数量
      */
-    public Long countAll(){
+    public Long countAll() {
         return countByWhereSql("");
     }
 
 
     /**
      * 统计数量多少
-     * @param whereSql 条件
+     *
+     * @param whereSql  条件
      * @param whereArgs 条件参数
      * @return 数量
      */
-    public Long countByWhereSql( String whereSql, Object... whereArgs){
+    public Long countByWhereSql(String whereSql, Object... whereArgs) {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
         Object totalCount = dbAccess.queryValue(sqlCount, whereArgs);
         Long totalCountLong = 0L;
@@ -195,9 +192,9 @@ public class DAO<T> {
     }
 
     /**
-     *  删除
+     * 删除
      *
-     * @param whereSql 条件
+     * @param whereSql  条件
      * @param whereArgs 参数
      */
     public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
@@ -209,7 +206,6 @@ public class DAO<T> {
     public UpdateResult updateById(Map<String, Object> newValues, Object id) {
         return updateByWhereSql(newValues, "where id = ? ", id);
     }
-
 
 
     public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
@@ -228,11 +224,10 @@ public class DAO<T> {
                 values.addAll(whereArgsList);
             }
 
-           return dbAccess.update(sql, values);
+            return dbAccess.update(sql, values);
         }
         return new UpdateResult("params is empty");
     }
-
 
 
     /**
@@ -250,7 +245,6 @@ public class DAO<T> {
         }
         return results;
     }
-
 
 
     public UpdateResult insertObject(Map<String, Object> newValues) {
@@ -274,6 +268,46 @@ public class DAO<T> {
     }
 
 
+    public UpdateResult largeSqlBatchInsert(List<Map<String, Object>> objectList) {
+
+        objectList = CollectionUtils.removeEmptyMap(objectList);
+
+        if (objectList != null && !objectList.isEmpty()) {
+
+            Set<String> fieldKeys = CollectionUtils.getAllMapKeys(objectList);
+
+            List<String> fieldKeysList = new ArrayList<>(fieldKeys);
+            List<String> fieldKeysWList = CollectionUtils.eachWrap(fieldKeysList, "`", "`");
+            String filedSql = StringUtils.join(fieldKeysWList, ",");
+
+
+            List<String> valuesQuota = CollectionUtils.repeatList("?", fieldKeysList.size());
+            String valuesSql = "(" + StringUtils.join(valuesQuota, ",") + ")"; // (?,?,?)
+
+
+            List<String> allValuesSqlList = new ArrayList<>();
+            List<Object> allValues = new ArrayList<>();
+            for (Map<String, Object> object : objectList) {
+                allValuesSqlList.add(valuesSql);
+                for (String key : fieldKeysList) {
+                    Object value = object.get(key);
+                    allValues.add(value);
+                }
+            }
+
+            String allValuesSql = StringUtils.join(allValuesSqlList, ",");
+            String sql = "insert into " + schemaTableName() + " (" + filedSql + ") values " + allValuesSql;
+
+            return dbAccess.update(sql, allValues);
+        }
+
+
+        return new UpdateResult("params is empty");
+    }
+
+
+
+
     public UpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
         return saveOrUpdate(newValues, "where id = ?", id);
     }
@@ -282,7 +316,7 @@ public class DAO<T> {
     public UpdateResult saveOrUpdate(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
         List<T> findResult = findByWhere(whereSql, whereArgs);
         if (findResult.isEmpty()) {
-           return insertObject(newValues);
+            return insertObject(newValues);
         } else {
             return updateByWhereSql(newValues, whereSql, whereArgs);
         }

@@ -19,16 +19,15 @@ public class CollectionUtils {
     }
 
 
-    public static <T> List<T> repeatList(T obj,int repeatTimes){
+    public static <T> List<T> repeatList(T obj, int repeatTimes) {
         List<T> result = new ArrayList<>();
 
-        for (int i=0;i<repeatTimes;i++){
+        for (int i = 0; i < repeatTimes; i++) {
             result.add(obj);
         }
 
         return result;
     }
-
 
 
     public static List[] listKeyValues(Map<String, Object> map) {
@@ -42,14 +41,46 @@ public class CollectionUtils {
         return new List[]{keys, values};
     }
 
-    public static List<String> removeEmpty(String[] split) {
+
+    public static List<String> removeEmpty(String[] stringArray) {
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < split.length; i++) {
-            String s = split[i];
-            if (s != null && !s.isEmpty()) {
-                result.add(s);
+        if (stringArray != null) {
+            for (int i = 0; i < stringArray.length; i++) {
+                String s = stringArray[i];
+                if (s != null && !s.isEmpty()) {
+                    result.add(s);
+                }
             }
         }
         return result;
     }
+
+
+    public static List<Map<String,Object>> removeEmptyMap(List<Map<String,Object>> mapList) {
+        List<Map<String,Object>> result = new ArrayList<>();
+        if(mapList!=null){
+            for (Map<String,Object> map : mapList) {
+                if (map != null && !map.isEmpty()) {
+                    result.add(map);
+                }
+            }
+        }
+        return result;
+    }
+
+
+
+
+    public static Set<String> getAllMapKeys(List<Map<String,Object>> mapList){
+        Set<String> hashSet = new HashSet<>();
+        for (Map<String,Object> map : mapList) {
+            if (map != null && !map.isEmpty()) {
+                Set<String> keys = map.keySet();
+                hashSet.addAll(keys);
+            }
+        }
+        return hashSet;
+    }
+
+
 }

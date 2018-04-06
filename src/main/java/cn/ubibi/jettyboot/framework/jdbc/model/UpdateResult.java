@@ -1,8 +1,11 @@
 package cn.ubibi.jettyboot.framework.jdbc.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UpdateResult {
 
-    private Long generatedKey;
+    private List<Long> generatedKeys = new ArrayList<>();
 
     private int affectedRows;
 
@@ -16,12 +19,12 @@ public class UpdateResult {
     }
 
 
-    public Long getGeneratedKey() {
-        return generatedKey;
+    public List<Long> getGeneratedKeys() {
+        return generatedKeys;
     }
 
-    public void setGeneratedKey(Long generatedKey) {
-        this.generatedKey = generatedKey;
+    public void setGeneratedKeys(List<Long> generatedKeys) {
+        this.generatedKeys = generatedKeys;
     }
 
     public int getAffectedRows() {
