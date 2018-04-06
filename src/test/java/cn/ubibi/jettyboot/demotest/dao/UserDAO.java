@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.demotest.dao;
 
 import cn.ubibi.jettyboot.demotest.dao.base.MyBaseDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
+import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.jdbc.DAO;
 import cn.ubibi.jettyboot.framework.commons.PageData;
 
@@ -41,6 +42,11 @@ public class UserDAO extends MyBaseDAO<UserEntity> {
 
     public PageData<UserEntity> findPageByName(int pageNo, int pageSize, String name) throws Exception {
         return findPage(pageNo, pageSize, "where name = ?", "order by id desc", name);
+    }
+
+    public  List<UserEntity> findByIdIn(List<String> idList) throws Exception {
+        String idListStr = StringUtils.join(idList,",");
+        return findByWhere("where id in (?)", idListStr);
     }
 
 

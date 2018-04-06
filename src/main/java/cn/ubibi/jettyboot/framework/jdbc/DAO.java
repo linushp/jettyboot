@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
+import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -245,7 +246,7 @@ public class DAO<T> {
     }
 
 
-    public void insertObject(Map<String, Object> newValues) {
+    public UpdateResult insertObject(Map<String, Object> newValues) {
         if (newValues != null && !newValues.isEmpty()) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -259,9 +260,10 @@ public class DAO<T> {
             String valuesSql = StringUtils.join(valuesQuota, ",");
 
             String sql = "insert into " + schemaTableName() + "(" + filedSql + ") values (" + valuesSql + ")";
-
-            dbAccess.update(sql, values);
+            return dbAccess.update(sql, values);
         }
+
+        return null;
     }
 
 

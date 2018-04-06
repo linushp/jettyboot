@@ -182,27 +182,6 @@ public class BeanUtils {
 
 
 
-    public static Map<String, String> toMap(Properties p) {
-        Map<String, String> map = new HashMap<>();
-        if (p == null) {
-            return map;
-        }
-
-        Set<Map.Entry<Object, Object>> entrySet = p.entrySet();
-        for (Map.Entry<Object, Object> entry : entrySet) {
-            Object x = entry.getValue();
-            Object k = entry.getKey();
-            if (x != null && k != null) {
-                String xs = x.toString();
-                String keyString = k.toString();
-                map.put(keyString, xs);
-            }
-        }
-
-        return map;
-    }
-
-
     private static class BeanField {
 
         private Field field;

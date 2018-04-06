@@ -24,7 +24,7 @@ public class DBUtils {
             e.printStackTrace();
         }
 
-        Map<String,String> m = BeanUtils.toMap(p);
+        Map<String,String> m = PropertiesUtils.toMap(p);
 
         try {
            return createComboPooledDataSource(m);

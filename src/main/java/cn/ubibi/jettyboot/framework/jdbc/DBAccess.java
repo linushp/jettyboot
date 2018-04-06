@@ -1,6 +1,9 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
+import cn.ubibi.jettyboot.framework.commons.StringUtils;
+import cn.ubibi.jettyboot.framework.commons.StringWrapper;
+import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
 import java.sql.*;
 import java.util.*;
@@ -22,15 +25,23 @@ public class DBAccess {
     }
 
 
-    public static DBAccess use(Connection connection){
+    public static DBAccess use(Connection connection) {
         return new DBAccess(connection);
     }
 
 
+    public UpdateResult update(String sql, List<Object> args) {
+        Object[] objects = args.toArray(new Object[args.size()]);
+        return update(sql, objects);
+    }
+
+
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
-    public void update(String sql, Object... args) {
+    public UpdateResult update(String sql, Object... args) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet generatedKeyResultSet = null;
+        UpdateResult updateResult = new UpdateResult();
 
         try {
             connection = getConnection();
@@ -40,19 +51,41 @@ public class DBAccess {
                 preparedStatement.setObject(i + 1, args[i]);
             }
 
-            preparedStatement.executeUpdate();
+            int affectedRows = preparedStatement.executeUpdate();
+            updateResult.setAffectedRows(affectedRows);
+
+
+            generatedKeyResultSet = preparedStatement.getGeneratedKeys();
+            List<Map<String, Object>> mapList = resultSetToMapList(generatedKeyResultSet);
+            if (mapList != null && !mapList.isEmpty()) {
+                Map<String, Object> map = mapList.get(0);
+                Object GENERATED_KEY = map.get("GENERATED_KEY");
+                if (GENERATED_KEY != null) {
+                    StringWrapper sw = new StringWrapper(GENERATED_KEY.toString());
+                    updateResult.setGeneratedKey(sw.toLong());
+                }
+            }
+
+
+            return updateResult;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            release(null, preparedStatement, connection);
+            release(generatedKeyResultSet, preparedStatement, connection);
         }
+        return updateResult;
     }
 
 
+    public <E> E queryValue(String sql, List<Object> args) {
+        Object[] objects = args.toArray(new Object[args.size()]);
+        return queryValue(sql, objects);
+    }
 
 
     /**
      * 返回某条记录的某一个字段的值 或 一个统计的值(一共有多少条记录等.)
+     *
      * @param sql
      * @param args
      * @param <E>
@@ -90,6 +123,12 @@ public class DBAccess {
     }
 
 
+    public <T> T queryObject(Class<T> clazz, String sql, List<Object> args) throws Exception {
+        Object[] objects = args.toArray(new Object[args.size()]);
+        return queryObject(clazz, sql, objects);
+    }
+
+
     // 查询一条记录, 返回对应的对象
     public <T> T queryObject(Class<T> clazz, String sql, Object... args) throws Exception {
         List<T> result = query(clazz, sql, args);
@@ -99,6 +138,13 @@ public class DBAccess {
 
         return null;
     }
+
+
+    public <T> List<T> query(Class<T> clazz, String sql, List<Object> args) throws Exception {
+        Object[] objects = args.toArray(new Object[args.size()]);
+        return query(clazz, sql, objects);
+    }
+
 
     /**
      * 传入 SQL 语句和 Class 对象, 返回 SQL 语句查询到的记录对应的 Class 类的对象的集合
@@ -110,19 +156,25 @@ public class DBAccess {
      */
     public <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
         List<Map<String, Object>> mapList = this.query(sql, args);
-        return BeanUtils.mapListToBeanList(clazz,mapList);
+        return BeanUtils.mapListToBeanList(clazz, mapList);
     }
 
 
+    public List<Map<String, Object>> query(String sql, List<Object> args) throws Exception {
+        Object[] objects = args.toArray(new Object[args.size()]);
+        return query(sql, objects);
+    }
+
     /**
      * 传入 SQL 语句， 返回 SQL 语句查询到的记录对应的 Map对象的集合
+     *
      * @param sql
      * @param args
      * @return
      * @throws Exception
      */
-    public List<Map<String,Object>> query(String sql, Object... args) throws Exception {
-        List<Map<String,Object>> list;
+    public List<Map<String, Object>> query(String sql, Object... args) throws Exception {
+        List<Map<String, Object>> list;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -151,7 +203,6 @@ public class DBAccess {
     }
 
 
-
     /**
      * 处理结果集, 得到 Map 的一个 List, 其中一个 Map 对象对应一条记录
      *
@@ -159,27 +210,23 @@ public class DBAccess {
      * @return
      * @throws SQLException
      */
-    private List<Map<String, Object>> resultSetToMapList(
-            ResultSet resultSet) throws SQLException {
-        // 5. 准备一个 List<Map<String, Object>>:
-        // 键: 存放列的别名, 值: 存放列的值. 其中一个 Map 对象对应着一条记录
+    private List<Map<String, Object>> resultSetToMapList(ResultSet resultSet) throws SQLException {
         List<Map<String, Object>> values = new ArrayList<>();
-
-        List<String> columnLabels = getColumnLabels(resultSet);
-        Map<String, Object> map = null;
-
-        // 7. 处理 ResultSet, 使用 while 循环
-        while (resultSet.next()) {
-            map = new HashMap<>();
-
-            for (String columnLabel : columnLabels) {
-                Object value = resultSet.getObject(columnLabel);
-                map.put(columnLabel, value);
+        if (resultSet != null) {
+            List<String> columnLabels = getColumnLabels(resultSet);
+            Map<String, Object> map = null;
+            // 7. 处理 ResultSet, 使用 while 循环
+            while (resultSet.next()) {
+                map = new HashMap<>();
+                for (String columnLabel : columnLabels) {
+                    Object value = resultSet.getObject(columnLabel);
+                    map.put(columnLabel, value);
+                }
+                // 11. 把一条记录的一个 Map 对象放入 5 准备的 List 中
+                values.add(map);
             }
-
-            // 11. 把一条记录的一个 Map 对象放入 5 准备的 List 中
-            values.add(map);
         }
+
         return values;
     }
 

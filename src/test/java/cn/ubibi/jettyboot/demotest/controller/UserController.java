@@ -10,6 +10,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -23,6 +25,21 @@ public class UserController {
     private UserDAO userDAO = new UserDAO();
 
 
+    @RestGetMapping(path = "/test_insert")
+    public String getmm21(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name","name" + System.currentTimeMillis() + "_" + Math.random());
+        map.put("yaoli",123);
+        map.put("dai",3);
+        map.put("fid",3);
+        map.put("mid",3);
+        map.put("create_time",System.currentTimeMillis());
+        map.put("update_time",System.currentTimeMillis());
+        userDAO.insertObject(map);
+        return  "123---" + reqParser.getName() +"=====" + currentUser.getName();
+    }
+
+
     @RestGetMapping(path = "/test")
     public String getmm(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
         new UserDAO().findAll();
@@ -31,6 +48,7 @@ public class UserController {
         }
         return  "123---" + reqParser.getName() +"=====" + currentUser.getName();
     }
+
 
 
     @RestGetMapping(path = "/")
