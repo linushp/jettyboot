@@ -3,6 +3,8 @@ package cn.ubibi.jettyboot.demotest.controller;
 import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
 import cn.ubibi.jettyboot.framework.commons.PageData;
+import cn.ubibi.jettyboot.framework.ioc.Autowired;
+import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.rest.*;
 
 import javax.servlet.ServletException;
@@ -22,11 +24,12 @@ public class UserController {
 
     private static Logger logger = Log.getLogger(UserController.class);
 
-    private UserDAO userDAO = new UserDAO();
+    @Autowired
+    private UserDAO userDAO;
 
 
     @RestGetMapping(path = "/test_insert")
-    public String getmm21(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
+    public UpdateResult getmm21(UserInfoParser reqParser, ReqParams reqParams) throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("name","name" + System.currentTimeMillis() + "_" + Math.random());
         map.put("yaoli",123);
@@ -35,8 +38,8 @@ public class UserController {
         map.put("mid",3);
         map.put("create_time",System.currentTimeMillis());
         map.put("update_time",System.currentTimeMillis());
-        userDAO.insertObject(map);
-        return  "123---" + reqParser.getName() +"=====" + currentUser.getName();
+       return userDAO.insertObject(map);
+//        return  "123---" + reqParser.getName() +"=====" +
     }
 
 

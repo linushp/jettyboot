@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
+import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.impl.RestTextRender;
 import com.alibaba.fastjson.JSON;
 import org.eclipse.jetty.util.log.Log;
@@ -87,6 +88,19 @@ public class RestControllerHandler {
         return clazz;
     }
 
+    private Object getRestController() throws Exception {
+        Object controller = this.restController;
+        if (controller == null) {
+            controller = restControllerClazz.newInstance();
+        }
+
+        controller = ServiceManager.getInstance().injectDependency(controller);
+        return controller;
+    }
+
+
+
+
     private String[] getClassPaths() {
         if (this.path != null && !this.path.isEmpty()) {
             return new String[]{this.path};
@@ -121,11 +135,7 @@ public class RestControllerHandler {
 
     private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath, List<IRestMethodAspect> methodWrappers) throws Exception {
 
-
-        Object controller = this.restController;
-        if (controller == null) {
-            controller = restControllerClazz.newInstance();
-        }
+        Object controller = this.getRestController();
 
         Object invokeResult;
         try {

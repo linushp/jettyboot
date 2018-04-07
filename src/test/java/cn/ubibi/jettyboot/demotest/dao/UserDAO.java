@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserDAO extends MyBaseDAO<UserEntity> {
+public class UserDAO extends MyBaseDAO<UserEntity>{
 
     public UserDAO() {
         super(UserEntity.class, "m_monster_item");

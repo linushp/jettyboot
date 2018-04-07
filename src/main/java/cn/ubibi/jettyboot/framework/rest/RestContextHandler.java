@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
+import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import org.eclipse.jetty.server.handler.ContextHandler;
 
 import javax.servlet.http.HttpServlet;
@@ -12,15 +13,6 @@ public class RestContextHandler extends ContextHandler{
         super(context);
         this.restHandler = new RestHandler();
         this.setHandler(this.restHandler);
-    }
-
-
-    public void addController(Class<?> clazz) throws Exception {
-        this.restHandler.addController(clazz);
-    }
-
-    public void addController(Object restController) throws Exception {
-        this.restHandler.addController(restController);
     }
 
 
@@ -43,5 +35,10 @@ public class RestContextHandler extends ContextHandler{
 
     public void addMethodAspect(IRestMethodAspect methodAspect) throws Exception {
         this.restHandler.addMethodAspect(methodAspect);
+    }
+
+    public void addService(Object service){
+        ServiceManager serviceManager = ServiceManager.getInstance();
+        serviceManager.addService(service);
     }
 }

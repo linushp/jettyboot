@@ -2,8 +2,10 @@ package cn.ubibi.jettyboot.demotest;
 
 import cn.ubibi.jettyboot.demotest.controller.MyExceptionHandler;
 import cn.ubibi.jettyboot.demotest.controller.UserController;
+import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.dao.base.MyConnectionFactory;
 import cn.ubibi.jettyboot.demotest.servlets.HelloServlet;
+import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.IRestMethodAspect;
 import cn.ubibi.jettyboot.framework.rest.ReqParams;
 import cn.ubibi.jettyboot.framework.rest.RestContextHandler;
@@ -24,11 +26,16 @@ public class MainServer {
 
         long t1 = System.currentTimeMillis();
 
-        MyConnectionFactory.getInstance().init();
+        MyConnectionFactory connectionFactory = MyConnectionFactory.getInstance();
+        connectionFactory.init();
 
 
-        Server server = new Server(8001);
         RestContextHandler context = new RestContextHandler("/api");
+
+        context.addService(new UserDAO());
+
+
+
 
         context.addController("/user",new UserController());
         context.addServlet("/hello*",new HelloServlet());
@@ -64,6 +71,7 @@ public class MainServer {
 
 
 
+        Server server = new Server(8001);
         server.setHandler(context);
         server.start();
 
