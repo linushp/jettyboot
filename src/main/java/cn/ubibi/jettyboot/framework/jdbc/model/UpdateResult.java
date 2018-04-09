@@ -5,7 +5,8 @@ import java.util.List;
 
 public class UpdateResult {
 
-    private List<Long> generatedKeys = new ArrayList<>();
+    private Object generatedKey = null;
+    private List<Object> generatedKeys = new ArrayList<>();
 
     private int affectedRows;
 
@@ -19,11 +20,11 @@ public class UpdateResult {
     }
 
 
-    public List<Long> getGeneratedKeys() {
+    public List<Object> getGeneratedKeys() {
         return generatedKeys;
     }
 
-    public void setGeneratedKeys(List<Long> generatedKeys) {
+    public void setGeneratedKeys(List<Object> generatedKeys) {
         this.generatedKeys = generatedKeys;
     }
 
@@ -41,5 +42,13 @@ public class UpdateResult {
 
     public void setErrMsg(String errMsg) {
         this.errMsg = errMsg;
+    }
+
+    public Object getGeneratedKey() {
+        return generatedKey;
+    }
+
+    public void setGeneratedKey(Object generatedKey) {
+        this.generatedKey = generatedKey;
     }
 }

@@ -1,59 +1,56 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import com.alibaba.fastjson.JSON;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
-import jdk.nashorn.internal.runtime.JSONFunctions;
 
-import javax.script.ScriptException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 
 public class StringWrapper {
 
-    private String stringData = null;
+    private String value = null;
 
     public StringWrapper(String stringData) {
-        this.stringData = stringData;
+        this.value = stringData;
     }
 
     public Short toShort() {
         if (isEmpty()) {
             return 0;
         }
-        return Short.parseShort(stringData);
+        return Short.parseShort(value);
     }
 
     public Integer toInteger() {
         if (isEmpty()) {
             return 0;
         }
-        return Integer.parseInt(stringData);
+        return Integer.parseInt(value);
     }
 
     public Long toLong() {
         if (isEmpty()) {
             return 0L;
         }
-        return Long.parseLong(stringData);
+        return Long.parseLong(value);
     }
 
     public Float toFloat() {
         if (isEmpty()) {
             return 0F;
         }
-        return Float.parseFloat(stringData);
+        return Float.parseFloat(value);
     }
 
     public Double toDouble() {
         if (isEmpty()) {
             return 0D;
         }
-        return Double.parseDouble(stringData);
+        return Double.parseDouble(value);
     }
 
     public Boolean toBoolean() {
-        if (isEmpty() || "0".equals(stringData)) {
+        if (isEmpty() || "0".equals(value)) {
             return false;
         }
         return true;
@@ -64,7 +61,7 @@ public class StringWrapper {
         if (isEmpty()) {
             return new BigDecimal(0);
         }
-        return new BigDecimal(stringData);
+        return new BigDecimal(value);
     }
 
 
@@ -82,12 +79,20 @@ public class StringWrapper {
         return timestamp;
     }
 
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public String toString() {
-        return stringData;
+        return value;
     }
 
     public <T> T toJSONOBject(Class<? extends T> clazz) {
-        String s = this.stringData;
+        String s = this.value;
         if (isEmpty()) {
             return null;
         }
@@ -96,7 +101,7 @@ public class StringWrapper {
 
 
     public boolean isEmpty() {
-        return (stringData == null || stringData.isEmpty());
+        return (value == null || value.isEmpty());
     }
 
 
