@@ -7,26 +7,26 @@ import java.sql.Connection;
 import java.util.*;
 
 
-public class DAO<T> {
+public class JBDataAccessObject<T> {
 
     private Class<T> clazz;
     private String tableName;
     private String schemaName;
-    private DBAccess dbAccess;
+    private JBDataAccess JBDataAccess;
 
 
-    public DAO(Class<T> clazz, String tableName, IConnectionFactory connectionFactory) {
+    public JBDataAccessObject(Class<T> clazz, String tableName, JBConnectionFactory connectionFactory) {
         this.clazz = clazz;
         this.tableName = tableName;
         this.schemaName = "";
-        this.dbAccess = new DBAccess(connectionFactory);
+        this.JBDataAccess = new JBDataAccess(connectionFactory);
     }
 
-    public DAO(Class<T> clazz, String tableName, Connection connection) {
+    public JBDataAccessObject(Class<T> clazz, String tableName, Connection connection) {
         this.clazz = clazz;
         this.tableName = tableName;
         this.schemaName = "";
-        this.dbAccess = new DBAccess(connection);
+        this.JBDataAccess = new JBDataAccess(connection);
     }
 
     private String schemaTableName() {
@@ -36,7 +36,7 @@ public class DAO<T> {
         return schemaName + "." + tableName;
     }
 
-    private DAO() {
+    private JBDataAccessObject() {
     }
 
     public Object clone() {
@@ -57,34 +57,34 @@ public class DAO<T> {
     }
 
 
-    public DAO<T> use(String tableName) {
-        DAO dao = (DAO) this.clone();
+    public JBDataAccessObject<T> use(String tableName) {
+        JBDataAccessObject dao = (JBDataAccessObject) this.clone();
         dao.tableName = tableName;
         return dao;
     }
 
-    public DAO<T> useSchema(String schemaName) {
-        DAO dao = (DAO) this.clone();
+    public JBDataAccessObject<T> useSchema(String schemaName) {
+        JBDataAccessObject dao = (JBDataAccessObject) this.clone();
         dao.schemaName = schemaName;
         return dao;
     }
 
-    public DAO<T> use(Connection connection) {
-        DAO dao = (DAO) this.clone();
-        dao.dbAccess = new DBAccess(connection);
+    public JBDataAccessObject<T> use(Connection connection) {
+        JBDataAccessObject dao = (JBDataAccessObject) this.clone();
+        dao.JBDataAccess = new JBDataAccess(connection);
         return dao;
     }
 
-    public DAO<T> use(IConnectionFactory connSource) {
-        DAO dao = (DAO) this.clone();
-        dao.dbAccess = new DBAccess(connSource);
+    public JBDataAccessObject<T> use(JBConnectionFactory connSource) {
+        JBDataAccessObject dao = (JBDataAccessObject) this.clone();
+        dao.JBDataAccess = new JBDataAccess(connSource);
         return dao;
     }
 
 
     public T findById(Object id) throws Exception {
         String sql = "select * from " + schemaTableName() + " where id = ?";
-        return dbAccess.queryObject(clazz, sql, id);
+        return JBDataAccess.queryObject(clazz, sql, id);
     }
 
     public List<T> findAll() throws Exception {
@@ -98,11 +98,11 @@ public class DAO<T> {
 
     public List<T> findByWhere(String whereSql, Object... args) throws Exception {
         String sql = "select * from " + schemaTableName() + " " + whereSql;
-        return dbAccess.query(clazz, sql, args);
+        return JBDataAccess.query(clazz, sql, args);
     }
 
 
-    public PageData<T> findPage(int pageNo, int pageSize) throws Exception {
+    public JBPage<T> findPage(int pageNo, int pageSize) throws Exception {
         return findPage(pageNo, pageSize, "", "");
     }
 
@@ -117,7 +117,7 @@ public class DAO<T> {
      * @return 返回Page对象
      * @throws Exception 可能的异常
      */
-    public PageData<T> findPage(int pageNo, int pageSize, String whereSql, String orderBy, Object... whereArgs) throws Exception {
+    public JBPage<T> findPage(int pageNo, int pageSize, String whereSql, String orderBy, Object... whereArgs) throws Exception {
 
         if (pageNo < 0) {
             pageNo = 0;
@@ -142,13 +142,13 @@ public class DAO<T> {
         List<T> dataList;
         if (totalCount > 0) {
             String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
-            dataList = dbAccess.query(clazz, sqlList, whereArgs);
+            dataList = JBDataAccess.query(clazz, sqlList, whereArgs);
         } else {
             dataList = new ArrayList<>();
         }
 
 
-        PageData<T> result = new PageData(dataList, totalCount, pageNo, pageSize);
+        JBPage<T> result = new JBPage(dataList, totalCount, pageNo, pageSize);
         return result;
     }
 
@@ -172,15 +172,10 @@ public class DAO<T> {
      */
     public Long countByWhereSql(String whereSql, Object... whereArgs) {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
-        Object totalCount = dbAccess.queryValue(sqlCount, whereArgs);
-        Long totalCountLong = 0L;
-        if (totalCount instanceof Long) {
-            totalCountLong = (Long) totalCount;
-        } else {
-            totalCountLong = new StringWrapper(totalCount.toString()).toLong();
-        }
-        return totalCountLong;
+        Object totalCount = JBDataAccess.queryValue(sqlCount, whereArgs);
+        return (Long) CastTypeUtils.castValueType(totalCount,Long.class);
     }
+
 
     /**
      * 根据Id删除
@@ -199,7 +194,7 @@ public class DAO<T> {
      */
     public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
-        return dbAccess.update(sql, whereArgs);
+        return JBDataAccess.update(sql, whereArgs);
     }
 
 
@@ -224,7 +219,7 @@ public class DAO<T> {
                 values.addAll(whereArgsList);
             }
 
-            return dbAccess.update(sql, values);
+            return JBDataAccess.update(sql, values);
         }
         return new UpdateResult("params is empty");
     }
@@ -261,7 +256,7 @@ public class DAO<T> {
             String valuesSql = StringUtils.join(valuesQuota, ",");
 
             String sql = "insert into " + schemaTableName() + "(" + filedSql + ") values (" + valuesSql + ")";
-            return dbAccess.update(sql, values);
+            return JBDataAccess.update(sql, values);
         }
 
         return new UpdateResult("params is empty");
@@ -298,7 +293,7 @@ public class DAO<T> {
             String allValuesSql = StringUtils.join(allValuesSqlList, ",");
             String sql = "insert into " + schemaTableName() + " (" + filedSql + ") values " + allValuesSql;
 
-            return dbAccess.update(sql, allValues);
+            return JBDataAccess.update(sql, allValues);
         }
 
 

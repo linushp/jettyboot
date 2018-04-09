@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import com.alibaba.fastjson.JSON;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -103,6 +104,5 @@ public class StringWrapper {
     public boolean isEmpty() {
         return (value == null || value.isEmpty());
     }
-
 
 }

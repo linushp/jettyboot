@@ -1,4 +1,4 @@
-package cn.ubibi.jettyboot.framework.rest;
+package cn.ubibi.jettyboot.framework.rest.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RestPostMapping{
+public @interface JBPostMapping {
     String[] path() default {};
     String method() default "post";
 }

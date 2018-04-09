@@ -92,61 +92,20 @@ public class BeanUtils {
      */
     private static Object castValueType(Object value, Class<?> targetType, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
 
-
         if (IConvertible.class.isAssignableFrom(targetType)) {
             IConvertible beanCustomField = (IConvertible) targetType.newInstance();
             beanCustomField.convertFrom(value, map);
             return beanCustomField;
         }
 
-
         if (value == null) {
             return null;
         }
 
-        Class<? extends Object> valueType = value.getClass();
-        if (isManageAndNeedCast(targetType, valueType, String.class, String.class)) {
-            value = value.toString();
-        } else if (isManageAndNeedCast(targetType, valueType, Integer.class, int.class)) {
-            value = new StringWrapper(value.toString()).toInteger();
-        } else if (isManageAndNeedCast(targetType, valueType, Float.class, float.class)) {
-            value = new StringWrapper(value.toString()).toFloat();
-        } else if (isManageAndNeedCast(targetType, valueType, Double.class, double.class)) {
-            value = new StringWrapper(value.toString()).toDouble();
-        } else if (isManageAndNeedCast(targetType, valueType, Long.class, long.class)) {
-            value = new StringWrapper(value.toString()).toLong();
-        } else if (isManageAndNeedCast(targetType, valueType, Boolean.class, boolean.class)) {
-            value = new StringWrapper(value.toString()).toBoolean();
-        } else if (isManageAndNeedCast(targetType, valueType, Short.class, short.class)) {
-            value = new StringWrapper(value.toString()).toShort();
-        } else if (targetType == BigDecimal.class) {
-            value = new StringWrapper(value.toString()).toBigDecimal();
-        } else if (isManageAndNeedCast(targetType, valueType, Timestamp.class, Date.class)) {
-            value = new StringWrapper(value.toString()).toTimestamp();
-        }
-
-
-        return value;
+        return CastTypeUtils.castValueType(value,targetType);
     }
 
-    /**
-     * 判断数据类型是否需要转换
-     *
-     * @param fieldType
-     * @param valueType
-     * @param targetClass1
-     * @param targetClass2
-     * @return
-     */
-    private static boolean isManageAndNeedCast(Class fieldType, Class valueType, Class targetClass1, Class targetClass2) {
-        if (fieldType == targetClass1 || fieldType == targetClass2) {
-            if (valueType == fieldType || valueType == targetClass1 || valueType == targetClass2) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
+
 
 
     private static BeanField[] toBeanFieldExtend(Field[] fields) {

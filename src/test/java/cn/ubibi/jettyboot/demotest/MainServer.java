@@ -5,12 +5,10 @@ import cn.ubibi.jettyboot.demotest.controller.UserController;
 import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.dao.base.MyConnectionFactory;
 import cn.ubibi.jettyboot.demotest.servlets.HelloServlet;
-import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
-import cn.ubibi.jettyboot.framework.rest.IRestMethodAspect;
-import cn.ubibi.jettyboot.framework.rest.ReqParams;
-import cn.ubibi.jettyboot.framework.rest.RestContextHandler;
+import cn.ubibi.jettyboot.framework.rest.ifs.JBRequestAspect;
+import cn.ubibi.jettyboot.framework.rest.JBRequest;
+import cn.ubibi.jettyboot.framework.rest.JBContextHandler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
@@ -46,11 +44,11 @@ public class MainServer {
 //
 //        JBGetMapping;
 //        JBPostMapping;
-//        JBReqestMapping;
+//        JBRequestMapping;
 
 
 
-        RestContextHandler context = new RestContextHandler("/api");
+        JBContextHandler context = new JBContextHandler("/api");
 
         context.addService(new UserDAO());
 
@@ -59,19 +57,23 @@ public class MainServer {
 
         context.addController("/user",new UserController());
         context.addServlet("/hello*",new HelloServlet());
-        context.addMethodAspect(new IRestMethodAspect() {
+
+        context.addRequestAspect(new JBRequestAspect() {
 
             @Override
-            public void invokeBefore(Method method, ReqParams reqParams) throws Exception {
+            public void invokeBefore(Method method, JBRequest JBRequest) throws Exception {
                 System.out.println(method.getName());
             }
 
             @Override
-            public void invokeAfter(Method method, ReqParams reqParams, Object invokeResult) throws Exception {
+            public void invokeAfter(Method method, JBRequest JBRequest, Object invokeResult) throws Exception {
                 System.out.println(method.getName());
             }
 
         });
+
+
+
         context.addExceptionHandler(new MyExceptionHandler());
 
 

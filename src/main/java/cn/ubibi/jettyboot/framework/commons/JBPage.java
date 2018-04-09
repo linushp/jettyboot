@@ -2,7 +2,7 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import java.util.List;
 
-public class PageData<T> {
+public class JBPage<T> {
 
     private List<T> items;
     private long itemsCount;
@@ -10,7 +10,7 @@ public class PageData<T> {
     private int pageNo;
     private int pageSize;
 
-    public PageData(List<T> dataList, long totalCount, int pageNo, int pageSize) {
+    public JBPage(List<T> dataList, long totalCount, int pageNo, int pageSize) {
 
         this.items = dataList;
         this.itemsCount = totalCount;

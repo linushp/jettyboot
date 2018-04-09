@@ -1,32 +1,30 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
-import cn.ubibi.jettyboot.framework.commons.StringUtils;
-import cn.ubibi.jettyboot.framework.commons.StringWrapper;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
 import java.sql.*;
 import java.util.*;
 
-public class DBAccess {
+public class JBDataAccess {
 
-    private IConnectionFactory connectionFactory;
+    private JBConnectionFactory connectionFactory;
     private Connection connection;
     private boolean autoClose;
 
-    public DBAccess(IConnectionFactory connectionFactory) {
+    public JBDataAccess(JBConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
         this.autoClose = true;
     }
 
-    public DBAccess(Connection connection) {
+    public JBDataAccess(Connection connection) {
         this.connection = connection;
         this.autoClose = false;
     }
 
 
-    public static DBAccess use(Connection connection) {
-        return new DBAccess(connection);
+    public static JBDataAccess use(Connection connection) {
+        return new JBDataAccess(connection);
     }
 
 

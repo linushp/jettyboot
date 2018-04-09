@@ -1,9 +1,12 @@
 package cn.ubibi.jettyboot.demotest.controller;
 
+import cn.ubibi.jettyboot.demotest.controller.parser.CurrentUser;
+import cn.ubibi.jettyboot.demotest.controller.parser.UserInfoParser;
+import cn.ubibi.jettyboot.demotest.controller.render.PageRender;
 import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
-import cn.ubibi.jettyboot.framework.commons.PageData;
-import cn.ubibi.jettyboot.framework.ioc.Autowired;
+import cn.ubibi.jettyboot.framework.commons.JBPage;
+import cn.ubibi.jettyboot.framework.ioc.JBAutowired;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.rest.*;
 
@@ -15,6 +18,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.ubibi.jettyboot.framework.rest.annotation.JBGetMapping;
+import cn.ubibi.jettyboot.framework.rest.annotation.JBPostMapping;
+import cn.ubibi.jettyboot.framework.rest.annotation.JBRequestParams;
+import cn.ubibi.jettyboot.framework.rest.ifs.JBRequestParser;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
@@ -24,12 +31,12 @@ public class UserController {
 
     private static Logger logger = Log.getLogger(UserController.class);
 
-    @Autowired
+    @JBAutowired
     private UserDAO userDAO;
 
 
-    @RestGetMapping(path = "/test_insert")
-    public UpdateResult getmm21(UserInfoParser reqParser, ReqParams reqParams) throws Exception {
+    @JBGetMapping(path = "/test_insert")
+    public UpdateResult getmm21(@JBRequestParams UserInfoParser reqParser, JBRequest JBRequest) throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("name","name" + System.currentTimeMillis() + "_" + Math.random());
         map.put("yaoli",123);
@@ -43,10 +50,10 @@ public class UserController {
     }
 
 
-    @RestGetMapping(path = "/test")
-    public String getmm(UserInfoParser reqParser, ReqParams reqParams, CurrentUser currentUser) throws Exception {
+    @JBGetMapping(path = "/test")
+    public String getmm(UserInfoParser reqParser, JBRequest JBRequest, CurrentUser currentUser) throws Exception {
         new UserDAO().findAll();
-        if(reqParser instanceof IReqParser){
+        if(reqParser instanceof JBRequestParser){
             System.out.println("111");
         }
         return  "123---" + reqParser.getName() +"=====" + currentUser.getName();
@@ -54,11 +61,11 @@ public class UserController {
 
 
 
-    @RestGetMapping(path = "/")
-    public PageData<UserEntity> getUserById3(ReqParams reqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @JBGetMapping(path = "/")
+    public JBPage<UserEntity> getUserById3(JBRequest JBRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        Integer pageSize = reqParams.getRequestParam("pageSize","10").toInteger();
-        Integer pageNo = reqParams.getRequestParam("pageNo","0").toInteger();
+        Integer pageSize = JBRequest.getRequestParam("pageSize","10").toInteger();
+        Integer pageNo = JBRequest.getRequestParam("pageNo","0").toInteger();
 
 
 
@@ -68,7 +75,7 @@ public class UserController {
 
 
 
-        PageData<UserEntity> result = userDAO.findPage(pageNo, pageSize);
+        JBPage<UserEntity> result = userDAO.findPage(pageNo, pageSize);
 //        return "hello222";
 
         long t2 = System.currentTimeMillis();
@@ -80,8 +87,8 @@ public class UserController {
 
 
 
-    @RestGetMapping(path = "/:uid")
-    public Object getUserById(ReqParams params, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @JBGetMapping(path = "/:uid")
+    public Object getUserById(JBRequest params, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String uid =  params.getPathVariable("uid").toString();
         String name = params.getRequestParam("name").toString();
@@ -112,8 +119,8 @@ public class UserController {
     }
 
 
-    @RestPostMapping(path = "/new/:uid")
-    public String getUserById2(ReqParams reqParams, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    @JBPostMapping(path = "/new/:uid")
+    public String getUserById2(JBRequest JBRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String aaa = request.getContextPath();
         return "123saaa";
     }

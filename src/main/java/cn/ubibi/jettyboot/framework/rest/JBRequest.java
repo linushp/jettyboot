@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ReqParams {
+public class JBRequest {
     private HttpServletRequest request;
     private String targetPath;
 
@@ -21,18 +21,47 @@ public class ReqParams {
     private byte[] _requestBody = null;
 
 
-    public ReqParams(HttpServletRequest request, String targetPath) {
+    private JBRequest(HttpServletRequest request, String targetPath) {
         this.request = request;
         this.targetPath = targetPath;
     }
+
+
+    public static JBRequest getInstance(HttpServletRequest request, String targetPath) {
+        JBRequest jettyBootJBRequest = (JBRequest) request.getAttribute("jettyBootJBRequest");
+        if (jettyBootJBRequest == null) {
+            jettyBootJBRequest = new JBRequest(request, targetPath);
+            request.setAttribute("jettyBootJBRequest", jettyBootJBRequest);
+        }
+        return jettyBootJBRequest;
+    }
+
+
+    public String getMethod(){
+        return this.request.getMethod();
+    }
+
+    public String getPathInfo(){
+        return this.request.getPathInfo();
+    }
+
+    public String getHeader(String name){
+        return this.request.getHeader(name);
+    }
+
+    public String getQueryString(){
+        return this.request.getQueryString();
+    }
+
+
 
     public StringWrapper getRequestParam(String name) {
         return new StringWrapper(request.getParameter(name));
     }
 
-    public StringWrapper getRequestParam(String name,String defaultValue) {
+    public StringWrapper getRequestParam(String name, String defaultValue) {
         String mm = request.getParameter(name);
-        if(mm==null || mm.isEmpty()){
+        if (mm == null || mm.isEmpty()) {
             mm = defaultValue;
         }
         return new StringWrapper(mm);
@@ -48,7 +77,7 @@ public class ReqParams {
         return valuesWrapper;
     }
 
-    public String getCookieValue(String cookieName){
+    public String getCookieValue(String cookieName) {
         Cookie[] cookies = this.request.getCookies();
         if (cookies == null) {
             return null;
@@ -63,9 +92,8 @@ public class ReqParams {
     }
 
     public <T> T getRequestParamObject(Class<? extends T> clazz) {
-//        Map<String, String[]> map1 = request.getParameterMap();
 
-        Map<String,Object> map2= new HashMap<>();
+        Map<String, Object> map2 = new HashMap<>();
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
@@ -73,10 +101,10 @@ public class ReqParams {
             String fieldName = field.getName();
             Class<?> fieldType = field.getType();
 
-            if(fieldType.isArray() || List.class.isAssignableFrom(fieldType)){
-                map2.put(fieldName,request.getParameterValues(fieldName));
-            }else {
-                map2.put(fieldName,request.getParameter(fieldName));
+            if (fieldType.isArray() || List.class.isAssignableFrom(fieldType)) {
+                map2.put(fieldName, request.getParameterValues(fieldName));
+            } else {
+                map2.put(fieldName, request.getParameter(fieldName));
             }
         }
 
@@ -146,7 +174,7 @@ public class ReqParams {
         return JSON.parseObject(bodyString, clazz);
     }
 
-    public String getTargetPath(){
+    public String getTargetPath() {
         return this.targetPath;
     }
 }

@@ -1,15 +1,22 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 
+import cn.ubibi.jettyboot.framework.ioc.JBServiceManager;
+import cn.ubibi.jettyboot.framework.rest.ifs.JBRequestAspect;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.util.List;
 
-public class HttpServletWrapper {
+public class JBServletWrapper {
     private String path;
 
     private boolean pathEndWithX;
@@ -24,7 +31,7 @@ public class HttpServletWrapper {
     private boolean isInit;
     private HttpServlet httpServlet;
 
-    HttpServletWrapper(String path, HttpServlet httpServlet) {
+    JBServletWrapper(String path, HttpServlet httpServlet) {
 
         this.path = path;
         this.httpServlet = httpServlet;
@@ -76,7 +83,7 @@ public class HttpServletWrapper {
     }
 
 
-    private void tryClose(HttpServletResponse response){
+    private void tryClose(HttpServletResponse response) {
         try {
             response.flushBuffer();
         } catch (IOException e) {
@@ -96,14 +103,36 @@ public class HttpServletWrapper {
         }
     }
 
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, List<JBRequestAspect> methodWrappers) throws Exception {
 
         if (!this.isInit) {
             httpServlet.init();
             this.isInit = true;
         }
 
+
+        //依赖注入
+        JBServiceManager.getInstance().injectDependency(httpServlet);
+
+
+
+        JBRequest jbRequest = JBRequest.getInstance(request,this.path);
+        Method serviceMethod = httpServlet.getClass().getMethod("service", ServletRequest.class, ServletResponse.class);
+
+
+        //AOP处理
+        for (JBRequestAspect methodWrapper : methodWrappers) {
+            methodWrapper.invokeBefore(serviceMethod, jbRequest);
+        }
+
+
         httpServlet.service(request, response);
+
+
+        for (JBRequestAspect methodWrapper : methodWrappers) {
+            methodWrapper.invokeAfter(serviceMethod, jbRequest, null);
+        }
+
 
         tryClose(response);
     }

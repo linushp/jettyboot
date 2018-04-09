@@ -4,14 +4,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceManager {
-    private static final ServiceManager instance = new ServiceManager();
+public class JBServiceManager {
+    private static final JBServiceManager instance = new JBServiceManager();
 
-    public static ServiceManager getInstance() {
+    public static JBServiceManager getInstance() {
         return instance;
     }
 
-    private ServiceManager() {
+    private JBServiceManager() {
     }
 
 
@@ -31,7 +31,7 @@ public class ServiceManager {
             for (Field field : fields) {
 
                 //有注解
-                Autowired autowired = field.getDeclaredAnnotation(Autowired.class);
+                JBAutowired autowired = field.getDeclaredAnnotation(JBAutowired.class);
                 if (autowired != null) {
                     field.setAccessible(true);
                     Object filedValue = field.get(controller);
