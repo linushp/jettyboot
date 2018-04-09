@@ -141,7 +141,7 @@ public class JBControllerHandler {
             int paramsCount = method.getParameterCount();
             Type[] paramsTypes = method.getGenericParameterTypes();
             Annotation[][] paramAnnotations = method.getParameterAnnotations();
-            Object[] paramsObjects = getParamsObjectsByType(paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
+            Object[] paramsObjects = getParamsObjects(paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
 
 
             JBRequest jbRequest = getJBRequestInstance(request, targetPath);
@@ -243,7 +243,7 @@ public class JBControllerHandler {
     }
 
 
-    private Object[] getParamsObjectsByType(int paramsCount, Type[] paramsTypes, Annotation[][] paramAnnotations, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
+    private Object[] getParamsObjects(int paramsCount, Type[] paramsTypes, Annotation[][] paramAnnotations, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
 
         if (paramsCount == 0) {
             return new Object[]{};
@@ -259,6 +259,8 @@ public class JBControllerHandler {
         for (int i = 0; i < paramsCount; i++) {
 
             Type type = paramsTypes[i];
+            Class typeClazz = (Class) type;
+
             Annotation[] annotations = paramAnnotations[i];
 
             Annotation annotation = null;
@@ -269,6 +271,8 @@ public class JBControllerHandler {
 
             Object object = null;
 
+
+            //1.通过注解注入
             if (annotation != null) {
 
                 Class<? extends Annotation> annotationType = annotation.annotationType();
@@ -277,35 +281,34 @@ public class JBControllerHandler {
                     JBRequestParam requestParam = (JBRequestParam) annotation;
                     String paramName = requestParam.name();
                     Class elementType = requestParam.elementType();
-                    if (type.getClass().isArray()) {
-                        elementType = type.getClass().getComponentType();
+                    if (typeClazz.isArray()) {
+                        elementType = typeClazz.getComponentType();
                         object = getArrayParamValue(jettyBootReqParams, paramName, elementType);
-                    } else if (List.class.isAssignableFrom(type.getClass())) {
+                    } else if (List.class.isAssignableFrom(typeClazz)) {
                         object = getListParamValue(jettyBootReqParams, paramName, elementType);
-                    } else if (Set.class.isAssignableFrom(type.getClass())) {
+                    } else if (Set.class.isAssignableFrom(typeClazz)) {
                         object = getSetParamValue(jettyBootReqParams, paramName, elementType);
                     } else {
                         StringWrapper sw = jettyBootReqParams.getRequestParam(paramName, requestParam.defaultValue());
-                        object = CastTypeUtils.castValueType(sw, type.getClass());
+                        object = CastTypeUtils.castValueType(sw, typeClazz);
                     }
 
                 } else if (annotationType == JBRequestParams.class) {
-
-                    object = ((Class<?>) type).newInstance();
-                    BeanUtils.copyField(object, jettyBootReqParams.getRequestParamObject(object.getClass()));
-
-
+                    object = jettyBootReqParams.getRequestParamObject(typeClazz);
                 } else if (annotationType == JBRequestBody.class) {
-                    object = ((Class<?>) type).newInstance();
-                    BeanUtils.copyField(object, jettyBootReqParams.getRequestBodyObject(object.getClass()));
+                    object = jettyBootReqParams.getRequestBodyObject(typeClazz);
+                } else if (annotationType == JBRequestPath.class) {
+                    JBRequestPath requestPath = (JBRequestPath) annotation;
+                    StringWrapper sw = jettyBootReqParams.getPathVariable(requestPath.name());
+                    object = CastTypeUtils.castValueType(sw, typeClazz);
                 }
             }
 
 
+            //2.通过类型注入
             if (object == null) {
-                if (JBRequestParser.class.isAssignableFrom((Class<?>) type)) {
-                    Class clazz = (Class) type;
-                    JBRequestParser m = (JBRequestParser) clazz.newInstance();
+                if (JBRequestParser.class.isAssignableFrom(typeClazz)) {
+                    JBRequestParser m = (JBRequestParser) typeClazz.newInstance();
                     m.doParse(jettyBootReqParams, request, targetPath);
                     object = m;
                 } else if (type.equals(ServletRequest.class) || type.equals(HttpServletRequest.class)) {

@@ -23,6 +23,9 @@ public class CastTypeUtils {
             return null;
         }
 
+        if(targetType == StringWrapper.class){
+            return value;
+        }
 
         Object result = value.toString();
 
