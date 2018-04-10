@@ -53,6 +53,14 @@ public class JBRequest {
         return this.request.getQueryString();
     }
 
+    public String [] getParameterValues(String name){
+        return request.getParameterValues(name);
+    }
+
+    public String getParameter(String name){
+        return request.getParameter(name);
+    }
+
 
 
     public StringWrapper getRequestParam(String name) {
@@ -76,6 +84,7 @@ public class JBRequest {
         }
         return valuesWrapper;
     }
+
 
     public String getCookieValue(String cookieName) {
         Cookie[] cookies = this.request.getCookies();
@@ -116,13 +125,12 @@ public class JBRequest {
     }
 
 
-    public StringWrapper getPathVariable(String name) {
+    public String getPathVariable(String name) {
         if (this._pathVariable != null) {
-            return new StringWrapper(this._pathVariable.get(name));
+            return (this._pathVariable.get(name));
         }
 
         this._pathVariable = new HashMap<>();
-
 
         String pathInfo = this.request.getPathInfo();
         String[] pathInfoArray = pathInfo.split("/");
@@ -136,9 +144,7 @@ public class JBRequest {
                 this._pathVariable.put(k, p2);
             }
         }
-
-
-        return new StringWrapper(this._pathVariable.get(name));
+        return this._pathVariable.get(name);
     }
 
 

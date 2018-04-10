@@ -299,7 +299,7 @@ public class JBControllerHandler {
                     object = jettyBootReqParams.getRequestBodyObject(typeClazz);
                 } else if (annotationType == JBRequestPath.class) {
                     JBRequestPath requestPath = (JBRequestPath) annotation;
-                    StringWrapper sw = jettyBootReqParams.getPathVariable(requestPath.name());
+                    String sw = jettyBootReqParams.getPathVariable(requestPath.name());
                     object = CastTypeUtils.castValueType(sw, typeClazz);
                 }
             }

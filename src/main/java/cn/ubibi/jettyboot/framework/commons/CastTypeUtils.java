@@ -8,49 +8,42 @@ public class CastTypeUtils {
 
 
     public static Object castValueType(Object value, Class<?> targetType) {
-        Class<? extends Object> valueType = value.getClass();
-        if (isManageAndNeedCast(targetType, valueType, String.class, String.class)) {
-            value = value.toString();
-        } else {
-            value = castValueType(value, targetType);
-        }
-        return value;
-    }
-
-
-    public static Object castValueType(StringWrapper value, Class<?> targetType) {
         if (value == null) {
             return null;
         }
 
-        if(targetType == StringWrapper.class){
+        Class<? extends Object> valueType = value.getClass();
+
+        if(targetType == valueType || targetType.equals(valueType)){
             return value;
         }
 
-        Object result = value.toString();
 
-        Class<? extends Object> valueType = value.getClass();
         if (isManageAndNeedCast(targetType, valueType, String.class, String.class)) {
-            result = value.toString();
-        } else if (isManageAndNeedCast(targetType, valueType, Integer.class, int.class)) {
-            result = value.toInteger();
-        } else if (isManageAndNeedCast(targetType, valueType, Float.class, float.class)) {
-            result = value.toFloat();
-        } else if (isManageAndNeedCast(targetType, valueType, Double.class, double.class)) {
-            result = value.toDouble();
-        } else if (isManageAndNeedCast(targetType, valueType, Long.class, long.class)) {
-            result = value.toLong();
-        } else if (isManageAndNeedCast(targetType, valueType, Boolean.class, boolean.class)) {
-            result = value.toBoolean();
-        } else if (isManageAndNeedCast(targetType, valueType, Short.class, short.class)) {
-            result = value.toShort();
+            value = value.toString();
+        } else if (isManageAndNeedCast(targetType, valueType, Integer.class, Integer.TYPE)) {
+            value = (new StringWrapper(value.toString())).toInteger();
+        } else if (isManageAndNeedCast(targetType, valueType, Float.class, Float.TYPE)) {
+            value = (new StringWrapper(value.toString())).toFloat();
+        } else if (isManageAndNeedCast(targetType, valueType, Double.class, Double.TYPE)) {
+            value = (new StringWrapper(value.toString())).toDouble();
+        } else if (isManageAndNeedCast(targetType, valueType, Long.class, Long.TYPE)) {
+            value = (new StringWrapper(value.toString())).toLong();
+        } else if (isManageAndNeedCast(targetType, valueType, Boolean.class, Boolean.TYPE)) {
+            value = (new StringWrapper(value.toString())).toBoolean();
+        } else if (isManageAndNeedCast(targetType, valueType, Short.class, Short.TYPE)) {
+            value = (new StringWrapper(value.toString())).toShort();
         } else if (targetType == BigDecimal.class) {
-            result = value.toBigDecimal();
+            value = (new StringWrapper(value.toString())).toBigDecimal();
         } else if (isManageAndNeedCast(targetType, valueType, Timestamp.class, Date.class)) {
-            result = value.toTimestamp();
+            value = (new StringWrapper(value.toString())).toTimestamp();
         }
-        return result;
+
+        return value;
     }
+
+
+
 
 
     /**
