@@ -1,20 +1,25 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
 
 public class CastTypeUtils {
 
 
-    public static Object castValueType(Object value, Class<?> targetType) {
+    public static Object castValueType(Object value, Class targetType) {
         if (value == null) {
             return null;
         }
 
-        Class<? extends Object> valueType = value.getClass();
+        Class valueType = value.getClass();
 
-        if(targetType == valueType || targetType.equals(valueType)){
+        if (targetType == valueType || targetType.equals(valueType)) {
             return value;
         }
 
@@ -33,17 +38,20 @@ public class CastTypeUtils {
             value = (new StringWrapper(value.toString())).toBoolean();
         } else if (isManageAndNeedCast(targetType, valueType, Short.class, Short.TYPE)) {
             value = (new StringWrapper(value.toString())).toShort();
-        } else if (targetType == BigDecimal.class) {
-            value = (new StringWrapper(value.toString())).toBigDecimal();
         } else if (isManageAndNeedCast(targetType, valueType, Timestamp.class, Date.class)) {
             value = (new StringWrapper(value.toString())).toTimestamp();
+        } else if (targetType == BigDecimal.class) {
+            value = (new StringWrapper(value.toString())).toBigDecimal();
+        } else if (targetType == BigInteger.class) {
+            value = (new StringWrapper(value.toString())).toBigInteger();
+        } else if (targetType == JSONObject.class) {
+            value = (new StringWrapper(value.toString())).toJSONObject();
+        } else if (targetType == JSONArray.class) {
+            value = (new StringWrapper(value.toString())).toJSONArray();
         }
 
         return value;
     }
-
-
-
 
 
     /**

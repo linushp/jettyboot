@@ -1,5 +1,9 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
+import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBeanArray;
+import com.alibaba.fastjson.JSON;
+
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -8,9 +12,10 @@ public class BeanUtils {
 
     /**
      * map to bean list
-     * @param clazz the type of target bean
+     *
+     * @param clazz  the type of target bean
      * @param values from values
-     * @param <T> type
+     * @param <T>    type
      * @return the target bean list
      * @throws Exception 异常
      */
@@ -62,6 +67,8 @@ public class BeanUtils {
             Field field = beanField.getField();
             String filedName = beanField.getFiledName();
 
+
+            //1.得到数据
             Object value = map.get(filedName);
             if (value == null) {
                 String filedName2 = beanField.getFiledNameUnderline();
@@ -70,11 +77,14 @@ public class BeanUtils {
                 }
             }
 
-            value = castValueType(value, field.getType(), map);
+
+            //2.类型转换
+            value = castValueType(value, field, map);
             if (value != null) {
                 field.setAccessible(true);
                 field.set(bean, value);
             }
+
         }
 
         return bean;
@@ -85,11 +95,13 @@ public class BeanUtils {
      * 转换数据类型
      *
      * @param value      原始数据
-     * @param targetType 要转换成的目标数据类型
+     * @param field 要转换成的目标数据类型
      * @return
      */
-    private static Object castValueType(Object value, Class<?> targetType, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
+    private static Object castValueType(Object value, Field field, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
 
+        Class<?> targetType = field.getType();
+        //1. 可以自定义一个类型转换器
         if (JBConvertible.class.isAssignableFrom(targetType)) {
             JBConvertible beanCustomField = (JBConvertible) targetType.newInstance();
             beanCustomField.convertFrom(value, map);
@@ -100,10 +112,22 @@ public class BeanUtils {
             return null;
         }
 
-        return CastTypeUtils.castValueType(value,targetType);
+
+        //2. 根据JSONTextBean注解转换，此时原始的value必须是字符串
+        JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
+        if (jsonTextBeanAnnotation != null) {
+            return JSON.parseObject(value.toString(), targetType);
+        }
+
+        JSONTextBeanArray jsonTextBeanArrayAnnotation = field.getAnnotation(JSONTextBeanArray.class);
+        if (jsonTextBeanArrayAnnotation != null && List.class.isAssignableFrom(targetType)) {
+            return JSON.parseArray(value.toString(), jsonTextBeanArrayAnnotation.elementType());
+        }
+
+
+        //3. 简单数据类型转换
+        return CastTypeUtils.castValueType(value, targetType);
     }
-
-
 
 
     private static BeanField[] toBeanFieldExtend(Field[] fields) {
@@ -118,7 +142,13 @@ public class BeanUtils {
     }
 
 
-    public static <T> void copyField(T targetObject, T fromObject)  {
+    /**
+     * 浅复制
+     * @param targetObject
+     * @param fromObject
+     * @param <T>
+     */
+    public static <T> void copyField(T targetObject, T fromObject) {
         if (fromObject == null) {
             return;
         }
@@ -136,7 +166,6 @@ public class BeanUtils {
             e.printStackTrace();
         }
     }
-
 
 
     private static class BeanField {

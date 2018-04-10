@@ -1,11 +1,15 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 public class StringWrapper {
 
@@ -57,6 +61,12 @@ public class StringWrapper {
         return true;
     }
 
+    public BigInteger toBigInteger() {
+        if (isEmpty()) {
+            return new BigInteger("0");
+        }
+        return new BigInteger(value);
+    }
 
     public BigDecimal toBigDecimal() {
         if (isEmpty()) {
@@ -92,7 +102,16 @@ public class StringWrapper {
         return value;
     }
 
-    public <T> T toJSONOBject(Class<? extends T> clazz) {
+
+    public JSONObject toJSONObject() {
+        String s = this.value;
+        if (isEmpty()) {
+            return null;
+        }
+        return JSON.parseObject(s);
+    }
+
+    public <T> T toJSONObject(Class<? extends T> clazz) {
         String s = this.value;
         if (isEmpty()) {
             return null;
@@ -100,9 +119,27 @@ public class StringWrapper {
         return JSON.parseObject(s, clazz);
     }
 
+    public JSONArray toJSONArray() {
+        String s = this.value;
+        if (isEmpty()) {
+            return null;
+        }
+        return JSON.parseArray(s);
+    }
+
+    public <T> List<T> toJSONArray(Class<T> clazz) {
+        String s = this.value;
+        if (isEmpty()) {
+            return null;
+        }
+        return JSON.parseArray(s,clazz);
+    }
+
+
 
     public boolean isEmpty() {
         return (value == null || value.isEmpty());
     }
+
 
 }
