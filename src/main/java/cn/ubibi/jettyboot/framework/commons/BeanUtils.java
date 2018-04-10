@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
 import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBeanArray;
+import cn.ubibi.jettyboot.framework.commons.ifs.Convertible;
 import com.alibaba.fastjson.JSON;
 
 import java.lang.reflect.Field;
@@ -102,8 +103,8 @@ public class BeanUtils {
 
         Class<?> targetType = field.getType();
         //1. 可以自定义一个类型转换器
-        if (JBConvertible.class.isAssignableFrom(targetType)) {
-            JBConvertible beanCustomField = (JBConvertible) targetType.newInstance();
+        if (Convertible.class.isAssignableFrom(targetType)) {
+            Convertible beanCustomField = (Convertible) targetType.newInstance();
             beanCustomField.convertFrom(value, map);
             return beanCustomField;
         }
