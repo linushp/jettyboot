@@ -1,8 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.*;
 
 public class BeanUtils {
@@ -92,8 +90,8 @@ public class BeanUtils {
      */
     private static Object castValueType(Object value, Class<?> targetType, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
 
-        if (IConvertible.class.isAssignableFrom(targetType)) {
-            IConvertible beanCustomField = (IConvertible) targetType.newInstance();
+        if (JBConvertible.class.isAssignableFrom(targetType)) {
+            JBConvertible beanCustomField = (JBConvertible) targetType.newInstance();
             beanCustomField.convertFrom(value, map);
             return beanCustomField;
         }

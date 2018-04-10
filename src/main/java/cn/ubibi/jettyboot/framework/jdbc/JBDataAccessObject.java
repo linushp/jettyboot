@@ -1,7 +1,8 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import cn.ubibi.jettyboot.framework.commons.JBPage;
+import cn.ubibi.jettyboot.framework.jdbc.model.JBUpdateResult;
 
 import java.sql.Connection;
 import java.util.*;
@@ -9,24 +10,24 @@ import java.util.*;
 
 public class JBDataAccessObject<T> {
 
-    private Class<T> clazz;
-    private String tableName;
-    private String schemaName;
-    private JBDataAccess JBDataAccess;
+    protected Class<T> clazz;
+    protected String tableName;
+    protected String schemaName;
+    protected JBDataAccess dataAccess;
 
 
     public JBDataAccessObject(Class<T> clazz, String tableName, JBConnectionFactory connectionFactory) {
         this.clazz = clazz;
         this.tableName = tableName;
         this.schemaName = "";
-        this.JBDataAccess = new JBDataAccess(connectionFactory);
+        this.dataAccess = new JBDataAccess(connectionFactory);
     }
 
     public JBDataAccessObject(Class<T> clazz, String tableName, Connection connection) {
         this.clazz = clazz;
         this.tableName = tableName;
         this.schemaName = "";
-        this.JBDataAccess = new JBDataAccess(connection);
+        this.dataAccess = new JBDataAccess(connection);
     }
 
     private String schemaTableName() {
@@ -71,20 +72,20 @@ public class JBDataAccessObject<T> {
 
     public JBDataAccessObject<T> use(Connection connection) {
         JBDataAccessObject dao = (JBDataAccessObject) this.clone();
-        dao.JBDataAccess = new JBDataAccess(connection);
+        dao.dataAccess = new JBDataAccess(connection);
         return dao;
     }
 
     public JBDataAccessObject<T> use(JBConnectionFactory connSource) {
         JBDataAccessObject dao = (JBDataAccessObject) this.clone();
-        dao.JBDataAccess = new JBDataAccess(connSource);
+        dao.dataAccess = new JBDataAccess(connSource);
         return dao;
     }
 
 
     public T findById(Object id) throws Exception {
         String sql = "select * from " + schemaTableName() + " where id = ?";
-        return JBDataAccess.queryObject(clazz, sql, id);
+        return dataAccess.queryObject(clazz, sql, id);
     }
 
     public List<T> findAll() throws Exception {
@@ -98,7 +99,7 @@ public class JBDataAccessObject<T> {
 
     public List<T> findByWhere(String whereSql, Object... args) throws Exception {
         String sql = "select * from " + schemaTableName() + " " + whereSql;
-        return JBDataAccess.query(clazz, sql, args);
+        return dataAccess.query(clazz, sql, args);
     }
 
 
@@ -142,7 +143,7 @@ public class JBDataAccessObject<T> {
         List<T> dataList;
         if (totalCount > 0) {
             String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
-            dataList = JBDataAccess.query(clazz, sqlList, whereArgs);
+            dataList = dataAccess.query(clazz, sqlList, whereArgs);
         } else {
             dataList = new ArrayList<>();
         }
@@ -172,7 +173,7 @@ public class JBDataAccessObject<T> {
      */
     public Long countByWhereSql(String whereSql, Object... whereArgs) {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
-        Object totalCount = JBDataAccess.queryValue(sqlCount, whereArgs);
+        Object totalCount = dataAccess.queryValue(sqlCount, whereArgs);
         return (Long) CastTypeUtils.castValueType(totalCount,Long.class);
     }
 
@@ -182,7 +183,7 @@ public class JBDataAccessObject<T> {
      *
      * @param id bean id
      */
-    public UpdateResult deleteById(Object id) {
+    public JBUpdateResult deleteById(Object id) {
         return deleteByWhereSql("where id=?", id);
     }
 
@@ -192,18 +193,18 @@ public class JBDataAccessObject<T> {
      * @param whereSql  条件
      * @param whereArgs 参数
      */
-    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
+    public JBUpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
-        return JBDataAccess.update(sql, whereArgs);
+        return dataAccess.update(sql, whereArgs);
     }
 
 
-    public UpdateResult updateById(Map<String, Object> newValues, Object id) {
+    public JBUpdateResult updateById(Map<String, Object> newValues, Object id) {
         return updateByWhereSql(newValues, "where id = ? ", id);
     }
 
 
-    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
+    public JBUpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
         if (newValues != null && !newValues.isEmpty()) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -219,9 +220,9 @@ public class JBDataAccessObject<T> {
                 values.addAll(whereArgsList);
             }
 
-            return JBDataAccess.update(sql, values);
+            return dataAccess.update(sql, values);
         }
-        return new UpdateResult("params is empty");
+        return new JBUpdateResult("params is empty");
     }
 
 
@@ -230,11 +231,11 @@ public class JBDataAccessObject<T> {
      *
      * @param objectList
      */
-    public List<UpdateResult> insertObjectList(List<Map<String, Object>> objectList) {
-        List<UpdateResult> results = new ArrayList<>();
+    public List<JBUpdateResult> insertObjectList(List<Map<String, Object>> objectList) {
+        List<JBUpdateResult> results = new ArrayList<>();
         if (objectList != null && !objectList.isEmpty()) {
             for (Map<String, Object> obj : objectList) {
-                UpdateResult result = insertObject(obj);
+                JBUpdateResult result = insertObject(obj);
                 results.add(result);
             }
         }
@@ -242,7 +243,7 @@ public class JBDataAccessObject<T> {
     }
 
 
-    public UpdateResult insertObject(Map<String, Object> newValues) {
+    public JBUpdateResult insertObject(Map<String, Object> newValues) {
         if (newValues != null && !newValues.isEmpty()) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -256,14 +257,14 @@ public class JBDataAccessObject<T> {
             String valuesSql = StringUtils.join(valuesQuota, ",");
 
             String sql = "insert into " + schemaTableName() + "(" + filedSql + ") values (" + valuesSql + ")";
-            return JBDataAccess.update(sql, values);
+            return dataAccess.update(sql, values);
         }
 
-        return new UpdateResult("params is empty");
+        return new JBUpdateResult("params is empty");
     }
 
 
-    public UpdateResult largeSqlBatchInsert(List<Map<String, Object>> objectList) {
+    public JBUpdateResult largeSqlBatchInsert(List<Map<String, Object>> objectList) {
 
         objectList = CollectionUtils.removeEmptyMap(objectList);
 
@@ -293,22 +294,22 @@ public class JBDataAccessObject<T> {
             String allValuesSql = StringUtils.join(allValuesSqlList, ",");
             String sql = "insert into " + schemaTableName() + " (" + filedSql + ") values " + allValuesSql;
 
-            return JBDataAccess.update(sql, allValues);
+            return dataAccess.update(sql, allValues);
         }
 
 
-        return new UpdateResult("params is empty");
+        return new JBUpdateResult("params is empty");
     }
 
 
 
 
-    public UpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
+    public JBUpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
         return saveOrUpdate(newValues, "where id = ?", id);
     }
 
 
-    public UpdateResult saveOrUpdate(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
+    public JBUpdateResult saveOrUpdate(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
         List<T> findResult = findByWhere(whereSql, whereArgs);
         if (findResult.isEmpty()) {
             return insertObject(newValues);

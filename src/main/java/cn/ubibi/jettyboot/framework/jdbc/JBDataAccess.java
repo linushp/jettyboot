@@ -1,7 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
-import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import cn.ubibi.jettyboot.framework.jdbc.model.JBUpdateResult;
 
 import java.sql.*;
 import java.util.*;
@@ -28,18 +28,18 @@ public class JBDataAccess {
     }
 
 
-    public UpdateResult update(String sql, List<Object> args) {
+    public JBUpdateResult update(String sql, List<Object> args) {
         Object[] objects = args.toArray(new Object[args.size()]);
         return update(sql, objects);
     }
 
 
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
-    public UpdateResult update(String sql, Object... args) {
+    public JBUpdateResult update(String sql, Object... args) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet generatedKeyResultSet = null;
-        UpdateResult updateResult = new UpdateResult();
+        JBUpdateResult updateResult = new JBUpdateResult();
 
         try {
             connection = getConnection();

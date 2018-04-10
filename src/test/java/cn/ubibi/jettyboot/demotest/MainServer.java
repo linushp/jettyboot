@@ -28,7 +28,7 @@ public class MainServer {
         connectionFactory.init();
 
 //        JBDataAccessObject ;
-//        JBDataAccess;
+//        dataAccess;
 //        JBDataUtils;
 //        JBConnectionGetter;
 //        JBUpdateResult;

@@ -7,7 +7,7 @@ import cn.ubibi.jettyboot.demotest.dao.UserDAO;
 import cn.ubibi.jettyboot.demotest.entity.UserEntity;
 import cn.ubibi.jettyboot.framework.commons.JBPage;
 import cn.ubibi.jettyboot.framework.ioc.JBAutowired;
-import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import cn.ubibi.jettyboot.framework.jdbc.model.JBUpdateResult;
 import cn.ubibi.jettyboot.framework.rest.*;
 
 import javax.servlet.ServletException;
@@ -36,7 +36,7 @@ public class UserController {
 
 
     @JBGetMapping(path = "/test_insert")
-    public UpdateResult getmm21(@JBRequestParams UserInfoParser reqParser, JBRequest JBRequest) throws Exception {
+    public JBUpdateResult getmm21(@JBRequestParams UserInfoParser reqParser, JBRequest JBRequest) throws Exception {
         Map<String, Object> map = new HashMap<>();
         map.put("name","name" + System.currentTimeMillis() + "_" + Math.random());
         map.put("yaoli",123);

@@ -1,10 +1,10 @@
 package cn.ubibi.jettyboot.demotest.entity;
 
-import cn.ubibi.jettyboot.framework.commons.IConvertible;
+import cn.ubibi.jettyboot.framework.commons.JBConvertible;
 
 import java.util.Map;
 
-public class UserExternData implements IConvertible {
+public class UserExternData implements JBConvertible {
 
 
     private String name1;

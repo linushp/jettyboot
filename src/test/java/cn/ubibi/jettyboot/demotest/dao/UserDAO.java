@@ -17,6 +17,7 @@ public class UserDAO extends MyDAO<UserEntity> {
 
 
     public List<UserEntity> findByName(String username) throws Exception {
+        dataAccess.query("select * from " + tableName + " where name = ?", username);
         return findByWhere("where name = ?", username);
     }
 

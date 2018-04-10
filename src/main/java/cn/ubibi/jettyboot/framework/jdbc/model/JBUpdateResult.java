@@ -3,7 +3,7 @@ package cn.ubibi.jettyboot.framework.jdbc.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateResult {
+public class JBUpdateResult {
 
     private Object generatedKey = null;
     private List<Object> generatedKeys = new ArrayList<>();
@@ -12,10 +12,10 @@ public class UpdateResult {
 
     private String errMsg;
 
-    public UpdateResult() {
+    public JBUpdateResult() {
     }
 
-    public UpdateResult(String errMsg) {
+    public JBUpdateResult(String errMsg) {
         this.errMsg = errMsg;
     }
 
