@@ -7,11 +7,11 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 
 import javax.servlet.http.HttpServlet;
 
-public class JBContextHandler extends ContextHandler{
+public class RestContextHandler extends ContextHandler{
 
     private RequestHandler requestHandler;
 
-    public JBContextHandler(String context) {
+    public RestContextHandler(String context) {
         super(context);
         this.requestHandler = new RequestHandler();
         this.setHandler(this.requestHandler);
