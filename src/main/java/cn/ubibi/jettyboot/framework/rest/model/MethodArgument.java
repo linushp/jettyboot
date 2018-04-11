@@ -20,23 +20,12 @@ public class MethodArgument {
         return method;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
-    }
-
     public Type getType() {
         return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public Annotation[] getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(Annotation[] annotations) {
-        this.annotations = annotations;
-    }
 }
