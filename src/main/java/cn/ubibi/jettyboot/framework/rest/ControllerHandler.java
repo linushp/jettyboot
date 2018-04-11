@@ -49,30 +49,33 @@ public class ControllerHandler {
     public boolean handle(HttpServletRequest request, HttpServletResponse response, List<RequestAspect> methodWrappers) throws Exception {
 
         String reqPath = request.getPathInfo();
-
         Class<?> clazz = this.getControllerClass();
-        String[] classPathList = this.getClassPaths();
+        String classPath = this.getClassPath();
 
-        for (String classPath : classPathList) {
+        if (isMatchClassPath(reqPath, classPath)) {
 
-            if (isMatchClassPath(reqPath, classPath)) {
+            Method[] methods = clazz.getMethods();
+            if (methods != null) {
+                for (Method method : methods) {
 
-                Method[] methods = clazz.getMethods();
-                if (methods != null) {
-                    for (Method method : methods) {
 
-                        GetMapping methodAnnotation1 = method.getAnnotation(GetMapping.class);
-                        PostMapping methodAnnotation2 = method.getAnnotation(PostMapping.class);
-                        boolean handleResult = false;
-                        if (methodAnnotation1 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation1.value(), "get", request, response, method, methodWrappers);
-                        } else if (methodAnnotation2 != null) {
-                            handleResult = handleMethodPath(classPath, methodAnnotation2.value(), "post", request, response, method, methodWrappers);
-                        }
+                    GetMapping methodAnnotation1 = method.getAnnotation(GetMapping.class);
+                    PostMapping methodAnnotation2 = method.getAnnotation(PostMapping.class);
+                    PutMapping methodAnnotation3 = method.getAnnotation(PutMapping.class);
+                    DeleteMapping methodAnnotation4 = method.getAnnotation(DeleteMapping.class);
+                    boolean handleResult = false;
+                    if (methodAnnotation1 != null) {
+                        handleResult = handleMethodPath(classPath, methodAnnotation1.value(), "get", request, response, method, methodWrappers);
+                    } else if (methodAnnotation2 != null) {
+                        handleResult = handleMethodPath(classPath, methodAnnotation2.value(), "post", request, response, method, methodWrappers);
+                    } else if (methodAnnotation3 != null) {
+                        handleResult = handleMethodPath(classPath, methodAnnotation3.value(), "put", request, response, method, methodWrappers);
+                    } else if (methodAnnotation4 != null) {
+                        handleResult = handleMethodPath(classPath, methodAnnotation4.value(), "delete", request, response, method, methodWrappers);
+                    }
 
-                        if (handleResult) {
-                            return true;
-                        }
+                    if (handleResult) {
+                        return true;
                     }
                 }
             }
@@ -81,6 +84,14 @@ public class ControllerHandler {
 
         //路径不匹配
         return false;
+    }
+
+
+    private String getClassPath() {
+        if (this.path == null || this.path.isEmpty()) {
+            return "/";
+        }
+        return this.path;
     }
 
 
@@ -103,26 +114,16 @@ public class ControllerHandler {
     }
 
 
-    private String[] getClassPaths() {
-        if (this.path != null && !this.path.isEmpty()) {
-            return new String[]{this.path};
-        }
-        return new String[]{"/"};
-    }
-
-
-    private boolean handleMethodPath(String classPath, String[] path2, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc, List<RequestAspect> methodWrappers) throws Exception {
+    private boolean handleMethodPath(String classPath, String methodPath, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc, List<RequestAspect> methodWrappers) throws Exception {
         if (method.equalsIgnoreCase(request.getMethod())) {
 
             String reqPath = request.getPathInfo();
 
-            for (String path22 : path2) {
-                String path = pathJoin(classPath, path22);
-                boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
-                if (isMethodMatchOK) {
-                    handleMethod(request, response, methodFunc, path, methodWrappers);
-                    return true;
-                }
+            String path = pathJoin(classPath, methodPath);
+            boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
+            if (isMethodMatchOK) {
+                handleMethod(request, response, methodFunc, path, methodWrappers);
+                return true;
             }
         }
 
@@ -141,11 +142,10 @@ public class ControllerHandler {
             int paramsCount = method.getParameterCount();
             Type[] paramsTypes = method.getGenericParameterTypes();
             Annotation[][] paramAnnotations = method.getParameterAnnotations();
-            Object[] paramsObjects = getParamsObjects(paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
-
 
             Request jbRequest = getJBRequestInstance(request, targetPath);
 
+            Object[] paramsObjects = getParamsObjects(jbRequest, paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
 
             for (RequestAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeBefore(method, jbRequest);
@@ -243,15 +243,12 @@ public class ControllerHandler {
     }
 
 
-    private Object[] getParamsObjects(int paramsCount, Type[] paramsTypes, Annotation[][] paramAnnotations, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
+    private Object[] getParamsObjects(Request jettyBootReqParams, int paramsCount, Type[] paramsTypes, Annotation[][] paramAnnotations, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
 
         if (paramsCount == 0) {
             return new Object[]{};
         }
 
-
-        //同一个请求中只有一个ReqParams实例
-        Request jettyBootReqParams = getJBRequestInstance(request, targetPath);
 
         List<Object> objects = new ArrayList<>();
 
@@ -301,6 +298,14 @@ public class ControllerHandler {
                     PathVariable requestPath = (PathVariable) annotation;
                     String sw = jettyBootReqParams.getPathVariable(requestPath.name());
                     object = CastTypeUtils.castValueType(sw, typeClazz);
+                } else if (annotationType == AspectVariable.class) {
+                    AspectVariable aspectVariable = (AspectVariable) annotation;
+                    String aspectVariableName = aspectVariable.value();
+                    if (!aspectVariableName.isEmpty()) {
+                        object = jettyBootReqParams.getAspectVariable(aspectVariableName);
+                    } else {
+                        object = jettyBootReqParams.getAspectVariableByClassType(typeClazz);
+                    }
                 }
             }
 

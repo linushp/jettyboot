@@ -8,6 +8,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,9 @@ public class Request {
     private byte[] _requestBody = null;
 
 
+    private Map<String, Object> aspectVariable = null;
+
+
     private Request(HttpServletRequest request, String targetPath) {
         this.request = request;
         this.targetPath = targetPath;
@@ -28,39 +32,43 @@ public class Request {
 
 
     public static Request getInstance(HttpServletRequest request, String targetPath) {
-        Request jettyBootJBRequest = (Request) request.getAttribute("jettyBootJBRequest");
-        if (jettyBootJBRequest == null) {
-            jettyBootJBRequest = new Request(request, targetPath);
-            request.setAttribute("jettyBootJBRequest", jettyBootJBRequest);
+        String name = Request.class.getName() + "_jettyBootRequest";
+        Request jettyBootRequest = (Request) request.getAttribute(name);
+        if (jettyBootRequest == null) {
+            jettyBootRequest = new Request(request, targetPath);
+            request.setAttribute(name, jettyBootRequest);
         }
-        return jettyBootJBRequest;
+        return jettyBootRequest;
     }
 
 
-    public String getMethod(){
+    public String getContextPath() {
+        return this.request.getContextPath();
+    }
+
+    public String getMethod() {
         return this.request.getMethod();
     }
 
-    public String getPathInfo(){
+    public String getPathInfo() {
         return this.request.getPathInfo();
     }
 
-    public String getHeader(String name){
+    public String getHeader(String name) {
         return this.request.getHeader(name);
     }
 
-    public String getQueryString(){
+    public String getQueryString() {
         return this.request.getQueryString();
     }
 
-    public String [] getParameterValues(String name){
+    public String[] getParameterValues(String name) {
         return request.getParameterValues(name);
     }
 
-    public String getParameter(String name){
+    public String getParameter(String name) {
         return request.getParameter(name);
     }
-
 
 
     public StringWrapper getRequestParam(String name) {
@@ -183,4 +191,39 @@ public class Request {
     public String getTargetPath() {
         return this.targetPath;
     }
+
+
+    public Object getAspectVariable(String name) {
+        if (this.aspectVariable == null) {
+            return null;
+        }
+        return this.aspectVariable.get(name);
+    }
+
+
+    public Object getAspectVariableByClassType(Class clazz) {
+        if (this.aspectVariable == null) {
+            return null;
+        }
+
+
+        Collection<Object> values = this.aspectVariable.values();
+        for (Object obj : values) {
+            if (obj.getClass() == clazz || obj.getClass().equals(clazz)) {
+                return obj;
+            }
+        }
+
+        return null;
+    }
+
+
+    public void setAspectVariable(String name, Object aspectVariable) {
+        if (this.aspectVariable == null) {
+            this.aspectVariable = new HashMap<>();
+        }
+        this.aspectVariable.put(name, aspectVariable);
+    }
+
+
 }
