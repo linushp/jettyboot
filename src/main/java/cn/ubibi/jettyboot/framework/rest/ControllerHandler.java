@@ -266,7 +266,7 @@ public class ControllerHandler {
     }
 
 
-    private Object[] getMethodParamsObjects(Method method, Request jettyBootReqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Object[] getMethodParamsObjects(Method method, Request jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         int paramsCount = method.getParameterCount();
         Type[] paramsTypes = method.getGenericParameterTypes();
@@ -290,9 +290,9 @@ public class ControllerHandler {
             Object object;
             MethodArgumentResolver methodArgumentResolver = findMethodArgumentResolver(methodArgument);
             if (methodArgumentResolver != null) {
-                object = methodArgumentResolver.resolveArgument(methodArgument, jettyBootReqParams);
+                object = methodArgumentResolver.resolveArgument(methodArgument, jbRequest);
             } else {
-                object = getMethodParamsObject(methodArgument, jettyBootReqParams, request, response);
+                object = getMethodParamsObject(methodArgument, jbRequest, request, response);
             }
 
             objects.add(object);
@@ -317,13 +317,13 @@ public class ControllerHandler {
      * 获取某个方法参数的默认实现
      *
      * @param methodArgument     类型
-     * @param jettyBootReqParams 请求参数
+     * @param jbRequest 请求参数
      * @param request            请求对象
      * @param response           响应
      * @return
      * @throws IOException
      */
-    private Object getMethodParamsObject(MethodArgument methodArgument, Request jettyBootReqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Object getMethodParamsObject(MethodArgument methodArgument, Request jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 
         Class typeClazz = (Class) methodArgument.getType();
@@ -349,31 +349,31 @@ public class ControllerHandler {
                 Class elementType = requestParam.elementType();
                 if (typeClazz.isArray()) {
                     elementType = typeClazz.getComponentType();
-                    object = getArrayParamValue(jettyBootReqParams, paramName, elementType);
+                    object = getArrayParamValue(jbRequest, paramName, elementType);
                 } else if (List.class.isAssignableFrom(typeClazz)) {
-                    object = getListParamValue(jettyBootReqParams, paramName, elementType);
+                    object = getListParamValue(jbRequest, paramName, elementType);
                 } else if (Set.class.isAssignableFrom(typeClazz)) {
-                    object = getSetParamValue(jettyBootReqParams, paramName, elementType);
+                    object = getSetParamValue(jbRequest, paramName, elementType);
                 } else {
-                    StringWrapper sw = jettyBootReqParams.getRequestParam(paramName, requestParam.defaultValue());
+                    StringWrapper sw = jbRequest.getRequestParam(paramName, requestParam.defaultValue());
                     object = CastTypeUtils.castValueType(sw, typeClazz);
                 }
 
             } else if (annotationType == RequestParams.class) {
-                object = jettyBootReqParams.getRequestParamObject(typeClazz);
+                object = jbRequest.getRequestParamObject(typeClazz);
             } else if (annotationType == RequestBody.class) {
-                object = jettyBootReqParams.getRequestBodyObject(typeClazz);
+                object = jbRequest.getRequestBodyObject(typeClazz);
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
-                String sw = jettyBootReqParams.getPathVariable(requestPath.name());
+                String sw = jbRequest.getPathVariable(requestPath.name());
                 object = CastTypeUtils.castValueType(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
                 if (!aspectVariableName.isEmpty()) {
-                    object = jettyBootReqParams.getAspectVariable(aspectVariableName);
+                    object = jbRequest.getAspectVariable(aspectVariableName);
                 } else {
-                    object = jettyBootReqParams.getAspectVariableByClassType(typeClazz);
+                    object = jbRequest.getAspectVariableByClassType(typeClazz);
                 }
             }
         }
@@ -383,14 +383,14 @@ public class ControllerHandler {
         if (object == null) {
             if (RequestParser.class.isAssignableFrom(typeClazz)) {
                 RequestParser m = (RequestParser) typeClazz.newInstance();
-                m.doParse(jettyBootReqParams, request);
+                m.doParse(jbRequest, request);
                 object = m;
             } else if (typeClazz.equals(ServletRequest.class) || typeClazz.equals(HttpServletRequest.class)) {
                 object = request;
             } else if (typeClazz.equals(ServletResponse.class) || typeClazz.equals(HttpServletResponse.class)) {
                 object = response;
             } else if (typeClazz.equals(Request.class)) {
-                object = jettyBootReqParams;
+                object = jbRequest;
             }
         }
 
