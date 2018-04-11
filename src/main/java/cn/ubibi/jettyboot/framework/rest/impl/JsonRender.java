@@ -1,28 +1,31 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
+import com.alibaba.fastjson.JSON;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class TextRender implements ResponseRender {
+public class JsonRender implements ResponseRender {
 
-    private String text;
+    private Object data;
 
-    public TextRender(String text) {
-        this.text = text;
+    public JsonRender(Object data) {
+        this.data = data;
     }
 
     @Override
     public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.setContentType("text/html;charset=utf-8");
+        String jsonText = JSON.toJSONString(this.data);
+
+        response.setContentType("application/json; charset=UTF-8");
 
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter writer = response.getWriter();
-        writer.print(this.text);
+        writer.print(jsonText);
         writer.flush();
         writer.close();
         response.flushBuffer();

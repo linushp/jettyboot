@@ -7,8 +7,8 @@ import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
+import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
-import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,13 +103,21 @@ public class ControllerHandler {
         return clazz;
     }
 
+
+    /**
+     * 得到Controller对象，并依赖注入
+     * @return
+     * @throws Exception
+     */
     private Object getRestController() throws Exception {
         Object controller = this.restController;
         if (controller == null) {
             controller = restControllerClazz.newInstance();
         }
 
-        controller = ServiceManager.getInstance().injectDependency(controller);
+        //依赖注入
+        ServiceManager.getInstance().injectDependency(controller);
+
         return controller;
     }
 
@@ -142,17 +150,21 @@ public class ControllerHandler {
             int paramsCount = method.getParameterCount();
             Type[] paramsTypes = method.getGenericParameterTypes();
             Annotation[][] paramAnnotations = method.getParameterAnnotations();
-
             Request jbRequest = getJBRequestInstance(request, targetPath);
 
+            //准备参数
             Object[] paramsObjects = getParamsObjects(jbRequest, paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
 
+            //Aspect前置
             for (RequestAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeBefore(method, jbRequest);
             }
 
+            //方法调用
             invokeResult = method.invoke(controller, paramsObjects);
 
+
+            //Aspect后置
             for (RequestAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeAfter(method, jbRequest, invokeResult);
             }
@@ -162,13 +174,14 @@ public class ControllerHandler {
             throw e;
         }
 
+
+        //2.执行Render
         if (invokeResult instanceof ResponseRender) {
             ((ResponseRender) invokeResult).doRender(request, response);
         } else if (invokeResult instanceof String) {
             new TextRender(invokeResult.toString()).doRender(request, response);
         } else {
-            String jsonString = JSON.toJSONString(invokeResult);
-            new TextRender(jsonString).doRender(request, response);
+            new JsonRender(invokeResult).doRender(request, response);
         }
     }
 

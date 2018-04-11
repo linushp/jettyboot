@@ -31,7 +31,7 @@ public class ServiceManager {
 
 
     //执行注入依赖的过程
-    public Object injectDependency(Object controller) throws Exception {
+    public void injectDependency(Object controller) throws Exception {
         Field[] fields = controller.getClass().getDeclaredFields();
 
         if (fields != null && fields.length > 0) {
@@ -59,7 +59,6 @@ public class ServiceManager {
             }
         }
 
-        return controller;
     }
 
 
