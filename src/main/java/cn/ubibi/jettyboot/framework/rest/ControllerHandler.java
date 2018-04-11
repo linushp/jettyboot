@@ -289,7 +289,7 @@ public class ControllerHandler {
                 if (annotationType == RequestParam.class) {
 
                     RequestParam requestParam = (RequestParam) annotation;
-                    String paramName = requestParam.name();
+                    String paramName = requestParam.value();
                     Class elementType = requestParam.elementType();
                     if (typeClazz.isArray()) {
                         elementType = typeClazz.getComponentType();

@@ -7,9 +7,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequestParam {
-    String name() default "";
+    String value();
     String defaultValue() default "";
 
     //对于List或Set时有用到
-    Class elementType();
+    Class elementType() default String.class;
 }
