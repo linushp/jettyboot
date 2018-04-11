@@ -6,7 +6,7 @@
 
     <groupId>com.github.luanhaipeng</groupId>
     <artifactId>jettyboot</artifactId>
-    <version>1.0.10.1</version>
+    <version>1.0.11</version>
     <name>jettyboot</name>
     <description>jetty boot Library, simple mvc and data ORM framework</description>
     <url>https://github.com/luanhaipeng/jettyboot</url>
