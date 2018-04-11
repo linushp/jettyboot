@@ -139,10 +139,10 @@ public class ControllerHandler {
 
             String reqPath = request.getPathInfo();
 
-            String path = pathJoin(classPath, methodPath);
-            boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
+            String targetPath = pathJoin(classPath, methodPath);
+            boolean isMethodMatchOK = isHandleMethodPath(targetPath, reqPath);
             if (isMethodMatchOK) {
-                handleMethod(request, response, methodFunc, path);
+                handleMethod(request, response, methodFunc, targetPath);
                 return true;
             }
         }
