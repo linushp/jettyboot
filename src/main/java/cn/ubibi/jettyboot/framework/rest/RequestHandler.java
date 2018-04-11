@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
+import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
@@ -20,10 +21,11 @@ public class RequestHandler extends AbstractHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
-    private List<ControllerHandler> restHandlers = new ArrayList<>();
-    private List<ExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private List<ServletWrapper> httpServletHandlers = new ArrayList<>();
-    private List<RequestAspect> methodAspectList = new ArrayList<>();
+    private final List<ControllerHandler> restHandlers = new ArrayList<>();
+    private final List<ExceptionHandler> exceptionHandlers = new ArrayList<>();
+    private final List<ServletWrapper> httpServletHandlers = new ArrayList<>();
+    private final List<RequestAspect> methodAspectList = new ArrayList<>();
+    private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
 
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -33,10 +35,10 @@ public class RequestHandler extends AbstractHandler {
         for (ServletWrapper httpServletWrapper : httpServletHandlers) {
             if (httpServletWrapper.matched(target)) {
                 try {
-                    httpServletWrapper.handle(request, response,methodAspectList);
+                    httpServletWrapper.handle(request, response);
                 } catch (Exception e) {
-                    handleException2(e,request,response);
-                }finally {
+                    handleException2(e, request, response);
+                } finally {
                     baseRequest.setHandled(true);
                 }
                 return;
@@ -44,17 +46,15 @@ public class RequestHandler extends AbstractHandler {
         }
 
 
-
-
         //2. check rest controller handler
         for (ControllerHandler restHandler : restHandlers) {
             try {
-                if (restHandler.handle(request, response, methodAspectList)) {
+                if (restHandler.handle(request, response)) {
                     baseRequest.setHandled(true);
                     return;
                 }
             } catch (Exception e) {
-                handleException2(e,request,response);
+                handleException2(e, request, response);
                 baseRequest.setHandled(true);
                 return;
             }
@@ -67,7 +67,7 @@ public class RequestHandler extends AbstractHandler {
         boolean isHandled = handleException(e, request, response);
         if (!isHandled) {
 
-            LOGGER.info("",e);
+            LOGGER.info("", e);
 
             //如果异常没有被处理
             if (e instanceof IOException) {
@@ -94,13 +94,12 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-
     public void addController(String path, Class<?> clazz) throws Exception {
         if (clazz == null) {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + clazz.getName());
-        restHandlers.add(new ControllerHandler(path, clazz));
+        restHandlers.add(new ControllerHandler(path, clazz, methodAspectList, methodArgumentResolvers));
     }
 
     public void addController(String path, Object restController) throws Exception {
@@ -108,7 +107,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + restController.getClass().getName());
-        restHandlers.add(new ControllerHandler(path, restController));
+        restHandlers.add(new ControllerHandler(path, restController, methodAspectList, methodArgumentResolvers));
     }
 
 
@@ -116,7 +115,7 @@ public class RequestHandler extends AbstractHandler {
         if (exceptionHandler == null) {
             throw new Exception("addExceptionHandler can not null");
         }
-        LOGGER.info("addExceptionHandler " +  exceptionHandler.getClass().getName());
+        LOGGER.info("addExceptionHandler " + exceptionHandler.getClass().getName());
         exceptionHandlers.add(exceptionHandler);
     }
 
@@ -126,7 +125,7 @@ public class RequestHandler extends AbstractHandler {
         }
 
         LOGGER.info("addServlet " + path + "  :  " + httpServlet.getClass().getName());
-        httpServletHandlers.add(new ServletWrapper(path, httpServlet));
+        httpServletHandlers.add(new ServletWrapper(path, httpServlet, this.methodAspectList));
     }
 
     public void addRequestAspect(RequestAspect methodAspect) throws Exception {
@@ -136,4 +135,15 @@ public class RequestHandler extends AbstractHandler {
         LOGGER.info("addRequestAspect " + methodAspect.getClass().getName());
         methodAspectList.add(methodAspect);
     }
+
+
+    public void addMethodArgumentResolver(MethodArgumentResolver methodArgumentResolver) throws Exception {
+        if (methodArgumentResolver == null) {
+            throw new Exception("addMethodArgumentResolver can not null");
+        }
+        LOGGER.info("addMethodArgumentResolver " + methodArgumentResolver.getClass().getName());
+        methodArgumentResolvers.add(methodArgumentResolver);
+    }
+
+
 }

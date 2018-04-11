@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class ServletWrapper {
+    private List<RequestAspect> methodAspectList;
+
     private String path;
 
     private boolean pathEndWithX;
@@ -30,8 +32,8 @@ public class ServletWrapper {
     private boolean isInit;
     private HttpServlet httpServlet;
 
-    ServletWrapper(String path, HttpServlet httpServlet) {
-
+    ServletWrapper(String path, HttpServlet httpServlet, List<RequestAspect> methodAspectList) {
+        this.methodAspectList = methodAspectList;
         this.path = path;
         this.httpServlet = httpServlet;
 
@@ -102,12 +104,14 @@ public class ServletWrapper {
         }
     }
 
-    public void handle(HttpServletRequest request, HttpServletResponse response, List<RequestAspect> aspects) throws Exception {
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         if (!this.isInit) {
             httpServlet.init();
             this.isInit = true;
         }
+
+        List<RequestAspect> aspects = this.methodAspectList;
 
 
         //依赖注入

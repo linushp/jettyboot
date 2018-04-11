@@ -4,11 +4,13 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
+import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
+import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -30,23 +33,31 @@ public class ControllerHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ControllerHandler.class);
 
+    private List<RequestAspect> methodAspectList;
+    private List<MethodArgumentResolver> methodArgumentResolvers;
+
 
     private Class<?> restControllerClazz;
     private Object restController;
     private String path;
 
-    public ControllerHandler(String path, Class<?> clazz) {
+    public ControllerHandler(String path, Class<?> clazz, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restControllerClazz = clazz;
         this.path = path;
+        this.methodAspectList = methodAspectList;
+        this.methodArgumentResolvers = methodArgumentResolvers;
     }
 
-    public ControllerHandler(String path, Object restController) {
+    public ControllerHandler(String path, Object restController, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restController = restController;
         this.path = path;
+        this.methodAspectList = methodAspectList;
+        this.methodArgumentResolvers = methodArgumentResolvers;
     }
 
 
-    public boolean handle(HttpServletRequest request, HttpServletResponse response, List<RequestAspect> methodWrappers) throws Exception {
+    public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 
         String reqPath = request.getPathInfo();
         Class<?> clazz = this.getControllerClass();
@@ -65,13 +76,13 @@ public class ControllerHandler {
                     DeleteMapping methodAnnotation4 = method.getAnnotation(DeleteMapping.class);
                     boolean handleResult = false;
                     if (methodAnnotation1 != null) {
-                        handleResult = handleMethodPath(classPath, methodAnnotation1.value(), "get", request, response, method, methodWrappers);
+                        handleResult = handleMethodPath(classPath, methodAnnotation1.value(), "get", request, response, method);
                     } else if (methodAnnotation2 != null) {
-                        handleResult = handleMethodPath(classPath, methodAnnotation2.value(), "post", request, response, method, methodWrappers);
+                        handleResult = handleMethodPath(classPath, methodAnnotation2.value(), "post", request, response, method);
                     } else if (methodAnnotation3 != null) {
-                        handleResult = handleMethodPath(classPath, methodAnnotation3.value(), "put", request, response, method, methodWrappers);
+                        handleResult = handleMethodPath(classPath, methodAnnotation3.value(), "put", request, response, method);
                     } else if (methodAnnotation4 != null) {
-                        handleResult = handleMethodPath(classPath, methodAnnotation4.value(), "delete", request, response, method, methodWrappers);
+                        handleResult = handleMethodPath(classPath, methodAnnotation4.value(), "delete", request, response, method);
                     }
 
                     if (handleResult) {
@@ -106,6 +117,7 @@ public class ControllerHandler {
 
     /**
      * 得到Controller对象，并依赖注入
+     *
      * @return
      * @throws Exception
      */
@@ -122,7 +134,7 @@ public class ControllerHandler {
     }
 
 
-    private boolean handleMethodPath(String classPath, String methodPath, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc, List<RequestAspect> methodWrappers) throws Exception {
+    private boolean handleMethodPath(String classPath, String methodPath, String method, HttpServletRequest request, HttpServletResponse response, Method methodFunc) throws Exception {
         if (method.equalsIgnoreCase(request.getMethod())) {
 
             String reqPath = request.getPathInfo();
@@ -130,7 +142,7 @@ public class ControllerHandler {
             String path = pathJoin(classPath, methodPath);
             boolean isMethodMatchOK = isHandleMethodPath(path, reqPath);
             if (isMethodMatchOK) {
-                handleMethod(request, response, methodFunc, path, methodWrappers);
+                handleMethod(request, response, methodFunc, path);
                 return true;
             }
         }
@@ -139,21 +151,19 @@ public class ControllerHandler {
     }
 
 
-    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath, List<RequestAspect> methodWrappers) throws Exception {
+    private void handleMethod(HttpServletRequest request, HttpServletResponse response, Method method, String targetPath) throws Exception {
 
         Object controller = this.getRestController();
 
         Object invokeResult;
         try {
 
+            List<RequestAspect> methodWrappers = this.methodAspectList;
 
-            int paramsCount = method.getParameterCount();
-            Type[] paramsTypes = method.getGenericParameterTypes();
-            Annotation[][] paramAnnotations = method.getParameterAnnotations();
             Request jbRequest = getJBRequestInstance(request, targetPath);
 
             //准备参数
-            Object[] paramsObjects = getParamsObjects(jbRequest, paramsCount, paramsTypes, paramAnnotations, request, response, targetPath);
+            Object[] paramsObjects = getMethodParamsObjects(method, jbRequest, request, response);
 
             //Aspect前置
             for (RequestAspect methodWrapper : methodWrappers) {
@@ -256,7 +266,12 @@ public class ControllerHandler {
     }
 
 
-    private Object[] getParamsObjects(Request jettyBootReqParams, int paramsCount, Type[] paramsTypes, Annotation[][] paramAnnotations, HttpServletRequest request, HttpServletResponse response, String targetPath) throws Exception {
+    private Object[] getMethodParamsObjects(Method method, Request jettyBootReqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        int paramsCount = method.getParameterCount();
+        Type[] paramsTypes = method.getGenericParameterTypes();
+        Annotation[][] paramAnnotations = method.getParameterAnnotations();
+
 
         if (paramsCount == 0) {
             return new Object[]{};
@@ -265,85 +280,121 @@ public class ControllerHandler {
 
         List<Object> objects = new ArrayList<>();
 
-
         for (int i = 0; i < paramsCount; i++) {
 
             Type type = paramsTypes[i];
-            Class typeClazz = (Class) type;
-
             Annotation[] annotations = paramAnnotations[i];
 
-            Annotation annotation = null;
-            if (annotations != null && annotations.length > 0) {
-                annotation = annotations[0];
+            MethodArgument methodArgument = new MethodArgument(method, type, annotations);
+
+            Object object;
+            MethodArgumentResolver methodArgumentResolver = findMethodArgumentResolver(methodArgument);
+            if (methodArgumentResolver != null) {
+                object = methodArgumentResolver.resolveArgument(methodArgument, jettyBootReqParams);
+            } else {
+                object = getMethodParamsObject(methodArgument, jettyBootReqParams, request, response);
             }
-
-
-            Object object = null;
-
-
-            //1.通过注解注入
-            if (annotation != null) {
-
-                Class<? extends Annotation> annotationType = annotation.annotationType();
-                if (annotationType == RequestParam.class) {
-
-                    RequestParam requestParam = (RequestParam) annotation;
-                    String paramName = requestParam.value();
-                    Class elementType = requestParam.elementType();
-                    if (typeClazz.isArray()) {
-                        elementType = typeClazz.getComponentType();
-                        object = getArrayParamValue(jettyBootReqParams, paramName, elementType);
-                    } else if (List.class.isAssignableFrom(typeClazz)) {
-                        object = getListParamValue(jettyBootReqParams, paramName, elementType);
-                    } else if (Set.class.isAssignableFrom(typeClazz)) {
-                        object = getSetParamValue(jettyBootReqParams, paramName, elementType);
-                    } else {
-                        StringWrapper sw = jettyBootReqParams.getRequestParam(paramName, requestParam.defaultValue());
-                        object = CastTypeUtils.castValueType(sw, typeClazz);
-                    }
-
-                } else if (annotationType == RequestParams.class) {
-                    object = jettyBootReqParams.getRequestParamObject(typeClazz);
-                } else if (annotationType == RequestBody.class) {
-                    object = jettyBootReqParams.getRequestBodyObject(typeClazz);
-                } else if (annotationType == PathVariable.class) {
-                    PathVariable requestPath = (PathVariable) annotation;
-                    String sw = jettyBootReqParams.getPathVariable(requestPath.name());
-                    object = CastTypeUtils.castValueType(sw, typeClazz);
-                } else if (annotationType == AspectVariable.class) {
-                    AspectVariable aspectVariable = (AspectVariable) annotation;
-                    String aspectVariableName = aspectVariable.value();
-                    if (!aspectVariableName.isEmpty()) {
-                        object = jettyBootReqParams.getAspectVariable(aspectVariableName);
-                    } else {
-                        object = jettyBootReqParams.getAspectVariableByClassType(typeClazz);
-                    }
-                }
-            }
-
-
-            //2.通过类型注入
-            if (object == null) {
-                if (RequestParser.class.isAssignableFrom(typeClazz)) {
-                    RequestParser m = (RequestParser) typeClazz.newInstance();
-                    m.doParse(jettyBootReqParams, request, targetPath);
-                    object = m;
-                } else if (type.equals(ServletRequest.class) || type.equals(HttpServletRequest.class)) {
-                    object = request;
-                } else if (type.equals(ServletResponse.class) || type.equals(HttpServletResponse.class)) {
-                    object = response;
-                } else if (type.equals(Request.class)) {
-                    object = jettyBootReqParams;
-                }
-            }
-
 
             objects.add(object);
-
         }
 
         return objects.toArray();
+    }
+
+
+
+    private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {
+        for (MethodArgumentResolver resolver : methodArgumentResolvers) {
+            if (resolver.isSupport(methodArgument)) {
+                return resolver;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取某个方法参数的默认实现
+     *
+     * @param methodArgument     类型
+     * @param jettyBootReqParams 请求参数
+     * @param request            请求对象
+     * @param response           响应
+     * @return
+     * @throws IOException
+     */
+    private Object getMethodParamsObject(MethodArgument methodArgument, Request jettyBootReqParams, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+
+        Class typeClazz = (Class) methodArgument.getType();
+
+        Annotation[] annotations = methodArgument.getAnnotations();
+
+        Annotation annotation = null;
+        if (annotations != null && annotations.length > 0) {
+            annotation = annotations[0];
+        }
+
+
+        Object object = null;
+
+        //1.通过注解注入
+        if (annotation != null) {
+
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (annotationType == RequestParam.class) {
+
+                RequestParam requestParam = (RequestParam) annotation;
+                String paramName = requestParam.value();
+                Class elementType = requestParam.elementType();
+                if (typeClazz.isArray()) {
+                    elementType = typeClazz.getComponentType();
+                    object = getArrayParamValue(jettyBootReqParams, paramName, elementType);
+                } else if (List.class.isAssignableFrom(typeClazz)) {
+                    object = getListParamValue(jettyBootReqParams, paramName, elementType);
+                } else if (Set.class.isAssignableFrom(typeClazz)) {
+                    object = getSetParamValue(jettyBootReqParams, paramName, elementType);
+                } else {
+                    StringWrapper sw = jettyBootReqParams.getRequestParam(paramName, requestParam.defaultValue());
+                    object = CastTypeUtils.castValueType(sw, typeClazz);
+                }
+
+            } else if (annotationType == RequestParams.class) {
+                object = jettyBootReqParams.getRequestParamObject(typeClazz);
+            } else if (annotationType == RequestBody.class) {
+                object = jettyBootReqParams.getRequestBodyObject(typeClazz);
+            } else if (annotationType == PathVariable.class) {
+                PathVariable requestPath = (PathVariable) annotation;
+                String sw = jettyBootReqParams.getPathVariable(requestPath.name());
+                object = CastTypeUtils.castValueType(sw, typeClazz);
+            } else if (annotationType == AspectVariable.class) {
+                AspectVariable aspectVariable = (AspectVariable) annotation;
+                String aspectVariableName = aspectVariable.value();
+                if (!aspectVariableName.isEmpty()) {
+                    object = jettyBootReqParams.getAspectVariable(aspectVariableName);
+                } else {
+                    object = jettyBootReqParams.getAspectVariableByClassType(typeClazz);
+                }
+            }
+        }
+
+
+        //2.通过类型注入
+        if (object == null) {
+            if (RequestParser.class.isAssignableFrom(typeClazz)) {
+                RequestParser m = (RequestParser) typeClazz.newInstance();
+                m.doParse(jettyBootReqParams, request);
+                object = m;
+            } else if (typeClazz.equals(ServletRequest.class) || typeClazz.equals(HttpServletRequest.class)) {
+                object = request;
+            } else if (typeClazz.equals(ServletResponse.class) || typeClazz.equals(HttpServletResponse.class)) {
+                object = response;
+            } else if (typeClazz.equals(Request.class)) {
+                object = jettyBootReqParams;
+            }
+        }
+
+        return object;
     }
 
 

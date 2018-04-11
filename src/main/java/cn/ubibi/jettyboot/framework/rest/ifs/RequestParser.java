@@ -5,5 +5,5 @@ import cn.ubibi.jettyboot.framework.rest.Request;
 import javax.servlet.http.HttpServletRequest;
 
 public interface RequestParser {
-    void doParse(Request request, HttpServletRequest httpServletRequest, String path) throws Exception;
+    void doParse(Request request, HttpServletRequest httpServletRequest) throws Exception;
 }
