@@ -162,14 +162,15 @@ public class ControllerHandler {
 
             Request jbRequest = getJBRequestInstance(request, targetPath);
 
-            //准备参数
-            Object[] paramsObjects = getMethodParamsObjects(method, jbRequest, request, response);
 
             //Aspect前置
             for (RequestAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeBefore(method, jbRequest);
             }
 
+
+            //准备参数
+            Object[] paramsObjects = getMethodParamsObjects(method, jbRequest, request, response);
             //方法调用
             invokeResult = method.invoke(controller, paramsObjects);
 
