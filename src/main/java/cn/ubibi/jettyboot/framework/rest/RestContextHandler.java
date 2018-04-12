@@ -22,7 +22,7 @@ public class RestContextHandler extends ContextHandler{
         super(context);
         this.requestHandler = new RequestHandler();
         this.handlerCollection = new HandlerCollection(this.requestHandler);
-        this.setHandler(handlerCollection);
+        this.setHandler(this.handlerCollection);
     }
 
 
