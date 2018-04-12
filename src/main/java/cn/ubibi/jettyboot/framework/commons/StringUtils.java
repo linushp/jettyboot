@@ -65,4 +65,11 @@ public class StringUtils {
         matcher.appendTail(sb);
         return sb.toString();
     }
+
+    public static String appendIfNotEnd(String path, String s) {
+        if (path.endsWith(s)){
+            return path;
+        }
+        return path + s;
+    }
 }
