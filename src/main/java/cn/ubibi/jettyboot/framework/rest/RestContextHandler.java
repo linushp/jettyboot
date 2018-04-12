@@ -5,7 +5,10 @@ import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import javax.servlet.http.HttpServlet;
 
@@ -13,10 +16,13 @@ public class RestContextHandler extends ContextHandler{
 
     private RequestHandler requestHandler;
 
+    private HandlerCollection handlerCollection;
+
     public RestContextHandler(String context) {
         super(context);
         this.requestHandler = new RequestHandler();
-        this.setHandler(this.requestHandler);
+        this.handlerCollection = new HandlerCollection(this.requestHandler);
+        this.setHandler(handlerCollection);
     }
 
 
@@ -47,5 +53,14 @@ public class RestContextHandler extends ContextHandler{
 
     public void addService(Object service){
         ServiceManager.getInstance().addService(service);
+    }
+
+
+    public void addResourceHandler(ResourceHandler resourceHandler) {
+        this.handlerCollection.addHandler(resourceHandler);
+    }
+
+    public void addHandler(Handler handler) {
+        this.handlerCollection.addHandler(handler);
     }
 }
