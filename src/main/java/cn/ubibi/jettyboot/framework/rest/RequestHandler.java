@@ -21,7 +21,7 @@ public class RequestHandler extends AbstractHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
-    private final List<ControllerHandler> restHandlers = new ArrayList<>();
+    private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ExceptionHandler> exceptionHandlers = new ArrayList<>();
     private final List<ServletWrapper> httpServletHandlers = new ArrayList<>();
     private final List<RequestAspect> methodAspectList = new ArrayList<>();
@@ -47,7 +47,7 @@ public class RequestHandler extends AbstractHandler {
 
 
         //2. check rest controller handler
-        for (ControllerHandler restHandler : restHandlers) {
+        for (ControllerHandler restHandler : controllerHandlers) {
             try {
                 if (restHandler.handle(request, response)) {
                     baseRequest.setHandled(true);
@@ -99,7 +99,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + clazz.getName());
-        restHandlers.add(new ControllerHandler(path, clazz, methodAspectList, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, clazz, methodAspectList, methodArgumentResolvers));
     }
 
     public void addController(String path, Object restController) throws Exception {
@@ -107,7 +107,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + restController.getClass().getName());
-        restHandlers.add(new ControllerHandler(path, restController, methodAspectList, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, restController, methodAspectList, methodArgumentResolvers));
     }
 
 
@@ -145,5 +145,20 @@ public class RequestHandler extends AbstractHandler {
         methodArgumentResolvers.add(methodArgumentResolver);
     }
 
+
+
+    public List<ControllerMethodHandler> getControllerMethodHandlers(){
+        List<ControllerMethodHandler> result = new ArrayList<>();
+
+        for (ControllerHandler controllerHandler : controllerHandlers){
+            List<ControllerMethodHandler> methods = controllerHandler.getControllerMethodList();
+            if (methods!=null && !methods.isEmpty()){
+                result.addAll(methods);
+            }
+        }
+
+        return result;
+
+    }
 
 }

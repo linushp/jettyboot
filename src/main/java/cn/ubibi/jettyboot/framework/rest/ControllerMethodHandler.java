@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-class ControllerMethodHandler implements Comparable<ControllerMethodHandler> {
+public class ControllerMethodHandler implements Comparable<ControllerMethodHandler> {
 
     private String targetPath;
     private String supportRequestMethod;
@@ -328,5 +328,19 @@ class ControllerMethodHandler implements Comparable<ControllerMethodHandler> {
     @Override
     public String toString() {
         return this.targetPath;
+    }
+
+
+
+    public String getTargetPath() {
+        return targetPath;
+    }
+
+    public String getSupportRequestMethod() {
+        return supportRequestMethod;
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }

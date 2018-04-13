@@ -27,20 +27,20 @@ public class ControllerHandler {
     private Object restController;
     private String path;
 
-    private List<ControllerMethodHandler> methodList;
+    private List<ControllerMethodHandler> controllerMethodList;
 
 
     public ControllerHandler(String path, Class<?> clazz, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restControllerClazz = clazz;
         this.path = path;
-        this.methodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
+        this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
     public ControllerHandler(String path, Object restController, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restController = restController;
         this.path = path;
-        this.methodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
+        this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
@@ -108,7 +108,7 @@ public class ControllerHandler {
         String reqPath = request.getPathInfo();
         String classPath = this.getClassPath();
 
-        List<ControllerMethodHandler> methods = this.methodList;
+        List<ControllerMethodHandler> methods = this.controllerMethodList;
 
         if (isMatchClassPath(reqPath, classPath) && !methods.isEmpty()) {
 
@@ -119,7 +119,6 @@ public class ControllerHandler {
                     return true;
                 }
             }
-
         }
 
         //路径不匹配
@@ -135,7 +134,7 @@ public class ControllerHandler {
     }
 
 
-    private Class<?> getControllerClass() {
+    public Class<?> getControllerClass() {
         Class<?> clazz = this.restControllerClazz;
         if (clazz == null) {
             clazz = this.restController.getClass();
@@ -178,5 +177,10 @@ public class ControllerHandler {
         return false;
     }
 
+
+
+    public List<ControllerMethodHandler> getControllerMethodList() {
+        return controllerMethodList;
+    }
 
 }

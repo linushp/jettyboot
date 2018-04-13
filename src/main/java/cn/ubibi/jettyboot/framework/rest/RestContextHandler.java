@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import javax.servlet.http.HttpServlet;
+import java.util.List;
 
 public class RestContextHandler extends ContextHandler{
 
@@ -50,7 +51,6 @@ public class RestContextHandler extends ContextHandler{
         this.requestHandler.addMethodArgumentResolver(argumentResolver);
     }
 
-
     public void addService(Object service){
         ServiceManager.getInstance().addService(service);
     }
@@ -63,4 +63,14 @@ public class RestContextHandler extends ContextHandler{
     public void addHandler(Handler handler) {
         this.handlerCollection.addHandler(handler);
     }
+
+
+    /**
+     * 报漏给外界，为了用户扩展需要，比如用户自己实现一个DWR框架
+     * @return
+     */
+    public List<ControllerMethodHandler> getControllerMethodHandlers(){
+        return this.requestHandler.getControllerMethodHandlers();
+    }
+
 }
