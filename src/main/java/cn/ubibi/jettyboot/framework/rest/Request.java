@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -14,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Request {
-    private HttpServletRequest request;
+
+    private HttpServletResponse servletResponse;
+    private HttpServletRequest servletRequest;
     private String targetPath;
 
 
@@ -25,17 +28,18 @@ public class Request {
     private Map<String, Object> aspectVariable = null;
 
 
-    private Request(HttpServletRequest request, String targetPath) {
-        this.request = request;
+    private Request(HttpServletRequest servletRequest, HttpServletResponse servletResponse,String targetPath) {
+        this.servletRequest = servletRequest;
+        this.servletResponse = servletResponse;
         this.targetPath = targetPath;
     }
 
 
-    public static Request getInstance(HttpServletRequest request, String targetPath) {
+    public static Request getInstance(HttpServletRequest request, HttpServletResponse response, String targetPath) {
         String name = Request.class.getName() + "_jettyBootRequest";
         Request jettyBootRequest = (Request) request.getAttribute(name);
         if (jettyBootRequest == null) {
-            jettyBootRequest = new Request(request, targetPath);
+            jettyBootRequest = new Request(request,response, targetPath);
             request.setAttribute(name, jettyBootRequest);
         }
         return jettyBootRequest;
@@ -43,40 +47,40 @@ public class Request {
 
 
     public String getContextPath() {
-        return this.request.getContextPath();
+        return this.servletRequest.getContextPath();
     }
 
     public String getMethod() {
-        return this.request.getMethod();
+        return this.servletRequest.getMethod();
     }
 
     public String getPathInfo() {
-        return this.request.getPathInfo();
+        return this.servletRequest.getPathInfo();
     }
 
     public String getHeader(String name) {
-        return this.request.getHeader(name);
+        return this.servletRequest.getHeader(name);
     }
 
     public String getQueryString() {
-        return this.request.getQueryString();
+        return this.servletRequest.getQueryString();
     }
 
     public String[] getParameterValues(String name) {
-        return request.getParameterValues(name);
+        return servletRequest.getParameterValues(name);
     }
 
     public String getParameter(String name) {
-        return request.getParameter(name);
+        return servletRequest.getParameter(name);
     }
 
 
     public StringWrapper getRequestParam(String name) {
-        return new StringWrapper(request.getParameter(name));
+        return new StringWrapper(servletRequest.getParameter(name));
     }
 
     public StringWrapper getRequestParam(String name, String defaultValue) {
-        String mm = request.getParameter(name);
+        String mm = servletRequest.getParameter(name);
         if (mm == null || mm.isEmpty()) {
             mm = defaultValue;
         }
@@ -84,7 +88,7 @@ public class Request {
     }
 
     public StringWrapper[] getRequestParams(String name) {
-        String[] values = request.getParameterValues(name);
+        String[] values = servletRequest.getParameterValues(name);
         StringWrapper[] valuesWrapper = new StringWrapper[values.length];
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
@@ -95,7 +99,7 @@ public class Request {
 
 
     public String getCookieValue(String cookieName) {
-        Cookie[] cookies = this.request.getCookies();
+        Cookie[] cookies = this.servletRequest.getCookies();
         if (cookies == null) {
             return null;
         }
@@ -119,9 +123,9 @@ public class Request {
             Class<?> fieldType = field.getType();
 
             if (fieldType.isArray() || List.class.isAssignableFrom(fieldType)) {
-                map2.put(fieldName, request.getParameterValues(fieldName));
+                map2.put(fieldName, servletRequest.getParameterValues(fieldName));
             } else {
-                map2.put(fieldName, request.getParameter(fieldName));
+                map2.put(fieldName, servletRequest.getParameter(fieldName));
             }
         }
 
@@ -140,7 +144,7 @@ public class Request {
 
         this._pathVariable = new HashMap<>();
 
-        String pathInfo = this.request.getPathInfo();
+        String pathInfo = this.servletRequest.getPathInfo();
         String[] pathInfoArray = pathInfo.split("/");
         String[] targetPathArray = this.targetPath.split("/");
 
@@ -162,13 +166,13 @@ public class Request {
             return this._requestBody;
         }
 
-        int len = request.getContentLength();
+        int len = servletRequest.getContentLength();
         if (len <= 0) {
             return null;
         }
 
 
-        ServletInputStream inputStream = request.getInputStream();
+        ServletInputStream inputStream = servletRequest.getInputStream();
         byte[] buffer = new byte[len];
         inputStream.read(buffer, 0, len);
 
@@ -225,5 +229,17 @@ public class Request {
         this.aspectVariable.put(name, aspectVariable);
     }
 
+
+
+    //不建议直接使用，尽量只在Aspect中使用
+    public HttpServletResponse getServletResponse() {
+        return servletResponse;
+    }
+
+
+    //不建议直接使用，尽量只在Aspect中使用
+    public HttpServletRequest getServletRequest() {
+        return servletRequest;
+    }
 
 }

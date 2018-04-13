@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
+import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import com.alibaba.fastjson.JSON;
 
@@ -27,7 +28,8 @@ public class JsonRender implements ResponseRender {
         PrintWriter writer = response.getWriter();
         writer.print(jsonText);
         writer.flush();
-        writer.close();
-        response.flushBuffer();
+
+
+        ResponseUtils.tryClose(response);
     }
 }

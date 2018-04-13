@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
+import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,8 @@ public class TextRender implements ResponseRender {
         PrintWriter writer = response.getWriter();
         writer.print(this.text);
         writer.flush();
-        writer.close();
-        response.flushBuffer();
+
+
+        ResponseUtils.tryClose(response);
     }
 }

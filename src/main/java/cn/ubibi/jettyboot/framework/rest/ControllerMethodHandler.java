@@ -65,7 +65,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             List<RequestAspect> methodWrappers = this.requestAspectList;
 
-            Request jbRequest = Request.getInstance(request, targetPath);
+            Request jbRequest = Request.getInstance(request, response, targetPath);
 
             //Aspect前置
             for (RequestAspect methodWrapper : methodWrappers) {

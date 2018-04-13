@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 
+import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
 
@@ -84,26 +85,6 @@ public class ServletWrapper {
     }
 
 
-    private void tryClose(HttpServletResponse response) {
-        try {
-            response.flushBuffer();
-        } catch (IOException e) {
-        }
-
-        try {
-            PrintWriter writer = response.getWriter();
-            writer.close();
-        } catch (IllegalStateException e) {
-            try {
-                ServletOutputStream stream = response.getOutputStream();
-                stream.close();
-            } catch (IllegalStateException f) {
-            } catch (IOException f) {
-            }
-        } catch (IOException e) {
-        }
-    }
-
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         if (!this.isInit) {
@@ -119,7 +100,7 @@ public class ServletWrapper {
 
 
 
-        Request jbRequest = Request.getInstance(request,this.path);
+        Request jbRequest = Request.getInstance(request,response,this.path);
         Method serviceMethod = httpServlet.getClass().getMethod("service", ServletRequest.class, ServletResponse.class);
 
 
@@ -137,6 +118,6 @@ public class ServletWrapper {
         }
 
 
-        tryClose(response);
+//        ResponseUtils.tryClose(response);
     }
 }
