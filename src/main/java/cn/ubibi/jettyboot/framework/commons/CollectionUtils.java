@@ -83,4 +83,23 @@ public class CollectionUtils {
     }
 
 
+    public static List<String> toListAddAll(String[] urls1, String[] urls2) {
+        List<String> result = new ArrayList<>();
+
+        if (urls1!=null && urls1.length > 0){
+            for (String s:urls1){
+                result.add(s);
+            }
+        }
+
+        if (urls2!=null && urls2.length > 0){
+            for (String s2:urls2){
+                result.add(s2);
+            }
+        }
+
+        return result;
+
+    }
+
 }

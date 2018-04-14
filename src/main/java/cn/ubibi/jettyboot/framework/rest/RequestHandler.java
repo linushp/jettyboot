@@ -23,7 +23,6 @@ public class RequestHandler extends AbstractHandler {
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private final List<ServletWrapper> httpServletHandlers = new ArrayList<>();
     private final List<RequestAspect> methodAspectList = new ArrayList<>();
     private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
 
@@ -31,22 +30,7 @@ public class RequestHandler extends AbstractHandler {
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
 
-        // 1. check Servlet Handler
-        for (ServletWrapper httpServletWrapper : httpServletHandlers) {
-            if (httpServletWrapper.matched(target)) {
-                try {
-                    httpServletWrapper.handle(request, response);
-                } catch (Exception e) {
-                    handleException2(e, request, response);
-                } finally {
-                    baseRequest.setHandled(true);
-                }
-                return;
-            }
-        }
-
-
-        //2. check rest controller handler
+        // check rest controller handler
         for (ControllerHandler restHandler : controllerHandlers) {
             try {
                 if (restHandler.handle(request, response)) {
@@ -119,14 +103,6 @@ public class RequestHandler extends AbstractHandler {
         exceptionHandlers.add(exceptionHandler);
     }
 
-    public void addServlet(String path, HttpServlet httpServlet) throws Exception {
-        if (httpServlet == null || path == null || path.isEmpty()) {
-            throw new Exception("addExceptionHandler can not null");
-        }
-
-        LOGGER.info("addServlet " + path + "  :  " + httpServlet.getClass().getName());
-        httpServletHandlers.add(new ServletWrapper(path, httpServlet, this.methodAspectList));
-    }
 
     public void addRequestAspect(RequestAspect methodAspect) throws Exception {
         if (methodAspect == null) {
@@ -146,13 +122,12 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-
-    public List<ControllerMethodHandler> getControllerMethodHandlers(){
+    public List<ControllerMethodHandler> getControllerMethodHandlers() {
         List<ControllerMethodHandler> result = new ArrayList<>();
 
-        for (ControllerHandler controllerHandler : controllerHandlers){
+        for (ControllerHandler controllerHandler : controllerHandlers) {
             List<ControllerMethodHandler> methods = controllerHandler.getControllerMethodList();
-            if (methods!=null && !methods.isEmpty()){
+            if (methods != null && !methods.isEmpty()) {
                 result.addAll(methods);
             }
         }
