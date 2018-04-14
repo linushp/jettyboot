@@ -99,11 +99,15 @@ public class StringUtils {
         return name.replaceAll("\\.", "/");
     }
 
+    public static String splashToDot(String name) {
+        return name.replaceAll("/", ".");
+    }
+
     /**
      * "Apple.class" -> "Apple"
      */
     public static String trimExtension(String name) {
-        int pos = name.indexOf('.');
+        int pos = name.lastIndexOf('.');
         if (-1 != pos) {
             return name.substring(0, pos);
         }

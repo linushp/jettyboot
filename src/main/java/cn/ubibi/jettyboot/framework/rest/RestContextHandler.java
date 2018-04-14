@@ -91,7 +91,7 @@ public class RestContextHandler extends ContextHandler{
 
         for (String className : classNameList) {
 
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className,true, this.getClass().getClassLoader());
             Annotation[] annotations = clazz.getAnnotations();
             if (annotations != null && annotations.length > 0) {
 
@@ -149,7 +149,7 @@ public class RestContextHandler extends ContextHandler{
                         //3.4
                         else if (ResourceHandler.class.isAssignableFrom(clazz)){
                             ResourceHandler resourceHandler = (ResourceHandler)clazz.newInstance();
-                            this.addResourceHandler(resourceHandler);
+                            otherHandlers.add(resourceHandler);
                         }
 
 

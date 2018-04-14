@@ -17,7 +17,7 @@ import java.util.jar.JarInputStream;
 public class ClasspathPackageScanner implements PackageScanner {
     private Logger logger = LoggerFactory.getLogger(ClasspathPackageScanner.class);
     private String basePackage;
-    private ClassLoader cl;
+    private ClassLoader classLoader;
 
     /**
      * 初始化
@@ -26,12 +26,12 @@ public class ClasspathPackageScanner implements PackageScanner {
      */
     public ClasspathPackageScanner(String basePackage) {
         this.basePackage = basePackage;
-        this.cl = getClass().getClassLoader();
+        this.classLoader = getClass().getClassLoader();
     }
 
-    public ClasspathPackageScanner(String basePackage, ClassLoader cl) {
+    public ClasspathPackageScanner(String basePackage, ClassLoader classLoader) {
         this.basePackage = basePackage;
-        this.cl = cl;
+        this.classLoader = classLoader;
     }
 
     /**
@@ -52,27 +52,30 @@ public class ClasspathPackageScanner implements PackageScanner {
      */
     private List<String> doScan(String basePackage, List<String> nameList) throws IOException {
         String splashPath = StringUtils.dotToSplash(basePackage);
-        URL url = cl.getResource(splashPath);   //file:/D:/WorkSpace/java/ScanTest/target/classes/com/scan
+        URL url = classLoader.getResource(splashPath);   //file:/D:/WorkSpace/java/ScanTest/target/classes/com/scan
         String filePath = StringUtils.getRootPath(url);
         List<String> names = null; // contains the name of the class file. e.g., Apple.class will be stored as "Apple"
+
+
+
         if (isJarFile(filePath)) {// 先判断是否是jar包，如果是jar包，通过JarInputStream产生的JarEntity去递归查询所有类
             if (logger.isDebugEnabled()) {
                 logger.debug("{} 是一个JAR包", filePath);
             }
+
             names = readFromJarFile(filePath, splashPath);
+            names = toFullyQualifiedName(names,null);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("{} 是一个目录", filePath);
             }
             names = readFromDirectory(filePath);
+            names = toFullyQualifiedName(names,basePackage);
         }
-        for (String name : names) {
-            if (isClassFile(name)) {
-                nameList.add(toFullyQualifiedName(name, basePackage));
-            } else {
-                doScan(basePackage + "." + name, nameList);
-            }
-        }
+
+
+        nameList.addAll(names);
+
         if (logger.isDebugEnabled()) {
             for (String n : nameList) {
                 logger.debug("找到{}", n);
@@ -81,13 +84,26 @@ public class ClasspathPackageScanner implements PackageScanner {
         return nameList;
     }
 
-    private String toFullyQualifiedName(String shortName, String basePackage) {
-        StringBuilder sb = new StringBuilder(basePackage);
-        sb.append('.');
-        sb.append(StringUtils.trimExtension(shortName));
-        //打印出结果
-        System.out.println(sb.toString());
-        return sb.toString();
+    private List<String> toFullyQualifiedName(List<String> shortName, String basePackage) {
+
+        List<String> result = new ArrayList<>();
+
+        for (String s:shortName){
+
+            String name;
+            if (!StringUtils.isEmpty(basePackage)){
+                name = basePackage + "." + s;
+            }else {
+                name = s;
+            }
+            name = StringUtils.trimExtension(name);
+            name = StringUtils.splashToDot(name);
+
+            result.add(name);
+        }
+
+        return result;
+
     }
 
     private List<String> readFromJarFile(String jarPath, String splashedPackageName) throws IOException {
@@ -102,7 +118,6 @@ public class ClasspathPackageScanner implements PackageScanner {
             if (name.startsWith(splashedPackageName) && isClassFile(name)) {
                 nameList.add(name);
             }
-
             entry = jarIn.getNextJarEntry();
         }
 
@@ -110,15 +125,53 @@ public class ClasspathPackageScanner implements PackageScanner {
     }
 
     private List<String> readFromDirectory(String path) {
-        File file = new File(path);
-        String[] names = file.list();
 
-        if (null == names) {
-            return null;
+        int prefixLength = path.length();
+
+        File file = new File(path);
+
+        List<File> fileList = listFileOfDirectory(file);
+
+
+        List<String> fileNames = new ArrayList<>();
+        for (File file1 : fileList){
+            String path1 = file1.getAbsolutePath();
+            String pathShort = path1.substring(prefixLength+1);
+            fileNames.add(pathShort);
         }
 
-        return Arrays.asList(names);
+        return fileNames;
     }
+
+    private List<File> listFileOfDirectory(File file) {
+
+        if (file.isDirectory()){
+            List<File> result = new ArrayList<>();
+            File[] files = file.listFiles();
+            for (File file1 : files){
+
+                if (file1.isDirectory()){
+
+                    List<File> file1List = listFileOfDirectory(file1);
+                    if (file1List!=null && !file1List.isEmpty()){
+                        result.addAll(file1List);
+                    }
+
+                }else {
+                    result.add(file1);
+                }
+
+            }
+
+            return result;
+        }
+
+        return new ArrayList<>();
+    }
+
+
+
+
 
     private boolean isClassFile(String name) {
         return name.endsWith(".class");
