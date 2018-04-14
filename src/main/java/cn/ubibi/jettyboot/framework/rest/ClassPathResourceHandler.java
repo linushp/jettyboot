@@ -15,6 +15,11 @@ import java.net.URL;
 public class ClassPathResourceHandler extends ResourceHandler {
 
 
+    public ClassPathResourceHandler(){
+        this("public");
+    }
+
+
     public ClassPathResourceHandler(String pathPrefix) {
         super();
 
