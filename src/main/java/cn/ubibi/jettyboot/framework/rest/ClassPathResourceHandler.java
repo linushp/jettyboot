@@ -1,9 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import com.sun.org.apache.bcel.internal.util.ClassPath;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.ResourceService;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
@@ -16,13 +13,12 @@ import java.net.URL;
 public class ClassPathResourceHandler extends ResourceHandler {
 
 
-    public ClassPathResourceHandler() throws IOException {
+    public ClassPathResourceHandler(){
         this("public");
     }
 
 
-    public ClassPathResourceHandler(String pathPrefix) throws IOException {
-
+    public ClassPathResourceHandler(String pathPrefix)  {
         super();
 
         pathPrefix = (pathPrefix.charAt(0) == '/' ? pathPrefix.substring(1) : pathPrefix);
