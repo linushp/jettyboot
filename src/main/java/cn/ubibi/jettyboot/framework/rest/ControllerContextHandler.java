@@ -39,8 +39,8 @@ public class ControllerContextHandler extends ContextHandler{
         this.requestHandler.addExceptionHandler(exceptionHandler);
     }
 
-    public void addRequestAspect(ControllerAspect methodAspect) throws Exception {
-        this.requestHandler.addRequestAspect(methodAspect);
+    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
+        this.requestHandler.addControllerAspect(methodAspect);
     }
 
     public void addMethodArgumentResolver(MethodArgumentResolver argumentResolver) throws Exception {

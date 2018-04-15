@@ -2,10 +2,7 @@ package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.scan.ClasspathPackageScanner;
 import cn.ubibi.jettyboot.framework.commons.scan.PackageScanner;
-import cn.ubibi.jettyboot.framework.rest.annotation.Component;
-import cn.ubibi.jettyboot.framework.rest.annotation.ComponentFactory;
-import cn.ubibi.jettyboot.framework.rest.annotation.Controller;
-import cn.ubibi.jettyboot.framework.rest.annotation.Service;
+import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
@@ -19,10 +16,17 @@ import java.util.List;
 
 public class PackageScannerUtils {
 
+    public static void addByPackageScanner(String packageName, ControllerContextHandler controllerContextHandler) throws Exception {
+        PackageScanner packageScanner = new ClasspathPackageScanner(packageName);
+        addByPackageScanner(packageScanner, controllerContextHandler, null);
+    }
+
+
     public static void addByPackageScanner(String packageName, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {
         PackageScanner packageScanner = new ClasspathPackageScanner(packageName);
         addByPackageScanner(packageScanner, controllerContextHandler, restServer);
     }
+
 
 
     public static void addByPackageScanner(PackageScanner packageScanner, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {
@@ -41,7 +45,6 @@ public class PackageScannerUtils {
 
                     //1
                     if (annotation.annotationType() == Controller.class) {
-
                         Controller controllerAnnotation = (Controller) annotation;
                         String controllerPath = controllerAnnotation.value();
                         boolean isSingleton = controllerAnnotation.singleton();
@@ -51,7 +54,6 @@ public class PackageScannerUtils {
                         } else {
                             controllerContextHandler.addController(controllerPath, clazz);
                         }
-
                     }
 
 
@@ -61,6 +63,9 @@ public class PackageScannerUtils {
                         controllerContextHandler.addService(serviceObject);
                     }
 
+                    else if (annotation.annotationType() == ServiceFactory.class){
+                        addByServiceFactory(clazz, controllerContextHandler);
+                    }
 
                     //3
                     else if (annotation.annotationType() == Component.class) {
@@ -79,6 +84,25 @@ public class PackageScannerUtils {
         }// for end
 
 
+    }
+
+
+    private static void addByServiceFactory(Class<?> clazz, ControllerContextHandler controllerContextHandler) throws Exception {
+        Object serviceFactory = clazz.newInstance();
+        Method[] methods = clazz.getDeclaredMethods();
+
+        if (methods != null) {
+            for (Method method : methods) {
+                Service annotation = method.getAnnotation(Service.class);
+                if (annotation != null) {
+                    method.setAccessible(true);
+                    Object object = method.invoke(serviceFactory);
+                    if (object != null) {
+                        controllerContextHandler.addService(object);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -155,7 +179,7 @@ public class PackageScannerUtils {
 
         //3.2
         else if (object instanceof ControllerAspect) {
-            controllerContextHandler.addRequestAspect((ControllerAspect) object);
+            controllerContextHandler.addControllerAspect((ControllerAspect) object);
         }
 
         //3.3

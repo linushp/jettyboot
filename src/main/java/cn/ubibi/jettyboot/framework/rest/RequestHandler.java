@@ -22,7 +22,7 @@ public class RequestHandler extends AbstractHandler {
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ControllerExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private final List<ControllerAspect> methodAspectList = new ArrayList<>();
+    private final List<ControllerAspect> controllerAspects = new ArrayList<>();
     private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
 
 
@@ -82,7 +82,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + clazz.getName());
-        controllerHandlers.add(new ControllerHandler(path, clazz, methodAspectList, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, clazz, controllerAspects, methodArgumentResolvers));
     }
 
     public void addController(String path, Object restController) throws Exception {
@@ -90,7 +90,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + restController.getClass().getName());
-        controllerHandlers.add(new ControllerHandler(path, restController, methodAspectList, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, restController, controllerAspects, methodArgumentResolvers));
     }
 
 
@@ -103,12 +103,12 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    public void addRequestAspect(ControllerAspect methodAspect) throws Exception {
+    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
         if (methodAspect == null) {
-            throw new Exception("addRequestAspect can not null");
+            throw new Exception("addControllerAspect can not null");
         }
-        LOGGER.info("addRequestAspect " + methodAspect.getClass().getName());
-        methodAspectList.add(methodAspect);
+        LOGGER.info("addControllerAspect " + methodAspect.getClass().getName());
+        controllerAspects.add(methodAspect);
     }
 
 

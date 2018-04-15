@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 /**
  * 全部是单例
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE,ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Service {
