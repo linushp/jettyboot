@@ -165,7 +165,9 @@ public class PackageScannerUtils {
 
         //3.4
         else if (object instanceof ContextHandler) {
-            restServer.addContextHandler((ContextHandler) object);
+            if (restServer != null) {
+                restServer.addContextHandler((ContextHandler) object);
+            }
         }
 
         //3.4
