@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 

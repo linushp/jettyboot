@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Request {
+public class ControllerRequest {
 
     private HttpServletResponse servletResponse;
     private HttpServletRequest servletRequest;
@@ -28,18 +28,18 @@ public class Request {
     private Map<String, Object> aspectVariable = null;
 
 
-    private Request(HttpServletRequest servletRequest, HttpServletResponse servletResponse,String targetPath) {
+    private ControllerRequest(HttpServletRequest servletRequest, HttpServletResponse servletResponse, String targetPath) {
         this.servletRequest = servletRequest;
         this.servletResponse = servletResponse;
         this.targetPath = targetPath;
     }
 
 
-    public static Request getInstance(HttpServletRequest request, HttpServletResponse response, String targetPath) {
-        String name = Request.class.getName() + "_jettyBootRequest";
-        Request jettyBootRequest = (Request) request.getAttribute(name);
+    public static ControllerRequest getInstance(HttpServletRequest request, HttpServletResponse response, String targetPath) {
+        String name = ControllerRequest.class.getName() + "_jettyBootRequest";
+        ControllerRequest jettyBootRequest = (ControllerRequest) request.getAttribute(name);
         if (jettyBootRequest == null) {
-            jettyBootRequest = new Request(request,response, targetPath);
+            jettyBootRequest = new ControllerRequest(request,response, targetPath);
             request.setAttribute(name, jettyBootRequest);
         }
         return jettyBootRequest;

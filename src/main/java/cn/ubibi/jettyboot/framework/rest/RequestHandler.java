@@ -1,8 +1,8 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
-import cn.ubibi.jettyboot.framework.rest.ifs.ExceptionHandler;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,8 +21,8 @@ public class RequestHandler extends AbstractHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
-    private final List<ExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private final List<RequestAspect> methodAspectList = new ArrayList<>();
+    private final List<ControllerExceptionHandler> exceptionHandlers = new ArrayList<>();
+    private final List<ControllerAspect> methodAspectList = new ArrayList<>();
     private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
 
 
@@ -68,7 +67,7 @@ public class RequestHandler extends AbstractHandler {
 
 
     private boolean handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        for (ExceptionHandler exceptionHandler : exceptionHandlers) {
+        for (ControllerExceptionHandler exceptionHandler : exceptionHandlers) {
             boolean isHandled = exceptionHandler.handle(e, request, response);
             if (isHandled) {
                 return true;
@@ -95,7 +94,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    public void addExceptionHandler(ExceptionHandler exceptionHandler) throws Exception {
+    public void addExceptionHandler(ControllerExceptionHandler exceptionHandler) throws Exception {
         if (exceptionHandler == null) {
             throw new Exception("addExceptionHandler can not null");
         }
@@ -104,7 +103,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    public void addRequestAspect(RequestAspect methodAspect) throws Exception {
+    public void addRequestAspect(ControllerAspect methodAspect) throws Exception {
         if (methodAspect == null) {
             throw new Exception("addRequestAspect can not null");
         }

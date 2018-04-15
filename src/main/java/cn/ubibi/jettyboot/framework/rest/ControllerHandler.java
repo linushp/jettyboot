@@ -5,7 +5,7 @@ import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,21 +30,21 @@ public class ControllerHandler {
     private List<ControllerMethodHandler> controllerMethodList;
 
 
-    public ControllerHandler(String path, Class<?> clazz, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    public ControllerHandler(String path, Class<?> clazz, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restControllerClazz = clazz;
         this.path = path;
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
-    public ControllerHandler(String path, Object restController, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    public ControllerHandler(String path, Object restController, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restController = restController;
         this.path = path;
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
-    private List<ControllerMethodHandler> buildMethodHandlerList(List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    private List<ControllerMethodHandler> buildMethodHandlerList(List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
 
         List<ControllerMethodHandler> methodList = new ArrayList<>();
         Class<?> clazz = this.getControllerClass();

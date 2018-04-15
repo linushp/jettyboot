@@ -6,7 +6,7 @@ import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.commons.StringWrapper;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.RequestAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
@@ -33,10 +33,10 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private Method method;
 
     private List<MethodArgumentResolver> methodArgumentResolvers;
-    private List<RequestAspect> requestAspectList;
+    private List<ControllerAspect> requestAspectList;
 
 
-    ControllerMethodHandler(String methodPath, String supportRequestMethod, String classPath, Method method, List<RequestAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    ControllerMethodHandler(String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
@@ -63,12 +63,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         Object invokeResult;
         try {
 
-            List<RequestAspect> methodWrappers = this.requestAspectList;
+            List<ControllerAspect> methodWrappers = this.requestAspectList;
 
-            Request jbRequest = Request.getInstance(request, response, targetPath);
+            ControllerRequest jbRequest = ControllerRequest.getInstance(request, response, targetPath);
 
             //Aspect前置
-            for (RequestAspect methodWrapper : methodWrappers) {
+            for (ControllerAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeBefore(method, jbRequest);
             }
 
@@ -80,7 +80,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
             //Aspect后置
-            for (RequestAspect methodWrapper : methodWrappers) {
+            for (ControllerAspect methodWrapper : methodWrappers) {
                 methodWrapper.invokeAfter(method, jbRequest, invokeResult);
             }
 
@@ -101,7 +101,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object[] getMethodParamsObjects(Method method, Request jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Object[] getMethodParamsObjects(Method method, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         int paramsCount = method.getParameterCount();
         Type[] paramsTypes = method.getGenericParameterTypes();
@@ -157,7 +157,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
      * @return
      * @throws IOException
      */
-    private Object getMethodParamsObject(MethodArgument methodArgument, Request jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Object getMethodParamsObject(MethodArgument methodArgument, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 
         Class typeClazz = (Class) methodArgument.getType();
@@ -223,7 +223,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 object = request;
             } else if (typeClazz.equals(ServletResponse.class) || typeClazz.equals(HttpServletResponse.class)) {
                 object = response;
-            } else if (typeClazz.equals(Request.class)) {
+            } else if (typeClazz.equals(ControllerRequest.class)) {
                 object = jbRequest;
             }
         }
@@ -232,7 +232,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private List getListParamValue(Request jettyBootReqParams, String paramName, Class elementType) {
+    private List getListParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
         StringWrapper[] swArray = jettyBootReqParams.getRequestParams(paramName);
         if (swArray == null || swArray.length == 0) {
             return new ArrayList();
@@ -255,12 +255,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object[] getArrayParamValue(Request jettyBootReqParams, String paramName, Class elementType) {
+    private Object[] getArrayParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
         List list = getListParamValue(jettyBootReqParams, paramName, elementType);
         return list.toArray();
     }
 
-    private Set getSetParamValue(Request jettyBootReqParams, String paramName, Class elementType) {
+    private Set getSetParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
         List list = getListParamValue(jettyBootReqParams, paramName, elementType);
         return new HashSet(list);
     }
