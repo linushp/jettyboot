@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
+import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,11 +139,7 @@ public class DataAccess {
     // 查询一条记录, 返回对应的对象
     public <T> T queryObject(Class<T> clazz, String sql, Object... args) throws Exception {
         List<T> result = query(clazz, sql, args);
-        if (result.size() > 0) {
-            return result.get(0);
-        }
-
-        return null;
+        return CollectionUtils.getFirstElement(result);
     }
 
 

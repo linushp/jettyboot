@@ -102,4 +102,12 @@ public class CollectionUtils {
 
     }
 
+
+    public static <T> T getFirstElement(List<T> result) {
+        if (result != null && result.size() > 0) {
+            return result.get(0);
+        }
+        return null;
+    }
+
 }
