@@ -145,9 +145,9 @@ public class BeanUtils {
 
     /**
      * 浅复制
-     * @param targetObject
-     * @param fromObject
-     * @param <T>
+     * @param targetObject 目标对象
+     * @param fromObject 源对象
+     * @param <T> 类型
      */
     public static <T> void copyField(T targetObject, T fromObject) {
         if (fromObject == null) {
