@@ -50,7 +50,9 @@ public class PackageScannerUtils {
 
                         boolean isSingleton = controllerAnnotation.singleton();
                         if (isSingleton) {
+
                             Object controllerObject = clazz.newInstance();
+
                             for (String controllerPath1:controllerPath){
                                 controllerContextHandler.addController(controllerPath1, controllerObject);
                             }
