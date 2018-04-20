@@ -199,7 +199,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 object = jbRequest.getRequestBodyObject(typeClazz);
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
-                String sw = jbRequest.getPathVariable(requestPath.name());
+                String sw = jbRequest.getPathVariable(requestPath.value());
                 object = CastTypeUtils.castValueType(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
