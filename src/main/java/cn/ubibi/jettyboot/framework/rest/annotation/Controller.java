@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Controller {
-    String value();
+    String[] value();
     boolean singleton() default true;
 }

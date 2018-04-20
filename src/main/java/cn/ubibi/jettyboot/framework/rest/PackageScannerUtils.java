@@ -46,13 +46,18 @@ public class PackageScannerUtils {
                     //1
                     if (annotation.annotationType() == Controller.class) {
                         Controller controllerAnnotation = (Controller) annotation;
-                        String controllerPath = controllerAnnotation.value();
+                        String[] controllerPath = controllerAnnotation.value();
+
                         boolean isSingleton = controllerAnnotation.singleton();
                         if (isSingleton) {
                             Object controllerObject = clazz.newInstance();
-                            controllerContextHandler.addController(controllerPath, controllerObject);
+                            for (String controllerPath1:controllerPath){
+                                controllerContextHandler.addController(controllerPath1, controllerObject);
+                            }
                         } else {
-                            controllerContextHandler.addController(controllerPath, clazz);
+                            for (String controllerPath1:controllerPath){
+                                controllerContextHandler.addController(controllerPath1, clazz);
+                            }
                         }
                     }
 

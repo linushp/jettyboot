@@ -63,20 +63,19 @@ public class ControllerHandler {
                 DeleteMapping methodAnnotation4 = method.getAnnotation(DeleteMapping.class);
 
 
-                ControllerMethodHandler controllerMethodHandler = null;
+                List<ControllerMethodHandler> controllerMethodHandler = null;
                 if (methodAnnotation1 != null) {
-                    controllerMethodHandler = new ControllerMethodHandler(methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation2 != null) {
-                    controllerMethodHandler = new ControllerMethodHandler(methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation3 != null) {
-                    controllerMethodHandler = new ControllerMethodHandler(methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation4 != null) {
-                    controllerMethodHandler = new ControllerMethodHandler(methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
                 }
 
-
-                if (controllerMethodHandler != null) {
-                    methodList.add(controllerMethodHandler);
+                if (controllerMethodHandler != null && !controllerMethodHandler.isEmpty()) {
+                    methodList.addAll(controllerMethodHandler);
                 }
 
             }
@@ -92,8 +91,7 @@ public class ControllerHandler {
         });
 
 
-
-        for (ControllerMethodHandler methodHandler:methodList){
+        for (ControllerMethodHandler methodHandler : methodList) {
             LOGGER.info("ControllerMethodHandler : " + methodHandler.toString());
         }
 
@@ -101,6 +99,17 @@ public class ControllerHandler {
         return methodList;
     }
 
+
+    //对于一个方法配置多个路径的情况
+    private List<ControllerMethodHandler> toControllerMethodHandler(String[] value, String get, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+        List<ControllerMethodHandler> result = new ArrayList<>(2);
+        if (value != null) {
+            for (String methodPath : value) {
+                result.add(new ControllerMethodHandler(methodPath, get, classPath, method, methodAspectList, methodArgumentResolvers));
+            }
+        }
+        return result;
+    }
 
 
     public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -176,7 +185,6 @@ public class ControllerHandler {
 
         return false;
     }
-
 
 
     public List<ControllerMethodHandler> getControllerMethodList() {
