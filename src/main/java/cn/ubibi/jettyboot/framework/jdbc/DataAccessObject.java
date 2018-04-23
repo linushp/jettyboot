@@ -88,6 +88,14 @@ public class DataAccessObject<T> {
         return dataAccess.queryObject(clazz, sql, id);
     }
 
+    public T findOneByWhere(String whereSql, Object... args) throws Exception {
+        List<T> list = findByWhere(whereSql, args);
+        if (list == null || list.isEmpty()){
+            return null;
+        }
+        return list.get(0);
+    }
+
     public List<T> findAll() throws Exception {
         return findByWhere("");
     }
