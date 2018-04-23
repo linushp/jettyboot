@@ -90,7 +90,7 @@ public class DataAccessObject<T> {
 
     public T findOneByWhere(String whereSql, Object... args) throws Exception {
         List<T> list = findByWhere(whereSql, args);
-        if (list == null || list.isEmpty()){
+        if (list == null || list.isEmpty()) {
             return null;
         }
         return list.get(0);
@@ -104,13 +104,23 @@ public class DataAccessObject<T> {
         return findByWhere(whereSqlAndArgs.whereSql, whereSqlAndArgs.whereArgs);
     }
 
-    public List<T> findByExample(Map<String,Object> example) throws Exception {
+    public List<T> findByExample(Map<String, Object> example) throws Exception {
         return findByWhere(toWhereSqlAndArgs(example));
     }
 
     public List<T> findByWhere(String whereSql, Object... args) throws Exception {
         String sql = "select * from " + schemaTableName() + " " + whereSql;
         return dataAccess.query(clazz, sql, args);
+    }
+
+    public Page<T> findPageByExample(int pageNo, int pageSize, Map<String, Object> example) throws Exception {
+        return findPageByExample(pageNo, pageSize, example, "");
+    }
+
+
+    public Page<T> findPageByExample(int pageNo, int pageSize, Map<String, Object> example, String orderBy) throws Exception {
+        WhereSqlAndArgs mm = toWhereSqlAndArgs(example);
+        return findPage(pageNo, pageSize, mm.whereSql, orderBy, mm.whereArgs);
     }
 
 
@@ -177,18 +187,19 @@ public class DataAccessObject<T> {
 
     /**
      * 判断对象是否存在
+     *
      * @param example 查询条件
      * @return
      */
-    public boolean exists(Map<String,Object> example){
+    public boolean exists(Map<String, Object> example) {
         Long x = countByExample(example);
-        return x > 0;
+        return x!=null && x > 0;
     }
 
 
-    public Long countByExample(Map<String,Object> example){
+    public Long countByExample(Map<String, Object> example) {
         WhereSqlAndArgs whereSqlArgs = toWhereSqlAndArgs(example);
-        return countByWhereSql(whereSqlArgs.whereSql,whereSqlArgs.whereArgs);
+        return countByWhereSql(whereSqlArgs.whereSql, whereSqlArgs.whereArgs);
     }
 
 
@@ -202,7 +213,7 @@ public class DataAccessObject<T> {
     public Long countByWhereSql(String whereSql, Object... whereArgs) {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
         Object totalCount = dataAccess.queryValue(sqlCount, whereArgs);
-        return (Long) CastTypeUtils.castValueType(totalCount,Long.class);
+        return (Long) CastTypeUtils.castValueType(totalCount, Long.class);
     }
 
 
@@ -216,9 +227,14 @@ public class DataAccessObject<T> {
     }
 
 
-    public UpdateResult deleteByExample(Map<String,Object> example){
+    /**
+     * 根据条件删除
+     * @param example 查询条件
+     * @return 操作结果
+     */
+    public UpdateResult deleteByExample(Map<String, Object> example) {
         WhereSqlAndArgs mm = toWhereSqlAndArgs(example);
-        return deleteByWhereSql(mm.whereSql,mm.whereArgs);
+        return deleteByWhereSql(mm.whereSql, mm.whereArgs);
     }
 
     /**
@@ -300,6 +316,7 @@ public class DataAccessObject<T> {
 
     /**
      * 批量插入，拼接成一个大SQL
+     *
      * @param objectList 需要插入大对象
      * @return Update Result
      */
@@ -339,8 +356,6 @@ public class DataAccessObject<T> {
 
         return new UpdateResult("params is empty");
     }
-
-
 
 
     public UpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
