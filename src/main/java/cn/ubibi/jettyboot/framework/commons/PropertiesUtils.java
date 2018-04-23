@@ -1,5 +1,8 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -9,11 +12,36 @@ import java.util.Set;
 
 public class PropertiesUtils {
 
+    private static final String CLASSPATH = "classpath:";
+
     private static final Map<String, Properties> propertiesMap = new HashMap<>();
 
-    public static Properties loadProperties(String fileName) throws IOException {
+    private static Properties loadProperties(String fileName) throws IOException {
+
+
+        InputStream inStream = null;
+        if (fileName.startsWith("./") || fileName.startsWith("../") || fileName.startsWith("/")) {
+            File file = new File(fileName);
+            inStream = new FileInputStream(file);
+        } else if (fileName.length() > 2 && fileName.charAt(1) == ':') {
+            //for windows : C:\\
+            File file = new File(fileName);
+            inStream = new FileInputStream(file);
+        } else if (fileName.startsWith("~")) {
+            String userHome = System.getProperty("user.home");
+            String filePath = fileName.replaceFirst("~", userHome);
+            File file = new File(filePath);
+            inStream = new FileInputStream(file);
+        } else if (fileName.startsWith(CLASSPATH)) {
+            String filePath = fileName.substring(CLASSPATH.length());
+            filePath = (filePath.charAt(0) == '/' ? filePath.substring(1) : filePath);
+            inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(filePath);
+        } else {
+            inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(fileName);
+        }
+
+
         Properties properties = new Properties();
-        InputStream inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(fileName);
         properties.load(inStream);
 
         //放入缓存
@@ -30,7 +58,6 @@ public class PropertiesUtils {
         }
         return p;
     }
-
 
 
     public static Map<String, Object> toMap(Properties p) {
@@ -50,6 +77,40 @@ public class PropertiesUtils {
             }
         }
 
+        return map;
+    }
+
+
+    /**
+     * 从一个文件中过滤出属性以startWith开头的所有属性
+     *
+     * @param fileName          文件名
+     * @param startWith         以什么开头
+     * @param isRemoveStartWith 返回结果是否移除掉startWith
+     * @return 一个map
+     * @throws IOException IO异常
+     */
+    public static Map<String, Object> getPropertiesKeyStartWith(String fileName, String startWith, boolean isRemoveStartWith) throws IOException {
+        Properties p = getProperties(fileName);
+        Map<String, Object> map = new HashMap<>();
+        if (p == null) {
+            return map;
+        }
+
+        Set<Map.Entry<Object, Object>> entrySet = p.entrySet();
+        for (Map.Entry<Object, Object> entry : entrySet) {
+            Object value = entry.getValue();
+            Object key = entry.getKey();
+            if (value != null && key != null) {
+                String keyString = key.toString();
+                if (keyString.startsWith(startWith)) {
+                    if (isRemoveStartWith) {
+                        keyString = keyString.substring(startWith.length());
+                    }
+                    map.put(keyString, value);
+                }
+            }
+        }
         return map;
     }
 
