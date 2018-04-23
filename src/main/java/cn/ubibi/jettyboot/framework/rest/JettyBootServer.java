@@ -9,32 +9,32 @@ public class JettyBootServer{
 
     private HandlerCollection handlerCollection = new HandlerCollection();
 
-    private Class mainServerClass;
     private String controllerContext;
 
 
-    public JettyBootServer(Class mainServerClass){
-        this(mainServerClass,"/");
+    public JettyBootServer(){
+        this("/");
     }
 
 
-    public JettyBootServer(Class mainServerClass,String controllerContext){
-        this.mainServerClass = mainServerClass;
+    public JettyBootServer(String controllerContext){
         this.controllerContext = controllerContext;
     }
 
 
-    public void addContextHandler(ContextHandler contextHandler){
+    public JettyBootServer addContextHandler(ContextHandler contextHandler){
         this.handlerCollection.addHandler(contextHandler);
+        return this;
     }
 
 
-    public void doScanPackage() throws Exception {
+    public JettyBootServer doScanPackage(Class mainServerClass) throws Exception {
         ControllerContextHandler controllerContextHandler = new ControllerContextHandler(controllerContext);
         addContextHandler(controllerContextHandler);
 
         String packageName = mainServerClass.getPackage().getName();
         PackageScannerUtils.addByPackageScanner(packageName,controllerContextHandler,this);
+        return this;
     }
 
 

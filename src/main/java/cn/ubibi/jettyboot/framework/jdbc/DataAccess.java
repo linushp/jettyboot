@@ -260,8 +260,18 @@ public class DataAccess {
             return this.connection;
         }
 
-        Connection connection = connectionFactory.getConnection();
-        connection.setAutoCommit(true);
+
+        Connection connection = null;
+        try {
+            connection = connectionFactory.getConnection();
+            connection.setAutoCommit(true);
+        }catch (Exception e){
+            LOGGER.error("error occur ,try again",e);
+            Thread.sleep(10);
+            connection = connectionFactory.getConnection();
+            connection.setAutoCommit(true);
+        }
+
         return connection;
     }
 

@@ -33,8 +33,8 @@ public class PropertiesUtils {
 
 
 
-    public static Map<String, String> toMap(Properties p) {
-        Map<String, String> map = new HashMap<>();
+    public static Map<String, Object> toMap(Properties p) {
+        Map<String, Object> map = new HashMap<>();
         if (p == null) {
             return map;
         }
@@ -54,5 +54,10 @@ public class PropertiesUtils {
     }
 
 
-
+    public static <T> T getBeanByProperties(String fileName, Class<T> tClass) throws IOException, IllegalAccessException, InstantiationException {
+        Properties p = getProperties(fileName);
+        Map<String, Object> m = toMap(p);
+        T b = BeanUtils.mapToBean(tClass, m);
+        return b;
+    }
 }
