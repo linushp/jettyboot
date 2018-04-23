@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
+import cn.ubibi.jettyboot.framework.rest.annotation.Service;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
@@ -9,6 +10,8 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class ControllerContextHandler extends ContextHandler{
@@ -52,6 +55,25 @@ public class ControllerContextHandler extends ContextHandler{
     }
 
 
+    public void addServiceByFactory(Object serviceFactory) throws InvocationTargetException, IllegalAccessException {
+        Class<?> clazz = serviceFactory.getClass();
+        Method[] methods = clazz.getDeclaredMethods();
+
+        if (methods != null) {
+            for (Method method : methods) {
+                Service annotation = method.getAnnotation(Service.class);
+                if (annotation != null) {
+                    method.setAccessible(true);
+                    Object object = method.invoke(serviceFactory);
+                    if (object != null) {
+                        this.addService(object);
+                    }
+                }
+            }
+        }
+    }
+
+
     public void addResourceHandler(ResourceHandler resourceHandler) {
         this.handlerCollection.addHandler(resourceHandler);
     }
@@ -60,6 +82,9 @@ public class ControllerContextHandler extends ContextHandler{
     public void addHandler(Handler handler){
         this.handlerCollection.addHandler(handler);
     }
+
+
+
 
 
     /**

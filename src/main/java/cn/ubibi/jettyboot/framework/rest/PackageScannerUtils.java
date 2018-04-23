@@ -71,7 +71,8 @@ public class PackageScannerUtils {
                     }
 
                     else if (annotation.annotationType() == ServiceFactory.class){
-                        addByServiceFactory(clazz, controllerContextHandler);
+                        Object serviceFactory = clazz.newInstance();
+                        controllerContextHandler.addServiceByFactory(serviceFactory);
                     }
 
                     //3
@@ -94,23 +95,6 @@ public class PackageScannerUtils {
     }
 
 
-    private static void addByServiceFactory(Class<?> clazz, ControllerContextHandler controllerContextHandler) throws Exception {
-        Object serviceFactory = clazz.newInstance();
-        Method[] methods = clazz.getDeclaredMethods();
-
-        if (methods != null) {
-            for (Method method : methods) {
-                Service annotation = method.getAnnotation(Service.class);
-                if (annotation != null) {
-                    method.setAccessible(true);
-                    Object object = method.invoke(serviceFactory);
-                    if (object != null) {
-                        controllerContextHandler.addService(object);
-                    }
-                }
-            }
-        }
-    }
 
 
     private static void addByComponentFactory(Class<?> clazz, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {

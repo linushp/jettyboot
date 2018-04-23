@@ -32,14 +32,14 @@ public class ControllerHandler {
 
     public ControllerHandler(String path, Class<?> clazz, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restControllerClazz = clazz;
-        this.path = path;
+        this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
     public ControllerHandler(String path, Object restController, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restController = restController;
-        this.path = path;
+        this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
@@ -54,7 +54,7 @@ public class ControllerHandler {
         if (methods != null) {
             for (Method method : methods) {
 
-                String classPath = this.getClassPath();
+                String classPath = this.path;
 
 
                 GetMapping methodAnnotation1 = method.getAnnotation(GetMapping.class);
@@ -115,7 +115,7 @@ public class ControllerHandler {
     public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String reqPath = request.getPathInfo();
-        String classPath = this.getClassPath();
+        String classPath = this.path;
 
         List<ControllerMethodHandler> methods = this.controllerMethodList;
 
@@ -135,11 +135,14 @@ public class ControllerHandler {
     }
 
 
-    private String getClassPath() {
-        if (StringUtils.isEmpty(this.path)) {
+    private String formatClassPath(String path) {
+        if (StringUtils.isEmpty(path)) {
             return "/";
         }
-        return this.path;
+        if (!path.startsWith("/")) {
+            return "/" + path;
+        }
+        return path;
     }
 
 
