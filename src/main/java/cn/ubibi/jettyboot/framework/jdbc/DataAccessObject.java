@@ -104,6 +104,9 @@ public class DataAccessObject<T> {
         return findByWhere(whereSqlAndArgs.whereSql, whereSqlAndArgs.whereArgs);
     }
 
+    public List<T> findByExample(Map<String,Object> example) throws Exception {
+        return findByWhere(toWhereSqlAndArgs(example));
+    }
 
     public List<T> findByWhere(String whereSql, Object... args) throws Exception {
         String sql = "select * from " + schemaTableName() + " " + whereSql;
@@ -173,6 +176,23 @@ public class DataAccessObject<T> {
 
 
     /**
+     * 判断对象是否存在
+     * @param example 查询条件
+     * @return
+     */
+    public boolean exists(Map<String,Object> example){
+        Long x = countByExample(example);
+        return x > 0;
+    }
+
+
+    public Long countByExample(Map<String,Object> example){
+        WhereSqlAndArgs whereSqlArgs = toWhereSqlAndArgs(example);
+        return countByWhereSql(whereSqlArgs.whereSql,whereSqlArgs.whereArgs);
+    }
+
+
+    /**
      * 统计数量多少
      *
      * @param whereSql  条件
@@ -193,6 +213,12 @@ public class DataAccessObject<T> {
      */
     public UpdateResult deleteById(Object id) {
         return deleteByWhereSql("where id=?", id);
+    }
+
+
+    public UpdateResult deleteByExample(Map<String,Object> example){
+        WhereSqlAndArgs mm = toWhereSqlAndArgs(example);
+        return deleteByWhereSql(mm.whereSql,mm.whereArgs);
     }
 
     /**
@@ -235,7 +261,7 @@ public class DataAccessObject<T> {
 
 
     /**
-     * 在调用此方法时,把它放在同一个事务里，效率会更好
+     * 在调用此方法时,把它放在同一个事务里，效率会更好。
      *
      * @param objectList
      */
@@ -272,6 +298,11 @@ public class DataAccessObject<T> {
     }
 
 
+    /**
+     * 批量插入，拼接成一个大SQL
+     * @param objectList 需要插入大对象
+     * @return Update Result
+     */
     public UpdateResult largeSqlBatchInsert(List<Map<String, Object>> objectList) {
 
         objectList = CollectionUtils.removeEmptyMap(objectList);
@@ -339,11 +370,11 @@ public class DataAccessObject<T> {
 
     protected static class WhereSqlAndArgs {
         public String whereSql;
-        public List<Object> whereArgs;
+        public Object[] whereArgs;
 
         public WhereSqlAndArgs(String whereSql, List<Object> whereArgs) {
             this.whereSql = whereSql;
-            this.whereArgs = whereArgs;
+            this.whereArgs = whereArgs.toArray();
         }
     }
 }
