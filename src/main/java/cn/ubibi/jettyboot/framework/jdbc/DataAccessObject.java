@@ -193,7 +193,7 @@ public class DataAccessObject<T> {
      */
     public boolean exists(Map<String, Object> example) {
         Long x = countByExample(example);
-        return x!=null && x > 0;
+        return (x != null && x > 0);
     }
 
 
@@ -229,6 +229,7 @@ public class DataAccessObject<T> {
 
     /**
      * 根据条件删除
+     *
      * @param example 查询条件
      * @return 操作结果
      */
@@ -374,6 +375,10 @@ public class DataAccessObject<T> {
 
 
     protected WhereSqlAndArgs toWhereSqlAndArgs(Map<String, Object> condition) {
+        if (condition == null || condition.isEmpty()) {
+            return new WhereSqlAndArgs("", new ArrayList<>());
+        }
+
         List[] keysValues = CollectionUtils.listKeyValues(condition);
         List<String> keys = keysValues[0];
         List<Object> values = keysValues[1];
