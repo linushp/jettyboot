@@ -173,7 +173,7 @@ public class DataAccessObject<T> {
         }
 
         if (pageSize < 0) {
-            pageSize = 1;
+            pageSize = 30;
         }
 
         if (whereSql == null) {

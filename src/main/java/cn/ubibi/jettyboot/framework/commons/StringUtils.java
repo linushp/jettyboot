@@ -1,7 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 
-import com.sun.javafx.css.CssError;
 
 import java.net.URL;
 import java.util.Collection;

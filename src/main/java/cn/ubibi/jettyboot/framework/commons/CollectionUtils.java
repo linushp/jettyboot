@@ -160,6 +160,11 @@ public class CollectionUtils {
         if (cc >= '0' && cc <= '9') {
             return true;
         }
-        return true;
+
+        if (cc == '-' || cc == '_' || cc == '~') {
+            return true;
+        }
+
+        return false;
     }
 }
