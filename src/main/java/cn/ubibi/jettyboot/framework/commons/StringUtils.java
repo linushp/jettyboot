@@ -1,6 +1,8 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 
+import com.sun.javafx.css.CssError;
+
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
@@ -10,21 +12,26 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
-    public static boolean isEmpty(String str){
+    public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }
 
     public static String join(Collection collection, String flag) {
+        return join(collection,flag,null);
+    }
+
+
+    public static String join(Collection collection, String flag, StringParser stringParser) {
         if (collection == null || collection.isEmpty()) {
             return "";
         }
 
         Object[] objArray = collection.toArray(new Object[collection.size()]);
-        return join(objArray, flag);
+        return join(objArray, flag, stringParser);
     }
 
 
-    public static String join(Object[] o, String flag) {
+    public static String join(Object[] o, String flag, StringParser stringParser) {
 
         if (o == null || o.length == 0) {
             return "";
@@ -33,8 +40,22 @@ public class StringUtils {
         StringBuilder str_buff = new StringBuilder();
 
         for (int i = 0, len = o.length; i < len; i++) {
-            str_buff.append(String.valueOf(o[i]));
-            if (i < len - 1) str_buff.append(flag);
+
+            Object obj = o[i];
+
+            String str;
+            if (stringParser != null) {
+                str = stringParser.valueOf(obj);
+            } else {
+                str = String.valueOf(obj);
+            }
+
+
+            str_buff.append(str);
+
+            if (i < len - 1) {
+                str_buff.append(flag);
+            }
         }
 
         return str_buff.toString();
@@ -68,7 +89,7 @@ public class StringUtils {
     }
 
     public static String appendIfNotEnd(String path, String s) {
-        if (path.endsWith(s)){
+        if (path.endsWith(s)) {
             return path;
         }
         return path + s;

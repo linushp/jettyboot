@@ -100,6 +100,34 @@ public class DataAccessObject<T> {
         return findByWhere("");
     }
 
+    public List<T> findByIdList(List idList) throws Exception {
+        return findByIdList("id", idList);
+    }
+
+    public List<T> findByIdList(String idFieldName, List idList) throws Exception {
+        idList = CollectionUtils.filterOnlyLegalId(idList);
+        if (idList == null || idList.size() == 0) {
+            return new ArrayList<>();
+        }
+
+
+        StringParser stringParser = new StringParser() {
+            @Override
+            public String valueOf(Object o) {
+                if (o instanceof String) {
+                    return "'" + o.toString() + "'";
+                }
+                return String.valueOf(o);
+            }
+        };
+
+        String idString = StringUtils.join(idList, ",", stringParser);
+        String sql = "select * from " + schemaTableName() + " where `" + idFieldName + "` in (" + idString + ")";
+        List<Map<String, Object>> mapList = dataAccess.queryTemp(sql);
+        return BeanUtils.mapListToBeanList(clazz, mapList);
+    }
+
+
     public List<T> findByWhere(WhereSqlAndArgs whereSqlAndArgs) throws Exception {
         return findByWhere(whereSqlAndArgs.whereSql, whereSqlAndArgs.whereArgs);
     }

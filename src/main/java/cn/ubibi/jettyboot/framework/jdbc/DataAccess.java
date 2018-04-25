@@ -210,6 +210,40 @@ public class DataAccess {
 
 
     /**
+     * 传入 SQL 语句， 返回 SQL 语句查询到的记录对应的 Map对象的集合
+     *
+     * @param sql
+     * @return
+     * @throws Exception
+     */
+    public List<Map<String, Object>> queryTemp(String sql) throws Exception {
+        List<Map<String, Object>> list;
+        Connection connection = null;
+        Statement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        LOGGER.info("query sql : " + sql);
+
+        try {
+            //1. 得到结果集
+            connection = getConnection();
+            preparedStatement = connection.createStatement();
+            resultSet = preparedStatement.executeQuery(sql);
+
+            //2. 转换成List<Map>
+            list = resultSetToMapList(resultSet);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            release(resultSet, preparedStatement, connection);
+        }
+
+        return list;
+    }
+
+
+    /**
      * 处理结果集, 得到 Map 的一个 List, 其中一个 Map 对象对应一条记录
      *
      * @param resultSet
