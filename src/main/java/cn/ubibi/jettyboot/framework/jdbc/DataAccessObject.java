@@ -12,21 +12,20 @@ public class DataAccessObject<T> {
 
     protected Class<T> clazz;
     protected String tableName;
-    protected String schemaName;
+    protected String selectFields = "*";
+    protected String schemaName = "";
     protected DataAccess dataAccess;
 
 
     public DataAccessObject(Class<T> clazz, String tableName, ConnectionFactory connectionFactory) {
         this.clazz = clazz;
         this.tableName = tableName;
-        this.schemaName = "";
         this.dataAccess = new DataAccess(connectionFactory);
     }
 
     public DataAccessObject(Class<T> clazz, String tableName, Connection connection) {
         this.clazz = clazz;
         this.tableName = tableName;
-        this.schemaName = "";
         this.dataAccess = new DataAccess(connection);
     }
 
@@ -84,7 +83,7 @@ public class DataAccessObject<T> {
 
 
     public T findById(Object id) throws Exception {
-        String sql = "select * from " + schemaTableName() + " where id = ?";
+        String sql = "select " + selectFields + " from " + schemaTableName() + " where id = ?";
         return dataAccess.queryObject(clazz, sql, id);
     }
 
@@ -122,7 +121,7 @@ public class DataAccessObject<T> {
         };
 
         String idString = StringUtils.join(idList, ",", stringParser);
-        String sql = "select * from " + schemaTableName() + " where `" + idFieldName + "` in (" + idString + ")";
+        String sql = "select " + selectFields + " from " + schemaTableName() + " where `" + idFieldName + "` in (" + idString + ")";
         List<Map<String, Object>> mapList = dataAccess.queryTemp(sql);
         return BeanUtils.mapListToBeanList(clazz, mapList);
     }
@@ -137,7 +136,7 @@ public class DataAccessObject<T> {
     }
 
     public List<T> findByWhere(String whereSql, Object... args) throws Exception {
-        String sql = "select * from " + schemaTableName() + " " + whereSql;
+        String sql = "select " + selectFields + " from " + schemaTableName() + " " + whereSql;
         return dataAccess.query(clazz, sql, args);
     }
 
@@ -191,7 +190,7 @@ public class DataAccessObject<T> {
         //totalCount 为0的时候可以不查询
         List<T> dataList;
         if (totalCount > 0) {
-            String sqlList = "select * from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
+            String sqlList = "select " + selectFields + " from " + schemaTableName() + " " + whereSql + " " + orderBy + " limit  " + beginIndex + "," + pageSize;
             dataList = dataAccess.query(clazz, sqlList, whereArgs);
         } else {
             dataList = new ArrayList<>();
