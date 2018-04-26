@@ -161,7 +161,7 @@ public class CollectionUtils {
             return true;
         }
 
-        if (cc == '-' || cc == '_' || cc == '~') {
+        if (cc == '-' || cc == '_' || cc == '~' || cc=='.') {
             return true;
         }
 
