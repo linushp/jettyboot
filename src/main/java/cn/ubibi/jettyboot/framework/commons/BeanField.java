@@ -11,6 +11,8 @@ public class BeanField {
 
     public BeanField(Field field) {
         this.field = field;
+        setAccessible();
+
         String filedName = field.getName();
         String underlineFiledName = StringUtils.camel2Underline(field.getName());
         this.fieldName = filedName;

@@ -1,18 +1,85 @@
 package cn.ubibi.jettyboot.framework.commons;
 
-import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
-import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBeanArray;
-import cn.ubibi.jettyboot.framework.commons.ifs.Convertible;
-import com.alibaba.fastjson.JSON;
+import cn.ubibi.jettyboot.framework.commons.ifs.BeanToMapFilter;
+import cn.ubibi.jettyboot.framework.commons.ifs.MapToBeanFilter;
+import cn.ubibi.jettyboot.framework.commons.impl.DefaultBeanToMapFilter;
+import cn.ubibi.jettyboot.framework.commons.impl.DefaultMapToBeanFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class BeanUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanUtils.class);
+
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList) throws IllegalAccessException {
+        return beanListToMapList(beanList, false);
+    }
+
+
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, boolean isUnderlineKey) throws IllegalAccessException {
+        return beanListToMapList(beanList, new DefaultBeanToMapFilter(isUnderlineKey));
+    }
+
+
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, BeanToMapFilter beanToMapFilter) throws IllegalAccessException {
+
+        if (CollectionUtils.isEmpty(beanList)) {
+            return new ArrayList<>();
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object object : beanList) {
+            Map<String, Object> map = beanToMap(object, beanToMapFilter);
+            if (map != null) {
+                result.add(map);
+            }
+        }
+
+        return result;
+    }
+
+    public static Map<String, Object> beanToMap(Object bean) throws IllegalAccessException {
+        return beanToMap(bean, false);
+    }
+
+
+    public static Map<String, Object> beanToMap(Object bean, boolean isUnderlineKey) throws IllegalAccessException {
+        return beanToMap(bean, new DefaultBeanToMapFilter(isUnderlineKey));
+    }
+
+    /**
+     * 将Bean转化为map
+     *
+     * @param bean            对象
+     * @param beanToMapFilter 是否自动将驼峰形式的key自动转化为下划线形式
+     * @return map对象
+     * @throws IllegalAccessException
+     */
+    public static Map<String, Object> beanToMap(Object bean, BeanToMapFilter beanToMapFilter) throws IllegalAccessException {
+        if (bean == null) {
+            return null;
+        }
+
+        List<BeanField> beanFields = BeanFieldUtils.getBeanFields(bean.getClass());
+        Map<String, Object> map = new HashMap<>(beanFields.size());
+
+        for (BeanField beanField : beanFields) {
+            if (beanToMapFilter.isInclude(beanField)) {
+
+                String mapKey = beanToMapFilter.getMapKey(beanField);
+
+                Object value = beanField.getBeanValue(bean);
+
+                value = beanToMapFilter.castValueType(value,beanField);
+
+                map.put(mapKey, value);
+            }
+        }
+
+        return map;
+    }
 
 
     /**
@@ -25,6 +92,21 @@ public class BeanUtils {
      * @throws Exception 异常
      */
     public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values) throws Exception {
+        MapToBeanFilter mapToBeanFilter = new DefaultMapToBeanFilter();
+        return mapListToBeanList(clazz, values, mapToBeanFilter);
+    }
+
+
+    /**
+     * map to bean list
+     *
+     * @param clazz  the type of target bean
+     * @param values from values
+     * @param <T>    type
+     * @return the target bean list
+     * @throws Exception 异常
+     */
+    public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values, MapToBeanFilter mapToBeanFilter) throws Exception {
 
         if (CollectionUtils.isEmpty(values)) {
             return new ArrayList<>();
@@ -36,7 +118,7 @@ public class BeanUtils {
 
         for (Map<String, Object> m : values) {
             //通过反射创建一个其他类的对象
-            T bean = BeanUtils.mapToBean(clazz, m, beanFields);
+            T bean = BeanUtils.mapToBean(clazz, m, beanFields, mapToBeanFilter);
             result.add(bean);
         }
 
@@ -44,16 +126,22 @@ public class BeanUtils {
     }
 
 
-    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map) throws InstantiationException, IllegalAccessException {
+    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map) throws Exception {
+        MapToBeanFilter mapToBeanFilter = new DefaultMapToBeanFilter();
+        return mapToBean(clazz, map, mapToBeanFilter);
+    }
+
+
+    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, MapToBeanFilter mapToBeanFilter) throws Exception {
         if (clazz == null || map == null) {
             return null;
         }
         List<BeanField> beanFields = BeanFieldUtils.getBeanFields(clazz);
-        return mapToBean(clazz, map, beanFields);
+        return mapToBean(clazz, map, beanFields, mapToBeanFilter);
     }
 
 
-    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, List<BeanField> beanFields) throws IllegalAccessException, InstantiationException {
+    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, List<BeanField> beanFields, MapToBeanFilter mapToBeanFilter) throws Exception {
 
         if (clazz == null || map == null || beanFields == null) {
             return null;
@@ -66,65 +154,16 @@ public class BeanUtils {
 
 
         for (BeanField beanField : beanFields) {
-
-            String filedName = beanField.getFieldName();
-
             //1.得到数据
-            Object value = map.get(filedName);
-            if (value == null) {
-                String filedName2 = beanField.getFieldNameUnderline();
-                if (!filedName2.equals(filedName)) {
-                    value = map.get(filedName2);
-                }
-            }
-
+            Object value1 = mapToBeanFilter.getValue(beanField, map);
             //2.类型转换
-            value = castValueType(value, beanField.getField(), map);
-            if (value != null) {
-                beanField.setBeanValue(bean, value);
+            value1 = mapToBeanFilter.castValueType(value1, beanField, map);
+            if (value1 != null) {
+                beanField.setBeanValue(bean, value1);
             }
-
         }
 
         return bean;
-    }
-
-
-    /**
-     * 转换数据类型
-     *
-     * @param value 原始数据
-     * @param field 要转换成的目标数据类型
-     * @return
-     */
-    private static Object castValueType(Object value, Field field, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
-
-
-        Class<?> targetType = field.getType();
-        //1. 可以自定义一个类型转换器
-        if (Convertible.class.isAssignableFrom(targetType)) {
-            Convertible beanCustomField = (Convertible) targetType.newInstance();
-            beanCustomField.convertFrom(value, map);
-            return beanCustomField;
-        }
-
-        if (value == null) {
-            return null;
-        }
-
-        //2. 根据JSONTextBean注解转换，此时原始的value必须是字符串
-        JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
-        if (jsonTextBeanAnnotation != null) {
-            return JSON.parseObject(value.toString(), targetType);
-        }
-
-        JSONTextBeanArray jsonTextBeanArrayAnnotation = field.getAnnotation(JSONTextBeanArray.class);
-        if (jsonTextBeanArrayAnnotation != null && List.class.isAssignableFrom(targetType)) {
-            return JSON.parseArray(value.toString(), jsonTextBeanArrayAnnotation.elementType());
-        }
-
-        //3. 简单数据类型转换
-        return CastTypeUtils.castValueType(value, targetType);
     }
 
 
@@ -149,9 +188,7 @@ public class BeanUtils {
                 }
             }
         } catch (IllegalAccessException e) {
-            LOGGER.error("",e);
+            LOGGER.error("", e);
         }
     }
-
-
 }

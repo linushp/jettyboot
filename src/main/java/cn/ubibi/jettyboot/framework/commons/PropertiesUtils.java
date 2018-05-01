@@ -117,7 +117,7 @@ public class PropertiesUtils {
     }
 
 
-    public static <T> T getBeanByProperties(String fileName, Class<T> tClass) throws IOException, IllegalAccessException, InstantiationException {
+    public static <T> T getBeanByProperties(String fileName, Class<T> tClass) throws Exception {
         Properties p = getProperties(fileName);
         Map<String, Object> m = toMap(p);
         T b = BeanUtils.mapToBean(tClass, m);
