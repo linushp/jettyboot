@@ -274,8 +274,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         //   /user/abc
         //   /user/:id
         //   /user/23332
-        List<String> path1Array = CollectionUtils.removeEmpty(targetPath.split("/"));
-        List<String> path2Array = CollectionUtils.removeEmpty(reqPath.split("/"));
+        List<String> path1Array = CollectionUtils.removeEmptyString(targetPath.split("/"));
+        List<String> path2Array = CollectionUtils.removeEmptyString(reqPath.split("/"));
         if (path1Array.size() != path2Array.size()) {
             return false;
         }
@@ -306,8 +306,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private String pathJoin(String path1, String path2) {
 
-        List<String> path1Arr = CollectionUtils.removeEmpty(path1.split("/"));
-        List<String> path2Arr = CollectionUtils.removeEmpty(path2.split("/"));
+        List<String> path1Arr = CollectionUtils.removeEmptyString(path1.split("/"));
+        List<String> path2Arr = CollectionUtils.removeEmptyString(path2.split("/"));
 
 
         List<String> pathList = new ArrayList<>();

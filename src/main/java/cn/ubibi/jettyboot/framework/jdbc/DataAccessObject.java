@@ -1,14 +1,16 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
+import cn.ubibi.jettyboot.framework.commons.ifs.FilterFunctions;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.util.*;
 
 
-public class DataAccessObject<T> {
+public class DataAccessObject<T> implements FilterFunctions {
 
     protected Class<T> clazz;
     protected String tableName;
@@ -29,12 +31,18 @@ public class DataAccessObject<T> {
         this.dataAccess = new DataAccess(connection);
     }
 
-    private String schemaTableName() {
+    /**
+     * protected方法方便子类扩展
+     *
+     * @return select from 后面的表名
+     */
+    protected String schemaTableName() {
         if (schemaName == null || schemaName.isEmpty()) {
             return tableName;
         }
         return schemaName + "." + tableName;
     }
+
 
     private DataAccessObject() {
     }
@@ -83,16 +91,12 @@ public class DataAccessObject<T> {
 
 
     public T findById(Object id) throws Exception {
-        String sql = "select " + selectFields + " from " + schemaTableName() + " where id = ?";
-        return dataAccess.queryObject(clazz, sql, id);
+        return findOneByWhere("where `id` = ?", id);
     }
 
     public T findOneByWhere(String whereSql, Object... args) throws Exception {
         List<T> list = findByWhere(whereSql, args);
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
+        return CollectionUtils.getFirstElement(list);
     }
 
     public List<T> findAll() throws Exception {
@@ -104,11 +108,12 @@ public class DataAccessObject<T> {
     }
 
     public List<T> findByIdList(String idFieldName, List idList) throws Exception {
-        idList = CollectionUtils.filterOnlyLegalId(idList);
-        if (idList == null || idList.size() == 0) {
+
+        //过滤出合法的Id类型。避免SQL注入的问题。
+        idList = CollectionUtils.filterOnlyLegalItems(idList, this);
+        if (CollectionUtils.isEmpty(idList)) {
             return new ArrayList<>();
         }
-
 
         StringParser stringParser = new StringParser() {
             @Override
@@ -207,7 +212,7 @@ public class DataAccessObject<T> {
      *
      * @return 数量
      */
-    public Long countAll() {
+    public Long countAll() throws Exception {
         return countByWhereSql("");
     }
 
@@ -218,13 +223,13 @@ public class DataAccessObject<T> {
      * @param example 查询条件
      * @return
      */
-    public boolean exists(Map<String, Object> example) {
+    public boolean exists(Map<String, Object> example) throws Exception {
         Long x = countByExample(example);
         return (x != null && x > 0);
     }
 
 
-    public Long countByExample(Map<String, Object> example) {
+    public Long countByExample(Map<String, Object> example) throws Exception {
         WhereSqlAndArgs whereSqlArgs = toWhereSqlAndArgs(example);
         return countByWhereSql(whereSqlArgs.whereSql, whereSqlArgs.whereArgs);
     }
@@ -237,7 +242,7 @@ public class DataAccessObject<T> {
      * @param whereArgs 条件参数
      * @return 数量
      */
-    public Long countByWhereSql(String whereSql, Object... whereArgs) {
+    public Long countByWhereSql(String whereSql, Object... whereArgs) throws Exception {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
         Object totalCount = dataAccess.queryValue(sqlCount, whereArgs);
         return (Long) CastTypeUtils.castValueType(totalCount, Long.class);
@@ -249,8 +254,8 @@ public class DataAccessObject<T> {
      *
      * @param id bean id
      */
-    public UpdateResult deleteById(Object id) {
-        return deleteByWhereSql("where id=?", id);
+    public UpdateResult deleteById(Object id) throws ConnectException {
+        return deleteByWhereSql("where `id`=?", id);
     }
 
 
@@ -260,7 +265,7 @@ public class DataAccessObject<T> {
      * @param example 查询条件
      * @return 操作结果
      */
-    public UpdateResult deleteByExample(Map<String, Object> example) {
+    public UpdateResult deleteByExample(Map<String, Object> example) throws Exception {
         WhereSqlAndArgs mm = toWhereSqlAndArgs(example);
         return deleteByWhereSql(mm.whereSql, mm.whereArgs);
     }
@@ -271,19 +276,19 @@ public class DataAccessObject<T> {
      * @param whereSql  条件
      * @param whereArgs 参数
      */
-    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) {
+    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) throws ConnectException {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
         return dataAccess.update(sql, whereArgs);
     }
 
 
-    public UpdateResult updateById(Map<String, Object> newValues, Object id) {
-        return updateByWhereSql(newValues, "where id = ? ", id);
+    public UpdateResult updateById(Map<String, Object> newValues, Object id) throws ConnectException {
+        return updateByWhereSql(newValues, "where `id` = ? ", id);
     }
 
 
-    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) {
-        if (newValues != null && !newValues.isEmpty()) {
+    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws ConnectException {
+        if (!CollectionUtils.isEmpty(newValues)) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
             List<String> keys = keysValues[0];
@@ -304,25 +309,8 @@ public class DataAccessObject<T> {
     }
 
 
-    /**
-     * 在调用此方法时,把它放在同一个事务里，效率会更好。
-     *
-     * @param objectList
-     */
-    public List<UpdateResult> insertObjectList(List<Map<String, Object>> objectList) {
-        List<UpdateResult> results = new ArrayList<>();
-        if (objectList != null && !objectList.isEmpty()) {
-            for (Map<String, Object> obj : objectList) {
-                UpdateResult result = insertObject(obj);
-                results.add(result);
-            }
-        }
-        return results;
-    }
-
-
-    public UpdateResult insertObject(Map<String, Object> newValues) {
-        if (newValues != null && !newValues.isEmpty()) {
+    public UpdateResult insertObject(Map<String, Object> newValues) throws ConnectException {
+        if (!CollectionUtils.isEmpty(newValues)) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
             List<String> keys = keysValues[0];
@@ -343,16 +331,50 @@ public class DataAccessObject<T> {
 
 
     /**
-     * 批量插入，拼接成一个大SQL
+     * 批量插入，使用循环调用的方式。
+     * 优点：允许中间出现差错。
+     * 缺点：效率低
+     * 在调用此方法时,把它放在同一个事务里，效率会更好。
+     *
+     * @param objectList 循环插入的对象列表
+     * @return 插入结果的集合
+     */
+    public List<UpdateResult> batchInsertUsingRepeat(List<Map<String, Object>> objectList) throws ConnectException {
+        List<UpdateResult> results = new ArrayList<>();
+
+        if (!CollectionUtils.isEmpty(objectList)) {
+
+            for (Map<String, Object> obj : objectList) {
+
+                UpdateResult result;
+                try {
+                    result = insertObject(obj);
+                } catch (ConnectException ce) {
+                    throw ce;
+                } catch (Exception e) {
+                    result = new UpdateResult(e.toString());
+                }
+                results.add(result);
+            }
+        }
+
+        return results;
+    }
+
+
+    /**
+     * 批量插入，拼接成一个大SQL。
+     * 优点：高效
+     * 缺点：中间出现一个异常会导致整批插入失败。
      *
      * @param objectList 需要插入大对象
      * @return Update Result
      */
-    public UpdateResult largeSqlBatchInsert(List<Map<String, Object>> objectList) {
+    public UpdateResult batchInsertUsingLargeSQL(List<Map<String, Object>> objectList) throws ConnectException {
 
         objectList = CollectionUtils.removeEmptyMap(objectList);
 
-        if (objectList != null && !objectList.isEmpty()) {
+        if (!CollectionUtils.isEmpty(objectList)) {
 
             Set<String> fieldKeys = CollectionUtils.getAllMapKeys(objectList);
 
@@ -387,7 +409,7 @@ public class DataAccessObject<T> {
 
 
     public UpdateResult saveOrUpdateById(Map<String, Object> newValues, Object id) throws Exception {
-        return saveOrUpdate(newValues, "where id = ?", id);
+        return saveOrUpdate(newValues, "where `id` = ?", id);
     }
 
 
@@ -401,12 +423,12 @@ public class DataAccessObject<T> {
     }
 
 
-    protected WhereSqlAndArgs toWhereSqlAndArgs(Map<String, Object> condition) {
-        if (condition == null || condition.isEmpty()) {
+    protected WhereSqlAndArgs toWhereSqlAndArgs(Map<String, Object> example) {
+        if (CollectionUtils.isEmpty(example)) {
             return new WhereSqlAndArgs("", new ArrayList<>());
         }
 
-        List[] keysValues = CollectionUtils.listKeyValues(condition);
+        List[] keysValues = CollectionUtils.listKeyValues(example);
         List<String> keys = keysValues[0];
         List<Object> values = keysValues[1];
         List<String> whereFields = CollectionUtils.eachWrap(keys, "`", "` = ?");
@@ -424,4 +446,29 @@ public class DataAccessObject<T> {
             this.whereArgs = whereArgs.toArray();
         }
     }
+
+
+    /**
+     * 判断是否是合法的ID允许出现的字符
+     *
+     * @param cc 字符
+     * @return 是否合法
+     */
+    public boolean isLegalStringIdChar(char cc) {
+        if (cc >= 'A' && cc <= 'Z') {
+            return true;
+        }
+        if (cc >= 'a' && cc <= 'z') {
+            return true;
+        }
+        if (cc >= '0' && cc <= '9') {
+            return true;
+        }
+
+        if (cc == '-' || cc == '_' || cc == '~' || cc == '.') {
+            return true;
+        }
+        return false;
+    }
+
 }

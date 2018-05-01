@@ -6,6 +6,7 @@ import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.sql.*;
 import java.util.*;
 
@@ -33,14 +34,14 @@ public class DataAccess {
     }
 
 
-    public UpdateResult update(String sql, List<Object> args) {
+    public UpdateResult update(String sql, List<Object> args) throws ConnectException {
         Object[] objects = args.toArray(new Object[args.size()]);
         return update(sql, objects);
     }
 
 
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
-    public UpdateResult update(String sql, Object... args) {
+    public UpdateResult update(String sql, Object... args) throws ConnectException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet generatedKeyResultSet = null;
@@ -72,7 +73,9 @@ public class DataAccess {
             }
             return updateResult;
 
-        } catch (Exception e) {
+        }catch (java.net.ConnectException ee){
+            throw ee;
+        }catch (Exception e) {
             LOGGER.debug("update error ",e);
             updateResult.setErrMsg(e.getMessage());
         } finally {
@@ -82,7 +85,7 @@ public class DataAccess {
     }
 
 
-    public <E> E queryValue(String sql, List<Object> args) {
+    public <E> E queryValue(String sql, List<Object> args) throws Exception {
         Object[] objects = args.toArray(new Object[args.size()]);
         return queryValue(sql, objects);
     }
@@ -96,7 +99,7 @@ public class DataAccess {
      * @param <E>
      * @return
      */
-    public <E> E queryValue(String sql, Object... args) {
+    public <E> E queryValue(String sql, Object... args) throws Exception {
 
         LOGGER.info("query sql : " + sql);
 
@@ -120,7 +123,7 @@ public class DataAccess {
                 return (E) resultSet.getObject(1);
             }
         } catch (Exception ex) {
-            LOGGER.debug("query error ",ex);
+            throw ex;
         } finally {
             release(resultSet, preparedStatement, connection);
         }
@@ -295,19 +298,11 @@ public class DataAccess {
         }
 
 
-        Connection connection = null;
-        try {
-            connection = connectionFactory.getConnection();
-            connection.setAutoCommit(true);
-        }catch (Exception e){
-            LOGGER.error("error occur ,try again",e);
-            Thread.sleep(10);
-            connection = connectionFactory.getConnection();
-            connection.setAutoCommit(true);
-        }
-
+        Connection connection = connectionFactory.getConnection();
+        connection.setAutoCommit(true);
         return connection;
     }
+
 
 
     private void release(ResultSet resultSet, Statement statement, Connection connection) {

@@ -1,54 +1,63 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import cn.ubibi.jettyboot.framework.commons.ifs.FilterFunctions;
+
 import java.util.*;
 
 public class CollectionUtils {
 
-    public static List<String> eachWrap(Collection collection, String a, String b) {
+
+    /**
+     * 对集合中的每一个元素变成字符串后添加前缀和后缀
+     * @param collection 集合
+     * @param prefix 字符串前缀
+     * @param suffix 字符串后缀
+     * @return
+     */
+    public static List<String> eachWrap(Collection collection, String prefix, String suffix) {
         List<String> result = new ArrayList<>();
-
-        for (Object s : collection) {
-            String ss = "";
-            if (s != null) {
-                ss = s.toString();
+        for (Object obj : collection) {
+            if (obj != null) {
+                result.add(prefix + obj.toString() + suffix);
             }
-            result.add(a + ss + b);
         }
-
         return result;
     }
 
 
     public static <T> List<T> repeatList(T obj, int repeatTimes) {
         List<T> result = new ArrayList<>();
-
         for (int i = 0; i < repeatTimes; i++) {
             result.add(obj);
         }
-
         return result;
     }
 
 
-    public static List[] listKeyValues(Map<String, Object> map) {
+
+    public static List[] listKeyValues(Map<String, Object> map){
         List<Object> values = new ArrayList<>();
         List<String> keys = new ArrayList<>();
         Set<Map.Entry<String, Object>> entrys = map.entrySet();
         for (Map.Entry<String, Object> entry : entrys) {
-            values.add(entry.getValue());
-            keys.add(entry.getKey());
+            String key = entry.getKey();
+            //忽略掉了空的key
+            if (!isEmpty(key)){
+                values.add(entry.getValue());
+                keys.add(key);
+            }
         }
         return new List[]{keys, values};
     }
 
 
-    public static List<String> removeEmpty(String[] stringArray) {
+    public static List<String> removeEmptyString(String[] stringArray) {
         List<String> result = new ArrayList<>();
-        if (stringArray != null) {
+        if (!isEmpty(stringArray)) {
             for (int i = 0; i < stringArray.length; i++) {
-                String s = stringArray[i];
-                if (s != null && !s.isEmpty()) {
-                    result.add(s);
+                String str = stringArray[i];
+                if (!isEmpty(str)) {
+                    result.add(str);
                 }
             }
         }
@@ -60,7 +69,7 @@ public class CollectionUtils {
         List<Map<String, Object>> result = new ArrayList<>();
         if (mapList != null) {
             for (Map<String, Object> map : mapList) {
-                if (map != null && !map.isEmpty()) {
+                if (!isEmpty(map)) {
                     result.add(map);
                 }
             }
@@ -72,7 +81,7 @@ public class CollectionUtils {
     public static Set<String> getAllMapKeys(List<Map<String, Object>> mapList) {
         Set<String> hashSet = new HashSet<>();
         for (Map<String, Object> map : mapList) {
-            if (map != null && !map.isEmpty()) {
+            if (!isEmpty(map)) {
                 Set<String> keys = map.keySet();
                 hashSet.addAll(keys);
             }
@@ -84,28 +93,26 @@ public class CollectionUtils {
     public static List<String> toListAddAll(String[] urls1, String[] urls2) {
         List<String> result = new ArrayList<>();
 
-        if (urls1 != null && urls1.length > 0) {
+        if (!isEmpty(urls1)) {
             for (String s : urls1) {
                 result.add(s);
             }
         }
 
-        if (urls2 != null && urls2.length > 0) {
+        if (!isEmpty(urls2)) {
             for (String s2 : urls2) {
                 result.add(s2);
             }
         }
-
         return result;
-
     }
 
 
     public static <T> T getFirstElement(List<T> result) {
-        if (result != null && result.size() > 0) {
-            return result.get(0);
+        if (isEmpty(result)) {
+            return null;
         }
-        return null;
+        return result.get(0);
     }
 
 
@@ -115,19 +122,16 @@ public class CollectionUtils {
      *
      * @return id List
      */
-    public static List filterOnlyLegalId(List idList) {
+    public static List filterOnlyLegalItems(List idList, FilterFunctions filterFunctions) {
         if (idList == null) {
             return null;
         }
 
-
         List result = new ArrayList();
-
         for (Object obj : idList) {
-
             if (obj instanceof Long || obj instanceof Integer) {
                 result.add(obj);
-            } else if (obj instanceof String && isLegalStringId((String) obj)) {
+            } else if (obj instanceof String && isLegalStringItem((String) obj, filterFunctions)) {
                 result.add(obj);
             }
         }
@@ -136,13 +140,20 @@ public class CollectionUtils {
     }
 
 
-    private static boolean isLegalStringId(String obj) {
-        if (obj == null || obj.isEmpty()) {
+    /**
+     * 遍历字符串中的每一个字符，判断是否是合法的字符串
+     *
+     * @param obj             字符串
+     * @param filterFunctions
+     * @return
+     */
+    private static boolean isLegalStringItem(String obj, FilterFunctions filterFunctions) {
+        if (isEmpty(obj)) {
             return false;
         }
         for (int i = 0; i < obj.length(); i++) {
             char cc = obj.charAt(i);
-            if (!isLegalStringIdChar(cc)) {
+            if (!filterFunctions.isLegalStringIdChar(cc)) {
                 return false;
             }
         }
@@ -150,21 +161,20 @@ public class CollectionUtils {
     }
 
 
-    private static boolean isLegalStringIdChar(char cc) {
-        if (cc >= 'A' && cc <= 'Z') {
-            return true;
-        }
-        if (cc >= 'a' && cc <= 'z') {
-            return true;
-        }
-        if (cc >= '0' && cc <= '9') {
-            return true;
-        }
-
-        if (cc == '-' || cc == '_' || cc == '~' || cc=='.') {
-            return true;
-        }
-
-        return false;
+    public static boolean isEmpty(Map map) {
+        return map == null || map.isEmpty();
     }
+
+    public static boolean isEmpty(List idList) {
+        return idList == null || idList.isEmpty();
+    }
+
+    public static boolean isEmpty(Object[] stringArray) {
+        return stringArray == null || stringArray.length == 0;
+    }
+
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
 }
