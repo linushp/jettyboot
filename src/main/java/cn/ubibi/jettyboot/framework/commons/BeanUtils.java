@@ -22,13 +22,12 @@ public class BeanUtils {
      */
     public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values) throws Exception {
 
-        if (values == null || values.isEmpty()) {
+        if (CollectionUtils.isEmpty(values)) {
             return new ArrayList<>();
         }
 
 
-        Field[] fields = clazz.getDeclaredFields();
-        BeanField[] beanFields = toBeanFieldExtend(fields);
+        List<BeanField> beanFields = BeanFieldUtils.getBeanFields(clazz);
         List<T> result = new ArrayList<>();
 
         for (Map<String, Object> m : values) {
@@ -45,45 +44,40 @@ public class BeanUtils {
         if (clazz == null || map == null) {
             return null;
         }
-        Field[] fields = clazz.getDeclaredFields();
-        BeanField[] beanFields = toBeanFieldExtend(fields);
+        List<BeanField> beanFields = BeanFieldUtils.getBeanFields(clazz);
         return mapToBean(clazz, map, beanFields);
     }
 
 
-    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, BeanField[] beanFields) throws IllegalAccessException, InstantiationException {
+    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, List<BeanField> beanFields) throws IllegalAccessException, InstantiationException {
 
         if (clazz == null || map == null || beanFields == null) {
             return null;
         }
 
         T bean = clazz.newInstance();
-        if (map.isEmpty() || beanFields.length == 0) {
+        if (CollectionUtils.isEmpty(beanFields)) {
             return bean;
         }
 
 
         for (BeanField beanField : beanFields) {
 
-            Field field = beanField.getField();
-            String filedName = beanField.getFiledName();
-
+            String filedName = beanField.getFieldName();
 
             //1.得到数据
             Object value = map.get(filedName);
             if (value == null) {
-                String filedName2 = beanField.getFiledNameUnderline();
+                String filedName2 = beanField.getFieldNameUnderline();
                 if (!filedName2.equals(filedName)) {
                     value = map.get(filedName2);
                 }
             }
 
-
             //2.类型转换
-            value = castValueType(value, field, map);
+            value = castValueType(value, beanField.getField(), map);
             if (value != null) {
-                field.setAccessible(true);
-                field.set(bean, value);
+                beanField.setBeanValue(bean, value);
             }
 
         }
@@ -95,11 +89,12 @@ public class BeanUtils {
     /**
      * 转换数据类型
      *
-     * @param value      原始数据
+     * @param value 原始数据
      * @param field 要转换成的目标数据类型
      * @return
      */
     private static Object castValueType(Object value, Field field, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
+
 
         Class<?> targetType = field.getType();
         //1. 可以自定义一个类型转换器
@@ -113,7 +108,6 @@ public class BeanUtils {
             return null;
         }
 
-
         //2. 根据JSONTextBean注解转换，此时原始的value必须是字符串
         JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
         if (jsonTextBeanAnnotation != null) {
@@ -125,29 +119,17 @@ public class BeanUtils {
             return JSON.parseArray(value.toString(), jsonTextBeanArrayAnnotation.elementType());
         }
 
-
         //3. 简单数据类型转换
         return CastTypeUtils.castValueType(value, targetType);
     }
 
 
-    private static BeanField[] toBeanFieldExtend(Field[] fields) {
-        BeanField[] result = new BeanField[fields.length];
-
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            result[i] = new BeanField(field);
-        }
-
-        return result;
-    }
-
-
     /**
      * 浅复制
+     *
      * @param targetObject 目标对象
-     * @param fromObject 源对象
-     * @param <T> 类型
+     * @param fromObject   源对象
+     * @param <T>          类型
      */
     public static <T> void copyField(T targetObject, T fromObject) {
         if (fromObject == null) {
@@ -155,12 +137,11 @@ public class BeanUtils {
         }
 
         try {
-            Field[] fields = fromObject.getClass().getDeclaredFields();
-            if (fields.length > 0) {
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    Object value = field.get(fromObject);
-                    field.set(targetObject, value);
+            List<BeanField> fields = BeanFieldUtils.getBeanFields(fromObject.getClass());
+            if (!CollectionUtils.isEmpty(fields)) {
+                for (BeanField field : fields) {
+                    Object value = field.getBeanValue(fromObject);
+                    field.setBeanValue(targetObject, value);
                 }
             }
         } catch (IllegalAccessException e) {
@@ -169,37 +150,4 @@ public class BeanUtils {
     }
 
 
-
-
-    private static class BeanField {
-
-        private Field field;
-        private String filedName;
-        private String filedNameUnderline;
-
-        private BeanField(Field field) {
-            this.field = field;
-            String filedName = field.getName();
-            String underlineFiledName = StringUtils.camel2Underline(field.getName());
-            this.filedName = filedName;
-            if (filedName.equals(underlineFiledName)) {
-                this.filedNameUnderline = filedName;//为了加快下次比较速度。
-            } else {
-                this.filedNameUnderline = underlineFiledName;
-            }
-        }
-
-        public Field getField() {
-            return field;
-        }
-
-        public String getFiledName() {
-            return filedName;
-        }
-
-        public String getFiledNameUnderline() {
-            return filedNameUnderline;
-        }
-
-    }
 }

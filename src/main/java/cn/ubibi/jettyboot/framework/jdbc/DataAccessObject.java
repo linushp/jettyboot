@@ -4,13 +4,23 @@ import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.commons.ifs.FilterFunctions;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.sql.Connection;
 import java.util.*;
 
 
+/**
+ * 1.如果想动态选择DB，可以在ConnectionFactory中实现
+ * 2.如果想动态选择schemaName,可以在子类中的schemaTableName方法实现.
+ *
+ * @param <T> ORM的类名
+ */
 public class DataAccessObject<T> implements FilterFunctions {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessObject.class);
 
     protected Class<T> clazz;
     protected String tableName;
@@ -19,6 +29,13 @@ public class DataAccessObject<T> implements FilterFunctions {
     protected DataAccess dataAccess;
 
 
+    /**
+     * 创建一个数据访问对象
+     *
+     * @param clazz             ORM的类
+     * @param tableName         表名
+     * @param connectionFactory 如果想动态选择DB，可以在ConnectionFactory中实现
+     */
     public DataAccessObject(Class<T> clazz, String tableName, ConnectionFactory connectionFactory) {
         this.clazz = clazz;
         this.tableName = tableName;
@@ -33,6 +50,7 @@ public class DataAccessObject<T> implements FilterFunctions {
 
     /**
      * protected方法方便子类扩展
+     * 如果想动态改变schemaName可以在子类中的schemaTableName方法实现
      *
      * @return select from 后面的表名
      */
@@ -47,20 +65,20 @@ public class DataAccessObject<T> implements FilterFunctions {
     private DataAccessObject() {
     }
 
-    public Object clone() {
 
+    //克隆的是一个子类对象
+    //子类对象必须实现一个无参构造方法
+    public Object clone() {
         try {
             //获取的是子类的Class
             Object o = this.getClass().newInstance();
             BeanUtils.copyField(o, this);
             return o;
-
-        } catch (InstantiationException e) {
-            e.printStackTrace();
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
+        } catch (InstantiationException e) {
+            LOGGER.error("", e);
         }
-
         return null;
     }
 
