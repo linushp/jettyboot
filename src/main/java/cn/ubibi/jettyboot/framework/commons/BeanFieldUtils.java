@@ -3,10 +3,11 @@ package cn.ubibi.jettyboot.framework.commons;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanFieldUtils {
 
-    private static final Map<Class,List<BeanField>> beanFieldCacheMap = new HashMap<>();
+    private static final Map<Class,List<BeanField>> beanFieldCacheMap = new ConcurrentHashMap<>();
 
 
     public static List<BeanField> getBeanFields(Class clazz) {
