@@ -72,7 +72,7 @@ public class BeanUtils {
 
                 Object value = beanField.getBeanValue(bean);
 
-                value = beanToMapFilter.toMapValueType(value,beanField);
+                value = beanToMapFilter.toMapValueType(value, beanField);
 
                 map.put(mapKey, value);
             }
