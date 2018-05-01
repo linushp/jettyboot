@@ -72,7 +72,7 @@ public class BeanUtils {
 
                 Object value = beanField.getBeanValue(bean);
 
-                value = beanToMapFilter.castValueType(value,beanField);
+                value = beanToMapFilter.toMapValueType(value,beanField);
 
                 map.put(mapKey, value);
             }
@@ -157,7 +157,7 @@ public class BeanUtils {
             //1.得到数据
             Object value1 = mapToBeanFilter.getValue(beanField, map);
             //2.类型转换
-            value1 = mapToBeanFilter.castValueType(value1, beanField, map);
+            value1 = mapToBeanFilter.toBeanFieldType(value1, beanField, map);
             if (value1 != null) {
                 beanField.setBeanValue(bean, value1);
             }
