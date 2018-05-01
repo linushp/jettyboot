@@ -37,6 +37,8 @@ public class PropertiesUtils {
             filePath = (filePath.charAt(0) == '/' ? filePath.substring(1) : filePath);
             inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(filePath);
         } else {
+            String filePath = fileName;
+            filePath = (filePath.charAt(0) == '/' ? filePath.substring(1) : filePath);
             inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(fileName);
         }
 
