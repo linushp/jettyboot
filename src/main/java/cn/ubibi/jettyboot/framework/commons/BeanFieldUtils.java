@@ -66,6 +66,12 @@ public class BeanFieldUtils {
             listSuperClass.add(superclass);
             superclass = superclass.getSuperclass();
         }
+
+
+        if (!listSuperClass.isEmpty()){
+            //反转
+            Collections.reverse(listSuperClass);
+        }
         return listSuperClass;
     }
 

@@ -40,7 +40,12 @@ public class ServiceManager {
                 //有注解
                 Autowired autowired = field.getDeclaredAnnotation(Autowired.class);
                 if (autowired != null) {
-                    field.setAccessible(true);
+
+                    if (!field.isAccessible()){
+                        field.setAccessible(true);
+                    }
+
+
                     Object filedValue = field.get(controller);
                     if (filedValue == null) {
                         Object service = findServiceByField(field);
