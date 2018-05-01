@@ -10,8 +10,6 @@ public class BeanField {
     private String fieldNameUnderline;
 
     public BeanField(Field field) {
-        field.setAccessible(true);
-
         this.field = field;
         String filedName = field.getName();
         String underlineFiledName = StringUtils.camel2Underline(field.getName());
@@ -22,6 +20,7 @@ public class BeanField {
             this.fieldNameUnderline = underlineFiledName;
         }
     }
+
 
 
     public Field getField() {
@@ -38,11 +37,20 @@ public class BeanField {
 
 
     public void setBeanValue(Object bean, Object value) throws IllegalAccessException {
+        setAccessible();
         field.set(bean, value);
     }
 
+
     public Object getBeanValue(Object bean) throws IllegalAccessException {
+        setAccessible();
         return field.get(bean);
+    }
+
+    private void setAccessible(){
+        if (!field.isAccessible()){
+            field.setAccessible(true);
+        }
     }
 }
 
