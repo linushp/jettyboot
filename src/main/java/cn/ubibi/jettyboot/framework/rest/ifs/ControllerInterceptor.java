@@ -11,3 +11,4 @@ public interface ControllerInterceptor {
     void invokeAfter(Method method, ControllerRequest request, Object invokeResult) throws Exception;
 
 }
+
