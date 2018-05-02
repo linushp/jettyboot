@@ -3,7 +3,7 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.Service;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -42,7 +42,7 @@ public class ControllerContextHandler extends ContextHandler{
         this.requestHandler.addExceptionHandler(exceptionHandler);
     }
 
-    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
+    public void addControllerAspect(ControllerInterceptor methodAspect) throws Exception {
         this.requestHandler.addControllerAspect(methodAspect);
     }
 

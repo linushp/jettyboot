@@ -6,7 +6,7 @@ import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.commons.StringWrapper;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
@@ -33,10 +33,10 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private Method method;
 
     private List<MethodArgumentResolver> methodArgumentResolvers;
-    private List<ControllerAspect> requestAspectList;
+    private List<ControllerInterceptor> requestAspectList;
 
 
-    ControllerMethodHandler(String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    ControllerMethodHandler(String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
@@ -63,12 +63,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         Object invokeResult;
         try {
 
-            List<ControllerAspect> methodWrappers = this.requestAspectList;
+            List<ControllerInterceptor> methodWrappers = this.requestAspectList;
 
             ControllerRequest jbRequest = ControllerRequest.getInstance(request, response, targetPath);
 
             //Aspect前置
-            for (ControllerAspect methodWrapper : methodWrappers) {
+            for (ControllerInterceptor methodWrapper : methodWrappers) {
                 methodWrapper.invokeBefore(method, jbRequest);
             }
 
@@ -80,7 +80,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
             //Aspect后置
-            for (ControllerAspect methodWrapper : methodWrappers) {
+            for (ControllerInterceptor methodWrapper : methodWrappers) {
                 methodWrapper.invokeAfter(method, jbRequest, invokeResult);
             }
 

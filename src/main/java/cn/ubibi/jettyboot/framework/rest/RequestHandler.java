@@ -1,7 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import org.eclipse.jetty.server.Request;
@@ -22,7 +22,7 @@ public class RequestHandler extends AbstractHandler {
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ControllerExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private final List<ControllerAspect> controllerAspects = new ArrayList<>();
+    private final List<ControllerInterceptor> controllerAspects = new ArrayList<>();
     private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
 
 
@@ -103,7 +103,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
+    public void addControllerAspect(ControllerInterceptor methodAspect) throws Exception {
         if (methodAspect == null) {
             throw new Exception("addControllerAspect can not null");
         }

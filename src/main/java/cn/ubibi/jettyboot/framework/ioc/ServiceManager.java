@@ -1,9 +1,13 @@
 package cn.ubibi.jettyboot.framework.ioc;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +28,12 @@ public class ServiceManager {
     private List<Object> serviceList = new ArrayList<>();
 
 
-    public void addService(Object object) {
-        serviceList.add(object);
-        LOGGER.info("addService:" + object.getClass().getName());
+    public void addService(Object serviceObject) {
+        if (serviceObject == null) {
+            return;
+        }
+        serviceList.add(serviceObject);
+        LOGGER.info("addService:" + serviceObject.getClass().getName());
     }
 
 
@@ -41,7 +48,7 @@ public class ServiceManager {
                 Autowired autowired = field.getDeclaredAnnotation(Autowired.class);
                 if (autowired != null) {
 
-                    if (!field.isAccessible()){
+                    if (!field.isAccessible()) {
                         field.setAccessible(true);
                     }
 
@@ -70,7 +77,8 @@ public class ServiceManager {
     private Object findServiceByField(Field field) throws Exception {
         Class<?> fieldType = field.getType();
         for (Object service : this.serviceList) {
-            if (fieldType.isAssignableFrom(service.getClass())) {
+            Class serviceClass = service.getClass();
+            if (fieldType == serviceClass || fieldType.isAssignableFrom(serviceClass)) {
                 return service;
             }
         }

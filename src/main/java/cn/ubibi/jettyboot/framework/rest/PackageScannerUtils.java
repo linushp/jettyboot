@@ -5,7 +5,7 @@ import cn.ubibi.jettyboot.framework.commons.scan.PackageScanner;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -128,7 +128,7 @@ public class PackageScannerUtils {
 
 
         //3.2
-        else if (ControllerAspect.class.isAssignableFrom(clazz)) {
+        else if (ControllerInterceptor.class.isAssignableFrom(clazz)) {
             object = clazz.newInstance();
         }
 
@@ -169,8 +169,8 @@ public class PackageScannerUtils {
 
 
         //3.2
-        else if (object instanceof ControllerAspect) {
-            controllerContextHandler.addControllerAspect((ControllerAspect) object);
+        else if (object instanceof ControllerInterceptor) {
+            controllerContextHandler.addControllerAspect((ControllerInterceptor) object);
         }
 
         //3.3
