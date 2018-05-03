@@ -75,6 +75,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             //准备参数
             Object[] paramsObjects = getMethodParamsObjects(method, jbRequest, request, response);
+
             //方法调用
             invokeResult = method.invoke(controller, paramsObjects);
 
