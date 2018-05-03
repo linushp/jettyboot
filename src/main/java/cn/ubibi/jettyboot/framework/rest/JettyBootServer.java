@@ -1,11 +1,26 @@
 package cn.ubibi.jettyboot.framework.rest;
 
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JettyBootServer{
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyBootServer.class);
+
+    private static final String bannerString = "" +
+            "\n\n\n" +
+            "      #  #######  #######  #######  #     #  ######   #######  #######  #######\n" +
+            "      #  #           #        #      #   #   #     #  #     #  #     #     #\n" +
+            "      #  #           #        #       # #    #     #  #     #  #     #     #\n" +
+            "      #  #####       #        #        #     ######   #     #  #     #     #\n" +
+            "#     #  #           #        #        #     #     #  #     #  #     #     #\n" +
+            "#     #  #           #        #        #     #     #  #     #  #     #     #\n" +
+            " #####   #######     #        #        #     ######   #######  #######     #" +
+            "\n\n";
 
     private HandlerCollection handlerCollection = new HandlerCollection();
 
@@ -19,6 +34,7 @@ public class JettyBootServer{
 
     public JettyBootServer(String controllerContext){
         this.controllerContext = controllerContext;
+        LOGGER.info(bannerString);
     }
 
 
@@ -40,6 +56,7 @@ public class JettyBootServer{
 
 
     public void listen(int port) throws Exception {
+
         Server server = new Server(port);
         server.setHandler(handlerCollection);
         server.start();
