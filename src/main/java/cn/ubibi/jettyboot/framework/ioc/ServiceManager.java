@@ -1,12 +1,11 @@
 package cn.ubibi.jettyboot.framework.ioc;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.ubibi.jettyboot.framework.commons.BeanField;
+import cn.ubibi.jettyboot.framework.commons.BeanFieldUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,27 +37,30 @@ public class ServiceManager {
 
 
     //执行注入依赖的过程
-    public void injectDependency(Object controller) throws Exception {
-        Field[] fields = controller.getClass().getDeclaredFields();
+    public void injectDependency(Object beanObject) throws Exception {
 
-        if (fields != null && fields.length > 0) {
-            for (Field field : fields) {
+        //获取连同父类的字段,这样就能够连同继承的父类的字段也可以注入了。
+        List<BeanField> beanFields = BeanFieldUtils.getBeanFields(beanObject.getClass());
 
-                //有注解
-                Autowired autowired = field.getDeclaredAnnotation(Autowired.class);
+        if (!CollectionUtils.isEmpty(beanFields)) {
+
+            for (BeanField beanField : beanFields) {
+
+                Field field = beanField.getField();
+
+                //有注解，Autowired注解可被继承
+                Autowired autowired = field.getAnnotation(Autowired.class);
                 if (autowired != null) {
 
-                    if (!field.isAccessible()) {
-                        field.setAccessible(true);
-                    }
-
-
-                    Object filedValue = field.get(controller);
+                    //只会自动注入null的字段
+                    Object filedValue = beanField.getBeanValue(beanObject);
                     if (filedValue == null) {
+
+
                         Object service = findServiceByField(field);
                         if (service != null) {
 
-                            field.set(controller, service);
+                            beanField.setBeanValue(beanObject, service);
 
                             //放在set后面，允许循环依赖，只要调用不循环就行。
                             injectDependency(service);

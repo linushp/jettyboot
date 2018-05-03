@@ -7,19 +7,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanFieldUtils {
 
-    private static final Map<Class,List<BeanField>> beanFieldCacheMap = new ConcurrentHashMap<>();
+    private static final Map<Class, List<BeanField>> beanFieldCacheMap = new ConcurrentHashMap<>();
 
 
     public static List<BeanField> getBeanFields(Class clazz) {
         List<BeanField> beanFields = beanFieldCacheMap.get(clazz);
-        if (beanFields == null){
+        if (beanFields == null) {
             beanFields = getBeanFields1(clazz);
-            beanFieldCacheMap.put(clazz,beanFields);
+            beanFieldCacheMap.put(clazz, beanFields);
         }
         return beanFields;
     }
-
-
 
 
     private static List<BeanField> getBeanFields1(Class clazz) {
@@ -45,7 +43,7 @@ public class BeanFieldUtils {
         List<BeanField> result = new ArrayList<>();
         for (Field field : fields) {
             int modifiers = field.getModifiers();
-            if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)){
+            if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
                 result.add(new BeanField(field));
             }
         }
@@ -69,7 +67,7 @@ public class BeanFieldUtils {
         }
 
 
-        if (!listSuperClass.isEmpty()){
+        if (!listSuperClass.isEmpty()) {
             //反转
             Collections.reverse(listSuperClass);
         }

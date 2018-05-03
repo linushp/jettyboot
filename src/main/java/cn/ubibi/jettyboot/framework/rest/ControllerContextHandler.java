@@ -12,9 +12,10 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
-public class ControllerContextHandler extends ContextHandler{
+public class ControllerContextHandler extends ContextHandler {
 
     private RequestHandler requestHandler;
 
@@ -30,12 +31,12 @@ public class ControllerContextHandler extends ContextHandler{
     }
 
 
-    public void addController(String path,Class<?> clazz) throws Exception {
-        this.requestHandler.addController(path,clazz);
+    public void addController(String path, Class<?> clazz) throws Exception {
+        this.requestHandler.addController(path, clazz);
     }
 
-    public void addController(String path ,Object restController) throws Exception {
-        this.requestHandler.addController(path,restController);
+    public void addController(String path, Object restController) throws Exception {
+        this.requestHandler.addController(path, restController);
     }
 
     public void addExceptionHandler(ControllerExceptionHandler exceptionHandler) throws Exception {
@@ -50,7 +51,7 @@ public class ControllerContextHandler extends ContextHandler{
         this.requestHandler.addMethodArgumentResolver(argumentResolver);
     }
 
-    public void addService(Object service){
+    public void addService(Object service) {
         ServiceManager.getInstance().addService(service);
     }
 
@@ -64,9 +65,20 @@ public class ControllerContextHandler extends ContextHandler{
                 Service annotation = method.getAnnotation(Service.class);
                 if (annotation != null) {
                     method.setAccessible(true);
-                    Object object = method.invoke(serviceFactory);
-                    if (object != null) {
-                        this.addService(object);
+                    Object serviceResult = method.invoke(serviceFactory);
+                    if (serviceResult != null) {
+
+                        if (serviceResult instanceof Collection) {
+
+                            Collection serviceList = (Collection) serviceResult;
+                            for (Object serviceObject : serviceList) {
+                                this.addService(serviceObject);
+                            }
+
+                        } else {
+                            this.addService(serviceResult);
+                        }
+
                     }
                 }
             }
@@ -79,19 +91,17 @@ public class ControllerContextHandler extends ContextHandler{
     }
 
 
-    public void addHandler(Handler handler){
+    public void addHandler(Handler handler) {
         this.handlerCollection.addHandler(handler);
     }
 
 
-
-
-
     /**
      * 报漏给外界，为了用户扩展需要，比如用户自己实现一个DWR框架
+     *
      * @return
      */
-    public List<ControllerMethodHandler> getControllerMethodHandlers(){
+    public List<ControllerMethodHandler> getControllerMethodHandlers() {
         return this.requestHandler.getControllerMethodHandlers();
     }
 
