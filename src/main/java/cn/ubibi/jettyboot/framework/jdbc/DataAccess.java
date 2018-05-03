@@ -257,14 +257,16 @@ public class DataAccess {
         List<Map<String, Object>> values = new ArrayList<>();
         if (resultSet != null) {
             List<String> columnLabels = getColumnLabels(resultSet);
-            Map<String, Object> map = null;
             // 7. 处理 ResultSet, 使用 while 循环
             while (resultSet.next()) {
-                map = new HashMap<>();
+
+                Map<String, Object> map = new HashMap<>();
+
                 for (String columnLabel : columnLabels) {
                     Object value = resultSet.getObject(columnLabel);
                     map.put(columnLabel, value);
                 }
+
                 // 11. 把一条记录的一个 Map 对象放入 5 准备的 List 中
                 values.add(map);
             }
