@@ -67,7 +67,7 @@ public class BeanFieldUtils {
     }
 
 
-    private static List<BeanField> getClassOrBeanFields(Class clazz, ObjectFilter<Field> filedFilter) {
+    private static List<BeanField> getClassOrBeanFields(Class clazz, ObjectFilter<Field> fieldFilter) {
 
         List<Class> classList = getSuperClass(clazz);
         classList.add(clazz);
@@ -89,7 +89,7 @@ public class BeanFieldUtils {
         Collection<Field> fields = fieldMap.values();
         List<BeanField> result = new ArrayList<>();
         for (Field field : fields) {
-            if (filedFilter.isOK(field)) {
+            if (fieldFilter.isOK(field)) {
                 result.add(new BeanField(field));
             }
         }
