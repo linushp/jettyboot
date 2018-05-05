@@ -1,5 +1,7 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -7,20 +9,65 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanFieldUtils {
 
+    /**
+     * 成员变量字段
+     */
     private static final Map<Class, List<BeanField>> beanFieldCacheMap = new ConcurrentHashMap<>();
 
+    /**
+     * 静态变量字段
+     */
+    private static final Map<Class, List<BeanField>> classStaticFieldCacheMap = new ConcurrentHashMap<>();
 
+
+    //获取类字段（静态字段）
+    public static List<BeanField> getClassStaticFields(Class clazz) {
+        List<BeanField> beanFields = classStaticFieldCacheMap.get(clazz);
+        if (beanFields == null) {
+            beanFields = getClassOrBeanFields(clazz, new DefaultClassStaticFieldFilter());
+            classStaticFieldCacheMap.put(clazz, beanFields);
+        }
+        return beanFields;
+    }
+
+
+    //获取对象的字段（非静态字段）
     public static List<BeanField> getBeanFields(Class clazz) {
         List<BeanField> beanFields = beanFieldCacheMap.get(clazz);
         if (beanFields == null) {
-            beanFields = getBeanFields1(clazz);
+            beanFields = getClassOrBeanFields(clazz, new DefaultBeanFieldFilter());
             beanFieldCacheMap.put(clazz, beanFields);
         }
         return beanFields;
     }
 
 
-    private static List<BeanField> getBeanFields1(Class clazz) {
+    //过滤器
+    private static class DefaultClassStaticFieldFilter implements ObjectFilter<Field> {
+        public boolean isOK(Field field) {
+            int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+    //过滤器
+    private static class DefaultBeanFieldFilter implements ObjectFilter<Field> {
+        public boolean isOK(Field field) {
+            int modifiers = field.getModifiers();
+            //过滤掉 static 和 final 的字符
+            if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+    private static List<BeanField> getClassOrBeanFields(Class clazz, ObjectFilter<Field> filedFilter) {
 
         List<Class> classList = getSuperClass(clazz);
         classList.add(clazz);
@@ -38,13 +85,11 @@ public class BeanFieldUtils {
         }
 
 
-        //2.过滤掉static和final的字段
+        //2.过滤一些字段
         Collection<Field> fields = fieldMap.values();
         List<BeanField> result = new ArrayList<>();
         for (Field field : fields) {
-            int modifiers = field.getModifiers();
-            //过滤掉 static 和 final 的字符安
-            if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+            if (filedFilter.isOK(field)) {
                 result.add(new BeanField(field));
             }
         }

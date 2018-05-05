@@ -1,7 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.commons.ifs.FilterFunctions;
+import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.*;
  *
  * @param <T> ORM的类名
  */
-public class DataAccessObject<T> implements FilterFunctions {
+public class DataAccessObject<T>  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessObject.class);
 
@@ -121,14 +121,24 @@ public class DataAccessObject<T> implements FilterFunctions {
         return findByWhere("");
     }
 
+
     public List<T> findByIdList(List idList) throws Exception {
-        return findByIdList("id", idList);
+        return findByIdList("id", idList,new DefaultIdCharFilter());
     }
 
     public List<T> findByIdList(String idFieldName, List idList) throws Exception {
+        return findByIdList(idFieldName, idList,new DefaultIdCharFilter());
+    }
+
+    public List<T> findByIdList(List idList,CharFilter idCharFilter) throws Exception {
+        return findByIdList("id", idList,idCharFilter);
+    }
+
+    public List<T> findByIdList(String idFieldName, List idList,CharFilter idCharFilter) throws Exception {
 
         //过滤出合法的Id类型。避免SQL注入的问题。
-        idList = CollectionUtils.filterOnlyLegalItems(idList, this);
+        idList = CollectionUtils.filterOnlyLegalItems(idList, idCharFilter);
+
         if (CollectionUtils.isEmpty(idList)) {
             return new ArrayList<>();
         }
@@ -465,28 +475,32 @@ public class DataAccessObject<T> implements FilterFunctions {
         }
     }
 
+    private static class DefaultIdCharFilter implements CharFilter {
 
-    /**
-     * 判断是否是合法的ID允许出现的字符
-     *
-     * @param cc 字符
-     * @return 是否合法
-     */
-    public boolean isLegalStringIdChar(char cc) {
-        if (cc >= 'A' && cc <= 'Z') {
-            return true;
-        }
-        if (cc >= 'a' && cc <= 'z') {
-            return true;
-        }
-        if (cc >= '0' && cc <= '9') {
-            return true;
-        }
+        /**
+         * 判断是否是合法的ID允许出现的字符
+         *
+         * @param cc 字符
+         * @return 是否合法
+         */
+        public boolean isOK(char cc) {
 
-        if (cc == '-' || cc == '_' || cc == '~' || cc == '.') {
-            return true;
+            if (cc >= 'A' && cc <= 'Z') {
+                return true;
+            }
+            if (cc >= 'a' && cc <= 'z') {
+                return true;
+            }
+            if (cc >= '0' && cc <= '9') {
+                return true;
+            }
+
+            if (cc == '-' || cc == '_' || cc == '~' || cc == '.') {
+                return true;
+            }
+
+            return false;
         }
-        return false;
     }
 
 }

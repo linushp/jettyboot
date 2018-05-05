@@ -1,6 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons;
 
-import cn.ubibi.jettyboot.framework.commons.ifs.FilterFunctions;
+import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 
 import java.util.*;
 
@@ -122,7 +122,7 @@ public class CollectionUtils {
      *
      * @return id List
      */
-    public static List filterOnlyLegalItems(List idList, FilterFunctions filterFunctions) {
+    public static List filterOnlyLegalItems(List idList, CharFilter idCharFilter) {
         if (idList == null) {
             return null;
         }
@@ -131,7 +131,7 @@ public class CollectionUtils {
         for (Object obj : idList) {
             if (obj instanceof Long || obj instanceof Integer) {
                 result.add(obj);
-            } else if (obj instanceof String && isLegalStringItem((String) obj, filterFunctions)) {
+            } else if (obj instanceof String && isLegalStringItem((String) obj, idCharFilter)) {
                 result.add(obj);
             }
         }
@@ -144,16 +144,16 @@ public class CollectionUtils {
      * 遍历字符串中的每一个字符，判断是否是合法的字符串
      *
      * @param obj             字符串
-     * @param filterFunctions
+     * @param idCharFilter
      * @return
      */
-    private static boolean isLegalStringItem(String obj, FilterFunctions filterFunctions) {
+    private static boolean isLegalStringItem(String obj, CharFilter idCharFilter) {
         if (isEmpty(obj)) {
             return false;
         }
         for (int i = 0; i < obj.length(); i++) {
             char cc = obj.charAt(i);
-            if (!filterFunctions.isLegalStringIdChar(cc)) {
+            if (!idCharFilter.isOK(cc)) {
                 return false;
             }
         }
