@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
+import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
 
 import java.util.*;
 
@@ -9,9 +10,10 @@ public class CollectionUtils {
 
     /**
      * 对集合中的每一个元素变成字符串后添加前缀和后缀
+     *
      * @param collection 集合
-     * @param prefix 字符串前缀
-     * @param suffix 字符串后缀
+     * @param prefix     字符串前缀
+     * @param suffix     字符串后缀
      * @return
      */
     public static List<String> eachWrap(Collection collection, String prefix, String suffix) {
@@ -34,15 +36,14 @@ public class CollectionUtils {
     }
 
 
-
-    public static List[] listKeyValues(Map<String, Object> map){
+    public static List[] listKeyValues(Map<String, Object> map) {
         List<Object> values = new ArrayList<>();
         List<String> keys = new ArrayList<>();
         Set<Map.Entry<String, Object>> entrys = map.entrySet();
         for (Map.Entry<String, Object> entry : entrys) {
             String key = entry.getKey();
             //忽略掉了空的key
-            if (!isEmpty(key)){
+            if (!isEmpty(key)) {
                 values.add(entry.getValue());
                 keys.add(key);
             }
@@ -143,7 +144,7 @@ public class CollectionUtils {
     /**
      * 遍历字符串中的每一个字符，判断是否是合法的字符串
      *
-     * @param obj             字符串
+     * @param obj          字符串
      * @param idCharFilter
      * @return
      */
@@ -154,6 +155,46 @@ public class CollectionUtils {
         for (int i = 0; i < obj.length(); i++) {
             char cc = obj.charAt(i);
             if (!idCharFilter.isOK(cc)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public static <T> List<T> filter(List<T> objectList, ObjectFilter<T>... objectFilterArray) {
+        List<ObjectFilter<T>> objectFilters = new ArrayList<>(objectFilterArray.length);
+        for (ObjectFilter<T> objectFilter : objectFilterArray) {
+            objectFilters.add(objectFilter);
+        }
+        return filterList(objectList, objectFilters);
+    }
+
+
+    public static <T> List<T> filterList(List<T> objectList, List<ObjectFilter<T>> objectFilters) {
+
+        if (objectList == null) {
+            return null;
+        }
+
+        if (isEmpty(objectFilters)) {
+            return objectList;
+        }
+
+        List<T> result = new ArrayList<>();
+        for (T obj : objectList) {
+            if (isFiltersOk(obj, objectFilters)) {
+                result.add(obj);
+            }
+        }
+
+        return result;
+    }
+
+
+    public static <T> boolean isFiltersOk(T obj, List<ObjectFilter<T>> objectFilters) {
+        for (ObjectFilter<T> objectFilter : objectFilters) {
+            if (!objectFilter.isOK(obj)) {
                 return false;
             }
         }
