@@ -43,6 +43,7 @@ public class BeanFieldUtils {
         List<BeanField> result = new ArrayList<>();
         for (Field field : fields) {
             int modifiers = field.getModifiers();
+            //过滤掉 static 和 final 的字符安
             if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
                 result.add(new BeanField(field));
             }
