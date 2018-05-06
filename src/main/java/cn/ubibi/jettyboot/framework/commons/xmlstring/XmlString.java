@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons.xmlstring;
 
+import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.commons.xmlstring.xmlelement.RootElement;
 import cn.ubibi.jettyboot.framework.commons.xmlstring.xmlelement.StringElement;
 
@@ -52,8 +53,12 @@ public class XmlString {
         List<StringElement> stringElements = rootElement.getString();
         for (StringElement stringElement : stringElements) {
             String id = stringElement.getId();
-            String content = stringElement.getContent();
-            this.stringIdMap.put(id,content);
+
+            if (!StringUtils.isEmpty(id)){
+                String content = stringElement.getContent();
+                this.stringIdMap.put(id,content);
+            }
+
         }
 
     }
