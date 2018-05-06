@@ -9,11 +9,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class XmlString {
 
     private RootElement rootElement;
+    private Map<String,String> stringIdMap = new ConcurrentHashMap<>();
 
     public XmlString(String path) throws Exception {
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(path);
@@ -44,6 +47,15 @@ public class XmlString {
         JAXBContext jc = JAXBContext.newInstance(RootElement.class);
         Unmarshaller u = jc.createUnmarshaller();
         this.rootElement = (RootElement) u.unmarshal(in);
+
+
+        List<StringElement> stringElements = rootElement.getString();
+        for (StringElement stringElement : stringElements) {
+            String id = stringElement.getId();
+            String content = stringElement.getContent();
+            this.stringIdMap.put(id,content);
+        }
+
     }
 
 
@@ -65,13 +77,7 @@ public class XmlString {
 
     //ID不能重复，只能返回第一个
     public String getStringById(String id) {
-        List<StringElement> stringElements = rootElement.getString();
-        for (StringElement stringElement : stringElements) {
-            if (id.equals(stringElement.getId())) {
-                return stringElement.getContent();
-            }
-        }
-        return null;
+        return stringIdMap.get(id);
     }
 
 }
