@@ -4,6 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlNdArgs;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import cn.ubibi.jettyboot.framework.jdbc.utils.SQLFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.dc.pr.PRError;
@@ -17,8 +18,6 @@ import java.util.regex.Pattern;
 public class DataAccess {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAccess.class);
-    private static final Pattern PATTERN_REPLACE = Pattern.compile("\\$\\{[a-zA-Z_]+[0-9a-zA-Z_]+}");
-    private static final Pattern PATTERN_REPLACE_VALUE = Pattern.compile("#\\{[a-zA-Z_]+[0-9a-zA-Z_]+}");
 
 
     private ConnectionFactory connectionFactory;
@@ -52,7 +51,7 @@ public class DataAccess {
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
+            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
             sql = sqlNdArgs.getSql();
             args = sqlNdArgs.getArgs().toArray();
         }
@@ -119,7 +118,7 @@ public class DataAccess {
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
+            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
             sql = sqlNdArgs.getSql();
             args = sqlNdArgs.getArgs().toArray();
         }
@@ -208,7 +207,7 @@ public class DataAccess {
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
+            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
             sql = sqlNdArgs.getSql();
             args = sqlNdArgs.getArgs().toArray();
         }
@@ -374,46 +373,6 @@ public class DataAccess {
     }
 
 
-    private SqlNdArgs formatSQLAndArgs(String sql, Map<String, Object> map) {
-        sql = sql.trim();
-
-        //1.将${XXX}替换成常量
-        Matcher matcher = PATTERN_REPLACE.matcher(sql);
-
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String x = matcher.group();
-            x = x.substring(2, x.length() - 1);
-            String v = (String) map.get(x);
-            matcher.appendReplacement(sb, v);
-        }
-        matcher.appendTail(sb);
-        String sql2 = sb.toString();
-
-
-        //2.将#{XXX}替换成？
-        Matcher matcher2 = PATTERN_REPLACE_VALUE.matcher(sql2);
-        StringBuffer sb2 = new StringBuffer();
-        List<Object> args = new ArrayList<>();
-
-        while (matcher2.find()) {
-            String argName = matcher2.group();
-            argName = argName.substring(2, argName.length() - 1);
-
-            Object arg = map.get(argName);
-            args.add(arg);
-
-
-            matcher2.appendReplacement(sb2, "?");
-        }
-
-        matcher2.appendTail(sb2);
-
-
-        String resultSql = sb2.toString();
-
-        return new SqlNdArgs(resultSql, args);
-    }
 
 
 }
