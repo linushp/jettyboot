@@ -104,35 +104,31 @@ public class StringWrapper {
 
 
     public JSONObject toJSONObject() {
-        String s = this.value;
         if (isEmpty()) {
             return null;
         }
-        return JSON.parseObject(s);
+        return JSON.parseObject(value);
     }
 
     public <T> T toJSONObject(Class<? extends T> clazz) {
-        String s = this.value;
         if (isEmpty()) {
             return null;
         }
-        return JSON.parseObject(s, clazz);
+        return JSON.parseObject(value, clazz);
     }
 
     public JSONArray toJSONArray() {
-        String s = this.value;
         if (isEmpty()) {
             return null;
         }
-        return JSON.parseArray(s);
+        return JSON.parseArray(value);
     }
 
     public <T> List<T> toJSONArray(Class<T> clazz) {
-        String s = this.value;
         if (isEmpty()) {
             return null;
         }
-        return JSON.parseArray(s,clazz);
+        return JSON.parseArray(value,clazz);
     }
 
 
@@ -140,6 +136,5 @@ public class StringWrapper {
     public boolean isEmpty() {
         return (value == null || value.isEmpty());
     }
-
 
 }

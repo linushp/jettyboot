@@ -50,6 +50,10 @@ public class JettyBootServer{
 
         String packageName = mainServerClass.getPackage().getName();
         PackageScannerUtils.addByPackageScanner(packageName,controllerContextHandler,this);
+
+
+        controllerContextHandler.addController("/dwr_controller_script",new DefaultDwrScriptController());
+
         return this;
     }
 

@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.StringWrapper;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -191,6 +192,17 @@ public class ControllerRequest {
         String bodyString = new String(body, "utf-8");
         return JSON.parseObject(bodyString, clazz);
     }
+
+
+    public JSONArray getRequestBodyArray() throws IOException {
+        byte[] body = this.getRequestBody();
+        if (body == null || body.length == 0) {
+            return null;
+        }
+        String bodyString = new String(body, "utf-8");
+        return JSON.parseArray(bodyString);
+    }
+
 
     public String getTargetPath() {
         return this.targetPath;

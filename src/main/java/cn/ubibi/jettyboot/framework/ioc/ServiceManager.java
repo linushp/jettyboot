@@ -78,9 +78,14 @@ public class ServiceManager {
 
     private Object findServiceByField(Field field) throws Exception {
         Class<?> fieldType = field.getType();
+        return getService(fieldType);
+    }
+
+
+    public Object getService(Class<?> type){
         for (Object service : this.serviceList) {
             Class serviceClass = service.getClass();
-            if (fieldType == serviceClass || fieldType.isAssignableFrom(serviceClass)) {
+            if (type == serviceClass || type.isAssignableFrom(serviceClass)) {
                 return service;
             }
         }

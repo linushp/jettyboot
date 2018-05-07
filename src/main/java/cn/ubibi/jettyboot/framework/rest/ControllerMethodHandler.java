@@ -12,6 +12,8 @@ import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -47,6 +49,14 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     //判断是否支持
     boolean isSupportRequest(HttpServletRequest request) {
+
+        String supportRequestMethod = this.supportRequestMethod;
+
+        //DWR使用的是POST请求
+        if ("dwr".equals(supportRequestMethod)) {
+            supportRequestMethod = "post";
+        }
+
 
         if (supportRequestMethod.equalsIgnoreCase(request.getMethod())) {
             String reqPath = request.getPathInfo();
@@ -104,6 +114,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private Object[] getMethodParamsObjects(Method method, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        boolean isDWR = "dwr".equals(supportRequestMethod);
+        JSONArray dwrArgArray = null;
+        if (isDWR) {
+            dwrArgArray = jbRequest.getRequestBodyArray();
+        }
+
+
         int paramsCount = method.getParameterCount();
         Type[] paramsTypes = method.getGenericParameterTypes();
         Annotation[][] paramAnnotations = method.getParameterAnnotations();
@@ -124,6 +141,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             MethodArgument methodArgument = new MethodArgument(method, type, annotations);
 
             Object object;
+
             MethodArgumentResolver methodArgumentResolver = findMethodArgumentResolver(methodArgument);
             if (methodArgumentResolver != null) {
                 object = methodArgumentResolver.resolveArgument(methodArgument, jbRequest);
@@ -131,10 +149,59 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 object = getMethodParamsObject(methodArgument, jbRequest, request, response);
             }
 
+            //使用DWR的参数来补充
+            if (object == null && isDWR) {
+                object = getDwrMethodParamObject(methodArgument, dwrArgArray, i);
+            }
+
+
             objects.add(object);
         }
 
+
         return objects.toArray();
+    }
+
+
+    private Object getDwrMethodParamObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) {
+
+        if (requestBodyArray == null) {
+            return null;
+        }
+
+
+        Object obj = requestBodyArray.get(index);
+        if (obj == null) {
+            return null;
+        }
+
+
+        Class typeClazz = (Class) methodArgument.getType();
+
+        if (typeClazz.equals(Object.class)){
+            return obj;
+        }
+
+        if (typeClazz.equals(String.class)){
+            return obj.toString();
+        }
+
+
+        if (obj instanceof JSONObject) {
+
+            if (typeClazz.equals(JSONObject.class)){//无需转换
+                return obj;
+            }
+
+            JSONObject jsonObject = (JSONObject) obj;
+            return jsonObject.toJavaObject(typeClazz);
+        }
+
+        if (obj instanceof JSONArray) {
+            return obj;
+        }
+
+        return CastTypeUtils.castValueType(obj, typeClazz);
     }
 
 

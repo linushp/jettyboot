@@ -61,6 +61,7 @@ public class ControllerHandler {
                 PostMapping methodAnnotation2 = method.getAnnotation(PostMapping.class);
                 PutMapping methodAnnotation3 = method.getAnnotation(PutMapping.class);
                 DeleteMapping methodAnnotation4 = method.getAnnotation(DeleteMapping.class);
+                DwrFunction methodAnnotation5 = method.getAnnotation(DwrFunction.class);
 
 
                 List<ControllerMethodHandler> controllerMethodHandler = null;
@@ -72,6 +73,8 @@ public class ControllerHandler {
                     controllerMethodHandler = toControllerMethodHandler(methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation4 != null) {
                     controllerMethodHandler = toControllerMethodHandler(methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
+                } else if (methodAnnotation5 !=null){
+                    controllerMethodHandler = toControllerMethodHandler(null,"dwr",classPath,method, methodAspectList, methodArgumentResolvers);
                 }
 
                 if (controllerMethodHandler != null && !controllerMethodHandler.isEmpty()) {
@@ -101,15 +104,22 @@ public class ControllerHandler {
 
 
     //对于一个方法配置多个路径的情况
-    private List<ControllerMethodHandler> toControllerMethodHandler(String[] value, String get, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
-        List<ControllerMethodHandler> result = new ArrayList<>(2);
-        if (value != null) {
+    private List<ControllerMethodHandler> toControllerMethodHandler(String[] value, String request_method, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+        List<ControllerMethodHandler> result = new ArrayList<>(1);
+
+        if ("dwr".equals(request_method)){
+            String methodPath = "dwr_" + method.getName();
+            result.add(new ControllerMethodHandler(methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
+        }
+
+        else if (value != null) {
             for (String methodPath : value) {
-                result.add(new ControllerMethodHandler(methodPath, get, classPath, method, methodAspectList, methodArgumentResolvers));
+                result.add(new ControllerMethodHandler(methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
             }
         }
         return result;
     }
+
 
 
     public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
