@@ -53,12 +53,10 @@ public class XmlString {
         List<StringElement> stringElements = rootElement.getString();
         for (StringElement stringElement : stringElements) {
             String id = stringElement.getId();
-
             if (!StringUtils.isEmpty(id)){
                 String content = stringElement.getContent();
                 this.stringIdMap.put(id,content);
             }
-
         }
 
     }
