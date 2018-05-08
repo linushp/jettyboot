@@ -15,7 +15,7 @@ import java.util.Map;
 public class DefaultMapToBeanFilter implements MapToBeanFilter {
 
     @Override
-    public Object getValue(BeanField beanField, Map<String, Object> map) {
+    public Object getValue(BeanField beanField, Map<String, ?> map) {
 
         String filedName = beanField.getFieldName();
         Object value = map.get(filedName);
@@ -31,7 +31,7 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
 
 
     @Override
-    public Object toBeanFieldType(Object value1, BeanField beanField, Map<String, Object> map) throws Exception {
+    public Object toBeanFieldType(Object value1, BeanField beanField, Map<String, ?> map) throws Exception {
         Field field = beanField.getField();
         return castValueType(value1, field, map);
     }
@@ -44,7 +44,7 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
      * @param field 要转换成的目标数据类型
      * @return
      */
-    private Object castValueType(Object value, Field field, Map<String, Object> map) throws IllegalAccessException, InstantiationException {
+    private Object castValueType(Object value, Field field, Map<String, ?> map) throws IllegalAccessException, InstantiationException {
 
 
         Class<?> targetType = field.getType();

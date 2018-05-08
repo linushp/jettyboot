@@ -17,7 +17,7 @@ public class SQLFormatUtils {
 
 
 
-    public static SqlNdArgs formatSQLAndArgs(String sql, Map<String, Object> map) {
+    public static SqlNdArgs formatSQLAndArgs(String sql, Map<String, ?> map) {
         sql = sql.trim();
         sql = sql.replaceAll("\n"," ");
 

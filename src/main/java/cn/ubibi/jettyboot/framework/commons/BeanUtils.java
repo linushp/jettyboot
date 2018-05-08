@@ -91,7 +91,7 @@ public class BeanUtils {
      * @return the target bean list
      * @throws Exception 异常
      */
-    public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values) throws Exception {
+    public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, ?>> values) throws Exception {
         MapToBeanFilter mapToBeanFilter = new DefaultMapToBeanFilter();
         return mapListToBeanList(clazz, values, mapToBeanFilter);
     }
@@ -106,7 +106,7 @@ public class BeanUtils {
      * @return the target bean list
      * @throws Exception 异常
      */
-    public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, Object>> values, MapToBeanFilter mapToBeanFilter) throws Exception {
+    public static <T> List<T> mapListToBeanList(Class<T> clazz, List<Map<String, ?>> values, MapToBeanFilter mapToBeanFilter) throws Exception {
 
         if (CollectionUtils.isEmpty(values)) {
             return new ArrayList<>();
@@ -116,7 +116,7 @@ public class BeanUtils {
         List<BeanField> beanFields = BeanFieldUtils.getBeanFields(clazz);
         List<T> result = new ArrayList<>();
 
-        for (Map<String, Object> m : values) {
+        for (Map<String, ?> m : values) {
             //通过反射创建一个其他类的对象
             T bean = BeanUtils.mapToBean(clazz, m, beanFields, mapToBeanFilter);
             result.add(bean);
@@ -126,13 +126,13 @@ public class BeanUtils {
     }
 
 
-    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map) throws Exception {
+    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, ?> map) throws Exception {
         MapToBeanFilter mapToBeanFilter = new DefaultMapToBeanFilter();
         return mapToBean(clazz, map, mapToBeanFilter);
     }
 
 
-    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, MapToBeanFilter mapToBeanFilter) throws Exception {
+    public static <T> T mapToBean(Class<? extends T> clazz, Map<String, ?> map, MapToBeanFilter mapToBeanFilter) throws Exception {
         if (clazz == null || map == null) {
             return null;
         }
@@ -141,7 +141,7 @@ public class BeanUtils {
     }
 
 
-    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, Object> map, List<BeanField> beanFields, MapToBeanFilter mapToBeanFilter) throws Exception {
+    private static <T> T mapToBean(Class<? extends T> clazz, Map<String, ?> map, List<BeanField> beanFields, MapToBeanFilter mapToBeanFilter) throws Exception {
 
         if (clazz == null || map == null || beanFields == null) {
             return null;

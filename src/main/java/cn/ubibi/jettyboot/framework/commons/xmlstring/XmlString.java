@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons.xmlstring;
 
+import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.commons.xmlstring.xmlelement.RootElement;
 import cn.ubibi.jettyboot.framework.commons.xmlstring.xmlelement.StringElement;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class XmlString {
 
     private RootElement rootElement;
-    private Map<String,String> stringIdMap = new ConcurrentHashMap<>();
+    private Map<String, String> idStringMap = new ConcurrentHashMap<>();
 
     public XmlString(String path) throws Exception {
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(path);
@@ -53,12 +54,11 @@ public class XmlString {
         List<StringElement> stringElements = rootElement.getString();
         for (StringElement stringElement : stringElements) {
             String id = stringElement.getId();
-            if (!StringUtils.isEmpty(id)){
+            if (!StringUtils.isEmpty(id)) {
                 String content = stringElement.getContent();
-                this.stringIdMap.put(id,content);
+                this.idStringMap.put(id, content);
             }
         }
-
     }
 
 
@@ -77,10 +77,17 @@ public class XmlString {
     }
 
 
-
     //ID不能重复，只能返回第一个
     public String getStringById(String id) {
-        return stringIdMap.get(id);
+        return idStringMap.get(id);
+    }
+
+    public <T> T toBean(Class<? extends T> tClass) throws Exception {
+        return BeanUtils.mapToBean(tClass, idStringMap);
+    }
+
+    public Map<String, String> getIdStringMap() {
+        return this.idStringMap;
     }
 
 }

@@ -155,7 +155,7 @@ public class DataAccessObject<T>  {
 
         String idString = StringUtils.join(idList, ",", stringParser);
         String sql = "select " + selectFields + " from " + schemaTableName() + " where `" + idFieldName + "` in (" + idString + ")";
-        List<Map<String, Object>> mapList = dataAccess.queryTemp(sql);
+        List<Map<String, ?>> mapList = dataAccess.queryTemp(sql);
         return BeanUtils.mapListToBeanList(clazz, mapList);
     }
 

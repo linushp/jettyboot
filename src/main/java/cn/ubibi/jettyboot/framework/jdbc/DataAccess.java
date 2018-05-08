@@ -76,9 +76,9 @@ public class DataAccess {
 
 
             generatedKeyResultSet = preparedStatement.getGeneratedKeys();
-            List<Map<String, Object>> mapList = resultSetToMapList(generatedKeyResultSet);
+            List<Map<String, ?>> mapList = resultSetToMapList(generatedKeyResultSet);
             if (mapList != null && !mapList.isEmpty()) {
-                for (Map<String, Object> map : mapList) {
+                for (Map<String, ?> map : mapList) {
                     Object generatedKey = map.get("GENERATED_KEY");
                     if (generatedKey != null) {
                         updateResult.getGeneratedKeys().add(generatedKey);
@@ -184,12 +184,12 @@ public class DataAccess {
      * @return
      */
     public <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
-        List<Map<String, Object>> mapList = this.query(sql, args);
+        List<Map<String, ?>> mapList = this.query(sql, args);
         return BeanUtils.mapListToBeanList(clazz, mapList);
     }
 
 
-    public List<Map<String, Object>> query(String sql, List<Object> args) throws Exception {
+    public List<Map<String, ?>> query(String sql, List<?> args) throws Exception {
         Object[] objects = args.toArray(new Object[args.size()]);
         return query(sql, objects);
     }
@@ -202,7 +202,7 @@ public class DataAccess {
      * @return
      * @throws Exception
      */
-    public List<Map<String, Object>> query(String sql, Object... args) throws Exception {
+    public List<Map<String, ?>> query(String sql, Object... args) throws Exception {
 
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
@@ -213,7 +213,7 @@ public class DataAccess {
         }
 
 
-        List<Map<String, Object>> list;
+        List<Map<String, ?>> list;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -252,8 +252,8 @@ public class DataAccess {
      * @return
      * @throws Exception
      */
-    public List<Map<String, Object>> queryTemp(String sql) throws Exception {
-        List<Map<String, Object>> list;
+    public List<Map<String, ?>> queryTemp(String sql) throws Exception {
+        List<Map<String, ?>> list;
         Connection connection = null;
         Statement preparedStatement = null;
         ResultSet resultSet = null;
@@ -286,8 +286,8 @@ public class DataAccess {
      * @return
      * @throws SQLException
      */
-    private List<Map<String, Object>> resultSetToMapList(ResultSet resultSet) throws SQLException {
-        List<Map<String, Object>> values = new ArrayList<>();
+    private List<Map<String, ?>> resultSetToMapList(ResultSet resultSet) throws SQLException {
+        List<Map<String, ?>> values = new ArrayList<>();
         if (resultSet != null) {
             List<String> columnLabels = getColumnLabels(resultSet);
             // 7. 处理 ResultSet, 使用 while 循环

@@ -16,7 +16,7 @@ public interface MapToBeanFilter {
      * @return 字段对应的数据
      * @throws Exception
      */
-    Object getValue(BeanField beanField, Map<String, Object> map) throws Exception;
+    Object getValue(BeanField beanField, Map<String, ?> map) throws Exception;
 
     /**
      * 数据类型转换
@@ -26,5 +26,5 @@ public interface MapToBeanFilter {
      * @return
      * @throws Exception
      */
-    Object toBeanFieldType(Object value1, BeanField beanField, Map<String, Object> map) throws Exception;
+    Object toBeanFieldType(Object value1, BeanField beanField, Map<String, ?> map) throws Exception;
 }
