@@ -52,7 +52,7 @@ public class JettyBootServer{
         PackageScannerUtils.addByPackageScanner(packageName,controllerContextHandler,this);
 
 
-        controllerContextHandler.addController("/dwr_controller_script",new DefaultDwrScriptController());
+        controllerContextHandler.addController("/script_dwr_controller",new DefaultDwrScriptController());
 
         return this;
     }

@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
+import cn.ubibi.jettyboot.framework.commons.GlobalConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import com.alibaba.fastjson.JSON;
@@ -18,13 +19,23 @@ public class ScriptRender implements ResponseRender {
 
     @Override
     public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/javascript; charset=UTF-8");
+
+        byte[] contentBytes = this.script.getBytes(GlobalConfig.getInstance().getCharset());
+
+
+        response.setContentType("application/javascript; charset=" + GlobalConfig.getInstance().getCharset().name());
         response.setHeader("Cache-Control","public, max-age=31536000");
+        response.setHeader("Content-Length",""+contentBytes.length);
+
+
 
         response.setStatus(HttpServletResponse.SC_OK);
-        PrintWriter writer = response.getWriter();
-        writer.print(this.script);
-        writer.flush();
+        response.getOutputStream().write(contentBytes);
+        response.getOutputStream().close();
+//
+//        PrintWriter writer = response.getWriter();
+//        writer.print(this.script);
+//        writer.flush();
         ResponseUtils.tryClose(response);
     }
 }

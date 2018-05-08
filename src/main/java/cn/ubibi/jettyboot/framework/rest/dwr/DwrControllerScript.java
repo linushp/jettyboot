@@ -23,8 +23,7 @@ public class DwrControllerScript {
 
         for (ControllerMethodHandler methodHandler : methods) {
 
-            boolean isDWR = "dwr".equals(methodHandler.getSupportRequestMethod());
-            if (isDWR) {
+            if (methodHandler.isDWR()) {
 
                 String controllerName = methodHandler.getControllerClazzSimpleName();
 
@@ -91,21 +90,20 @@ public class DwrControllerScript {
                 "        };\n" +
                 "        xhr.send(data);\n" +
                 "    }\n" +
-                "\n" +
-                "\n" +
-                "    function ajaxPostPromise(url, args) {\n" +
-                "        return new Promise(function (resolve, reject) {\n" +
-                "            ajaxPost(url, args, function (err, data) {\n" +
-                "                if (err) {\n" +
-                "                    reject(err);\n" +
-                "                } else {\n" +
-                "                    resolve(data);\n" +
-                "                }\n" +
-                "            })\n" +
-                "        })\n" +
+                "    function toFunction(url){\n" +
+                "        return function (){\n" +
+                "            var args = Array.prototype.slice.call(arguments);\n" +
+                "            return new Promise(function (resolve, reject) {\n" +
+                "                ajaxPost(url, args, function (err, data) {\n" +
+                "                    if (err) {\n" +
+                "                        reject(err);\n" +
+                "                    } else {\n" +
+                "                        resolve(data);\n" +
+                "                    }\n" +
+                "                });\n" +
+                "            });\n" +
+                "        }\n" +
                 "    }\n" +
-                "\n" +
-                "\n" +
                 "    function buildController(controller) {\n" +
                 "        var map = {};\n" +
                 "        for (var i = functions.length - 1; i >= 0; i--) {\n" +
@@ -114,21 +112,15 @@ public class DwrControllerScript {
                 "            if (funController === controller) {\n" +
                 "                var funUrl = funcDef['url'];\n" +
                 "                var funName = funcDef['func'];\n" +
-                "                map[funName] = function () {\n" +
-                "                    var args = Array.prototype.slice.call(arguments);\n" +
-                "                    return ajaxPostPromise(funUrl, args);\n" +
-                "                }\n" +
+                "                map[funName] = toFunction(funUrl);\n" +
                 "            }\n" +
                 "        }\n" +
                 "        return map;\n" +
                 "    }\n" +
-                "\n" +
-                "\n" +
                 "    for (var i = 0; i < controllers.length; i++) {\n" +
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"Dwr\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
-                "\n" +
                 "})(window);";
     }
 

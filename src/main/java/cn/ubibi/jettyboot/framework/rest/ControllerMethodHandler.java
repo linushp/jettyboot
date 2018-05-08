@@ -59,13 +59,16 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         return controllerClazzSimpleName;
     }
 
+    public boolean isDWR(){
+        return "dwr".equals(supportRequestMethod);
+    }
     //判断是否支持
     boolean isSupportRequest(HttpServletRequest request) {
 
         String supportRequestMethod = this.supportRequestMethod;
 
         //DWR使用的是POST请求
-        if ("dwr".equals(supportRequestMethod)) {
+        if (isDWR()) {
             supportRequestMethod = "post";
         }
 
