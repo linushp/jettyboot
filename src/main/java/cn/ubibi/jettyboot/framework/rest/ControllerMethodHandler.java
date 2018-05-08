@@ -37,15 +37,27 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private List<MethodArgumentResolver> methodArgumentResolvers;
     private List<ControllerInterceptor> requestAspectList;
 
+    private Class<?> controllerClazz;
+    private String controllerClazzSimpleName;
 
-    ControllerMethodHandler(String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+
+    ControllerMethodHandler(Class<?> controllerClazz,String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
         this.methodArgumentResolvers = methodArgumentResolvers;
         this.requestAspectList = methodAspectList;
+        this.controllerClazz = controllerClazz;
+        this.controllerClazzSimpleName = controllerClazz.getSimpleName();
     }
 
+    public Class<?> getControllerClazz() {
+        return controllerClazz;
+    }
+
+    public String getControllerClazzSimpleName() {
+        return controllerClazzSimpleName;
+    }
 
     //判断是否支持
     boolean isSupportRequest(HttpServletRequest request) {
@@ -166,6 +178,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private Object getDwrMethodParamObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) {
 
         if (requestBodyArray == null) {
+            return null;
+        }
+
+
+        //索引不能超出了
+        if (index >= requestBodyArray.size()){
             return null;
         }
 

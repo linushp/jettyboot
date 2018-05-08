@@ -66,15 +66,15 @@ public class ControllerHandler {
 
                 List<ControllerMethodHandler> controllerMethodHandler = null;
                 if (methodAnnotation1 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation2 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation3 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation4 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation5 !=null){
-                    controllerMethodHandler = toControllerMethodHandler(null,"dwr",classPath,method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz,null,"dwr",classPath,method, methodAspectList, methodArgumentResolvers);
                 }
 
                 if (controllerMethodHandler != null && !controllerMethodHandler.isEmpty()) {
@@ -104,17 +104,17 @@ public class ControllerHandler {
 
 
     //对于一个方法配置多个路径的情况
-    private List<ControllerMethodHandler> toControllerMethodHandler(String[] value, String request_method, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz,String[] value, String request_method, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         List<ControllerMethodHandler> result = new ArrayList<>(1);
 
         if ("dwr".equals(request_method)){
             String methodPath = "dwr_" + method.getName();
-            result.add(new ControllerMethodHandler(methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
+            result.add(new ControllerMethodHandler(clazz,methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
         }
 
         else if (value != null) {
             for (String methodPath : value) {
-                result.add(new ControllerMethodHandler(methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
+                result.add(new ControllerMethodHandler(clazz,methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
             }
         }
         return result;

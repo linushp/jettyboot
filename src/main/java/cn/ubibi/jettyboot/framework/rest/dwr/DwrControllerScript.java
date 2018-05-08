@@ -23,19 +23,24 @@ public class DwrControllerScript {
 
         for (ControllerMethodHandler methodHandler : methods) {
 
-
-            String methodName = methodHandler.getMethod().getName();
-
-            String url = methodHandler.getTargetPath();
-            if (!"/".equals(contextPath)) {
-                url = contextPath + url;
-            }
-
             boolean isDWR = "dwr".equals(methodHandler.getSupportRequestMethod());
-            String controllerName = methodHandler.getMethod().getDeclaringClass().getSimpleName();
-            if (isDWR && isIncludeController(controllerArray, controllerName)) {
-                ApiModel xxx = new ApiModel(methodHandler.getSupportRequestMethod(), url, methodName, controllerName);
-                apis.add(xxx);
+            if (isDWR) {
+
+                String controllerName = methodHandler.getControllerClazzSimpleName();
+
+                if (isIncludeController(controllerArray, controllerName)) {
+
+                    String methodName = methodHandler.getMethod().getName();
+
+                    String url = methodHandler.getTargetPath();
+                    if (!"/".equals(contextPath)) {
+                        url = contextPath + url;
+                    }
+
+                    ApiModel xxx = new ApiModel(methodHandler.getSupportRequestMethod(), url, methodName, controllerName);
+                    apis.add(xxx);
+
+                }
             }
         }
 
@@ -58,7 +63,6 @@ public class DwrControllerScript {
         }
         return false;
     }
-
 
 
     private static String toScript(String controllers, String functions) {
