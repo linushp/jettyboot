@@ -76,7 +76,7 @@ public class StringWrapper {
     }
 
     public Boolean toBoolean() {
-        if (isEmpty() || "0".equals(value)) {
+        if (isEmpty() || "0".equals(value) || "false".equals(value)) {
             return false;
         }
         return true;
@@ -86,7 +86,7 @@ public class StringWrapper {
         if (isEmpty()) {
             return new BigInteger("0");
         }
-        return new BigInteger(value);
+        return new BigInteger(ignoreDotAfter(value));
     }
 
     public BigDecimal toBigDecimal() {
