@@ -23,22 +23,43 @@ public class StringWrapper {
         if (isEmpty()) {
             return 0;
         }
-        return Short.parseShort(value);
+        return Short.parseShort(ignoreDotAfter(value));
     }
+
 
     public Integer toInteger() {
         if (isEmpty()) {
             return 0;
         }
-        return Integer.parseInt(value);
+        return Integer.parseInt(ignoreDotAfter(value));
     }
+
 
     public Long toLong() {
         if (isEmpty()) {
             return 0L;
         }
-        return Long.parseLong(value);
+        return Long.parseLong(ignoreDotAfter(value));
     }
+
+
+    /**
+     * 忽略掉小数点及以后的字符串
+     * @param value 类似于：123.3223  .00
+     * @return  无小数点的字符串
+     */
+    private String ignoreDotAfter(String value){
+        String v = value;
+        int indexOfDot = v.indexOf(".");
+        if (indexOfDot == 0) {
+            return "0";
+        }
+        if (indexOfDot > 0) {
+            v = v.substring(0, indexOfDot);
+        }
+        return v;
+    }
+
 
     public Float toFloat() {
         if (isEmpty()) {

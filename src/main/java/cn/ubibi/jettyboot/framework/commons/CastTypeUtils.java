@@ -12,6 +12,7 @@ import java.util.Date;
 public class CastTypeUtils {
 
 
+    //"1221.00" ,Interget.class
     public static Object castValueType(Object value, Class targetType) {
         if (value == null) {
             return null;
