@@ -185,32 +185,41 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
 
 
-        //索引不能超出了
-        if (index >= requestBodyArray.size()){
-            return null;
-        }
-
-
-        Object obj = requestBodyArray.get(index);
-        if (obj == null) {
-            return null;
-        }
-
-
         Class typeClazz = (Class) methodArgument.getType();
 
-        if (typeClazz.equals(Object.class)){
+        Object obj;
+
+
+        if (index >= requestBodyArray.size()) {
+            //索引超出了
+            if (methodArgument.isBasicNumberType()) {
+                return CastTypeUtils.toTypeOf("0", typeClazz);
+            } else if (methodArgument.isBooleanType()) {
+                return false;
+            } else {
+                return null;
+            }
+        } else {
+            //索引没有超出
+            obj = requestBodyArray.get(index);
+            if (obj == null) {
+                return null;
+            }
+        }
+
+
+        if (typeClazz.equals(Object.class)) {
             return obj;
         }
 
-        if (typeClazz.equals(String.class)){
+        if (typeClazz.equals(String.class)) {
             return obj.toString();
         }
 
 
         if (obj instanceof JSONObject) {
 
-            if (typeClazz.equals(JSONObject.class)){//无需转换
+            if (typeClazz.equals(JSONObject.class)) {//无需转换
                 return obj;
             }
 

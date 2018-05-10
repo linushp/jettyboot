@@ -8,7 +8,9 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
@@ -174,14 +176,26 @@ public class ControllerRequest {
 
 
         ServletInputStream inputStream = servletRequest.getInputStream();
-        byte[] buffer = new byte[len];
-        inputStream.read(buffer, 0, len);
+
+        byte[] buffer = inputStreamToByteArray(inputStream);
 
 
         this._requestBody = buffer;
         return buffer;
     }
 
+
+    private static byte[] inputStreamToByteArray(InputStream inStream)
+            throws IOException {
+        ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+        byte[] buff = new byte[100];
+        int rc = 0;
+        while ((rc = inStream.read(buff, 0, 100)) > 0) {
+            swapStream.write(buff, 0, rc);
+        }
+        byte[] in2b = swapStream.toByteArray();
+        return in2b;
+    }
 
     public <T> T getRequestBodyObject(Class<? extends T> clazz) throws IOException {
         byte[] body = this.getRequestBody();

@@ -28,4 +28,18 @@ public class MethodArgument {
         return annotations;
     }
 
+    public boolean isBasicNumberType() {
+        if (type == Integer.TYPE ||
+                type== Long.TYPE ||
+                type== Short.TYPE ||
+                type == Double.TYPE ||
+                type==Float.TYPE){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isBooleanType(){
+        return Boolean.TYPE == type;
+    }
 }
