@@ -179,6 +179,7 @@ public class ControllerRequest {
 
         byte[] buffer = inputStreamToByteArray(inputStream);
 
+        inputStream.close();
 
         this._requestBody = buffer;
         return buffer;
@@ -187,6 +188,7 @@ public class ControllerRequest {
 
     private static byte[] inputStreamToByteArray(InputStream inStream)
             throws IOException {
+
         ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
         byte[] buff = new byte[100];
         int rc = 0;
@@ -194,6 +196,11 @@ public class ControllerRequest {
             swapStream.write(buff, 0, rc);
         }
         byte[] in2b = swapStream.toByteArray();
+
+        swapStream.flush();
+        swapStream.close();
+
+
         return in2b;
     }
 
