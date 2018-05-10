@@ -222,7 +222,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             return obj;
         }
 
-        return CastTypeUtils.castValueType(obj, typeClazz);
+        return CastTypeUtils.toTypeOf(obj, typeClazz);
     }
 
 
@@ -279,7 +279,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                     object = getSetParamValue(jbRequest, paramName, elementType);
                 } else {
                     BasicConverter sw = jbRequest.getRequestParam(paramName, requestParam.defaultValue());
-                    object = CastTypeUtils.castValueType(sw, typeClazz);
+                    object = CastTypeUtils.toTypeOf(sw, typeClazz);
                 }
 
             } else if (annotationType == RequestParams.class) {
@@ -289,7 +289,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
                 String sw = jbRequest.getPathVariable(requestPath.value());
-                object = CastTypeUtils.castValueType(sw, typeClazz);
+                object = CastTypeUtils.toTypeOf(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
@@ -334,7 +334,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             BasicConverter sw = swArray[i];
 
-            Object value = CastTypeUtils.castValueType(sw, elementType);
+            Object value = CastTypeUtils.toTypeOf(sw, elementType);
 
             objectList.add(value);
         }

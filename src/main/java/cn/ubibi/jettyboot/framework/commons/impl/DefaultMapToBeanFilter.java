@@ -71,6 +71,6 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
         }
 
         //3. 简单数据类型转换
-        return CastTypeUtils.castValueType(value, targetType);
+        return CastTypeUtils.toTypeOf(value, targetType);
     }
 }
