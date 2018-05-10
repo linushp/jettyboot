@@ -39,7 +39,7 @@ public class MethodArgument {
         return false;
     }
 
-    public boolean isBooleanType(){
+    public boolean isBasicBooleanType(){
         return Boolean.TYPE == type;
     }
 }

@@ -194,7 +194,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             //索引超出了
             if (methodArgument.isBasicNumberType()) {
                 return CastTypeUtils.toTypeOf("0", typeClazz);
-            } else if (methodArgument.isBooleanType()) {
+            } else if (methodArgument.isBasicBooleanType()) {
                 return false;
             } else {
                 return null;
