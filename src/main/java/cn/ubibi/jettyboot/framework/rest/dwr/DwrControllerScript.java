@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest.dwr;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ControllerContextHandler;
 import cn.ubibi.jettyboot.framework.rest.ControllerMethodHandler;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class DwrControllerScript {
 
-    public static String toDwrScript(String[] controllerArray) {
+    public static String toDwrScript(String[] controllerArray, String exportAs) {
 
         ControllerContextHandler context = (ControllerContextHandler) ServiceManager.getInstance().getService(ControllerContextHandler.class);
 
@@ -46,7 +47,7 @@ public class DwrControllerScript {
 
         String controllerJSONString = JSON.toJSONString(controllerArray);
         String functionJSONString = JSON.toJSONString(apis);
-        return toScript(controllerJSONString, functionJSONString);
+        return toScript(controllerJSONString, functionJSONString, exportAs);
     }
 
 
@@ -64,7 +65,7 @@ public class DwrControllerScript {
     }
 
 
-    private static String toScript(String controllers, String functions) {
+    private static String toScript(String controllers, String functions, String exportAs) {
         return "(function (exports) {\n" +
                 "\n" +
                 "\n" +
@@ -121,7 +122,7 @@ public class DwrControllerScript {
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"Dwr\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
-                "})(window);";
+                "})(" + exportAs + ");";
     }
 
 }
