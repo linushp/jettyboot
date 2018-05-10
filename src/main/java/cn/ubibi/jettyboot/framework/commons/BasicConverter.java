@@ -19,54 +19,55 @@ public class BasicConverter {
 
     public BasicConverter(Object value) {
         this.value = value;
+
     }
 
 
+    public <T> T toTypeOf(Class<T> targetType) throws Exception {
 
-    public Object toTypeOf(Class targetType){
-
-        if (isNull()){
+        if (isNull()) {
             return null;
         }
 
         Class valueType = value.getClass();
         if (targetType == valueType || targetType.equals(valueType)) {
-            return value;
+            return (T) value;
         }
 
+
+        Object result = null;
         if (targetType == String.class) {
-            return this.getStringValue();
+            result = this.getStringValue();
         } else if (isTypeOf(targetType, Integer.class, Integer.TYPE)) {
-            return this.toInteger();
+            result = this.toInteger();
         } else if (isTypeOf(targetType, Float.class, Float.TYPE)) {
-            return this.toFloat();
+            result = this.toFloat();
         } else if (isTypeOf(targetType, Double.class, Double.TYPE)) {
-            return this.toDouble();
+            result = this.toDouble();
         } else if (isTypeOf(targetType, Long.class, Long.TYPE)) {
-            return this.toLong();
+            result = this.toLong();
         } else if (isTypeOf(targetType, Boolean.class, Boolean.TYPE)) {
-            return this.toGeneralizedBoolean();
+            result = this.toGeneralizedBoolean();
         } else if (isTypeOf(targetType, Short.class, Short.TYPE)) {
-            return this.toShort();
+            result = this.toShort();
         } else if (targetType == Timestamp.class) {
-            return this.toTimestamp();
+            result = this.toTimestamp();
         } else if (targetType == Date.class) {
-            return this.toDate();
+            result = this.toDate();
         } else if (targetType == BigDecimal.class) {
-            return this.toBigDecimal();
+            result = this.toBigDecimal();
         } else if (targetType == BigInteger.class) {
-            return this.toBigInteger();
+            result = this.toBigInteger();
         } else if (targetType == JSONObject.class) {
-            return this.toJSONObject();
+            result = this.toJSONObject();
         } else if (targetType == JSONArray.class) {
-            return this.toJSONArray();
+            result = this.toJSONArray();
+        } else {
+            throw new Exception("NotSupportTheTypeOf:" + targetType);
         }
-        return value;
+
+        return (T) result;
     }
-
-
-
-
 
 
     public Short toShort() {
@@ -108,9 +109,8 @@ public class BasicConverter {
     }
 
 
-
     //byte 实际上是一个表示范围比较小的int（-128，128）
-    private Byte toByte(){
+    private Byte toByte() {
 
         if (isNull()) {
             return 0;
@@ -119,16 +119,13 @@ public class BasicConverter {
             return (Byte) value;
         }
 
-        if (value instanceof Integer){
+        if (value instanceof Integer) {
             int intValue = ((Integer) value).intValue();
-            return (byte)intValue;
+            return (byte) intValue;
         }
 
         return Byte.valueOf(ignoreDotAfter(getStringValue()));
     }
-
-
-
 
 
     /**
@@ -287,7 +284,6 @@ public class BasicConverter {
         }
         return JSON.parseArray(getStringValue(), clazz);
     }
-
 
 
     public String getStringValue() {

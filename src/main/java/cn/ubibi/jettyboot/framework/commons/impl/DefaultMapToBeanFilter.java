@@ -44,7 +44,7 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
      * @param field 要转换成的目标数据类型
      * @return
      */
-    private Object castValueType(Object value, Field field, Map<String, ?> map) throws IllegalAccessException, InstantiationException {
+    private Object castValueType(Object value, Field field, Map<String, ?> map) throws Exception {
 
 
         Class<?> targetType = field.getType();

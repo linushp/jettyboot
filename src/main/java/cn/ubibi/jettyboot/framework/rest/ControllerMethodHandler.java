@@ -178,7 +178,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object getDwrMethodParamObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) {
+    private Object getDwrMethodParamObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) throws Exception {
 
         if (requestBodyArray == null) {
             return null;
@@ -321,7 +321,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private List getListParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
+    private List getListParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
         BasicConverter[] swArray = jettyBootReqParams.getRequestParams(paramName);
         if (swArray == null || swArray.length == 0) {
             return new ArrayList();
@@ -344,12 +344,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object[] getArrayParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
+    private Object[] getArrayParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
         List list = getListParamValue(jettyBootReqParams, paramName, elementType);
         return list.toArray();
     }
 
-    private Set getSetParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
+    private Set getSetParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
         List list = getListParamValue(jettyBootReqParams, paramName, elementType);
         return new HashSet(list);
     }
