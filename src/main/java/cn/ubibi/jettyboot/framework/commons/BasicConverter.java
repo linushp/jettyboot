@@ -50,6 +50,8 @@ public class BasicConverter {
             result = this.toGeneralizedBoolean();
         } else if (isTypeOf(targetType, Short.class, Short.TYPE)) {
             result = this.toShort();
+        } else if (isTypeOf(targetType, Byte.class, Byte.TYPE)) {
+            result = this.toByte();
         } else if (targetType == Timestamp.class) {
             result = this.toTimestamp();
         } else if (targetType == Date.class) {
@@ -109,7 +111,7 @@ public class BasicConverter {
     }
 
 
-    //byte 实际上是一个表示范围比较小的int（-128，128）
+    //byte 实际上是一个表示范围比较小的int（-128，127）
     private Byte toByte() {
 
         if (isNull()) {
@@ -183,7 +185,7 @@ public class BasicConverter {
         if (value instanceof Boolean) {
             return (Boolean) value;
         }
-        if (isNull() || "0".equals(getStringValue()) || "false".equals(getStringValue())) {
+        if (isNull() || isEmptyString() || "0".equals(getStringValue()) || "false".equals(getStringValue())) {
             return false;
         }
         return true;

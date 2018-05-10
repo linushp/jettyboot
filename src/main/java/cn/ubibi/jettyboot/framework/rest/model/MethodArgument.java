@@ -30,10 +30,11 @@ public class MethodArgument {
 
     public boolean isBasicNumberType() {
         if (type == Integer.TYPE ||
-                type== Long.TYPE ||
-                type== Short.TYPE ||
+                type == Long.TYPE ||
+                type == Short.TYPE ||
                 type == Double.TYPE ||
-                type==Float.TYPE){
+                type == Float.TYPE ||
+                type == Byte.TYPE) {
             return true;
         }
         return false;
