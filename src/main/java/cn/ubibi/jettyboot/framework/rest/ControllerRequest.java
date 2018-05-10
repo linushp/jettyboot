@@ -1,6 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.commons.StringWrapper;
+import cn.ubibi.jettyboot.framework.commons.BasicConverter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
@@ -76,24 +76,24 @@ public class ControllerRequest {
     }
 
 
-    public StringWrapper getRequestParam(String name) {
-        return new StringWrapper(servletRequest.getParameter(name));
+    public BasicConverter getRequestParam(String name) {
+        return new BasicConverter(servletRequest.getParameter(name));
     }
 
-    public StringWrapper getRequestParam(String name, String defaultValue) {
+    public BasicConverter getRequestParam(String name, String defaultValue) {
         String mm = servletRequest.getParameter(name);
         if (mm == null || mm.isEmpty()) {
             mm = defaultValue;
         }
-        return new StringWrapper(mm);
+        return new BasicConverter(mm);
     }
 
-    public StringWrapper[] getRequestParams(String name) {
+    public BasicConverter[] getRequestParams(String name) {
         String[] values = servletRequest.getParameterValues(name);
-        StringWrapper[] valuesWrapper = new StringWrapper[values.length];
+        BasicConverter[] valuesWrapper = new BasicConverter[values.length];
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
-            valuesWrapper[i] = new StringWrapper(value);
+            valuesWrapper[i] = new BasicConverter(value);
         }
         return valuesWrapper;
     }

@@ -3,7 +3,7 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.CastTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
-import cn.ubibi.jettyboot.framework.commons.StringWrapper;
+import cn.ubibi.jettyboot.framework.commons.BasicConverter;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
@@ -278,7 +278,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 } else if (Set.class.isAssignableFrom(typeClazz)) {
                     object = getSetParamValue(jbRequest, paramName, elementType);
                 } else {
-                    StringWrapper sw = jbRequest.getRequestParam(paramName, requestParam.defaultValue());
+                    BasicConverter sw = jbRequest.getRequestParam(paramName, requestParam.defaultValue());
                     object = CastTypeUtils.castValueType(sw, typeClazz);
                 }
 
@@ -322,7 +322,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
     private List getListParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) {
-        StringWrapper[] swArray = jettyBootReqParams.getRequestParams(paramName);
+        BasicConverter[] swArray = jettyBootReqParams.getRequestParams(paramName);
         if (swArray == null || swArray.length == 0) {
             return new ArrayList();
         }
@@ -332,7 +332,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         for (int i = 0; i < swArray.length; i++) {
 
-            StringWrapper sw = swArray[i];
+            BasicConverter sw = swArray[i];
 
             Object value = CastTypeUtils.castValueType(sw, elementType);
 
