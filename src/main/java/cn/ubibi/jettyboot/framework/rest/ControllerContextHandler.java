@@ -39,6 +39,11 @@ public class ControllerContextHandler extends ContextHandler {
         this.requestHandler.addController(path, restController);
     }
 
+    public void addDwrController(Object restController) throws Exception {
+        String path = "dwr_" + restController.getClass().getSimpleName();
+        this.requestHandler.addController(path, restController);
+    }
+
     public void addExceptionHandler(ControllerExceptionHandler exceptionHandler) throws Exception {
         this.requestHandler.addExceptionHandler(exceptionHandler);
     }

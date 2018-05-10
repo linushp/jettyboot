@@ -63,6 +63,10 @@ public class PackageScannerUtils {
                         }
                     }
 
+                    else if (annotation.annotationType() == DwrController.class){
+                        Object controllerObject = clazz.newInstance();
+                        controllerContextHandler.addDwrController(controllerObject);
+                    }
 
                     //2
                     else if (annotation.annotationType() == Service.class) {
