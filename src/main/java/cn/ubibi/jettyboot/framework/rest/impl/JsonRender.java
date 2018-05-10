@@ -1,6 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
-import cn.ubibi.jettyboot.framework.commons.GlobalConfig;
+import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import com.alibaba.fastjson.JSON;
@@ -23,7 +23,7 @@ public class JsonRender implements ResponseRender {
 
         String jsonText = JSON.toJSONString(this.data);
 
-        response.setContentType("application/json; charset="+ GlobalConfig.getInstance().getCharset().name());
+        response.setContentType("application/json; charset="+ FrameworkConfig.getInstance().getCharset().name());
 
         response.setStatus(HttpServletResponse.SC_OK);
         PrintWriter writer = response.getWriter();

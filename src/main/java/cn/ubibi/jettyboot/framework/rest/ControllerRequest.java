@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.BasicConverter;
+import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
@@ -163,7 +164,7 @@ public class ControllerRequest {
     }
 
 
-    public byte[] getRequestBody() throws IOException {
+    public byte[] getRequestBody() throws Exception {
 
         if (this._requestBody != null) {
             return this._requestBody;
@@ -172,6 +173,10 @@ public class ControllerRequest {
         int len = servletRequest.getContentLength();
         if (len <= 0) {
             return null;
+        }
+
+        if (len > FrameworkConfig.getInstance().getMaxRequestBodySize()){
+            throw new Exception("RequestBodyTooLarge");
         }
 
 
@@ -204,7 +209,7 @@ public class ControllerRequest {
         return in2b;
     }
 
-    public <T> T getRequestBodyObject(Class<? extends T> clazz) throws IOException {
+    public <T> T getRequestBodyObject(Class<? extends T> clazz) throws Exception {
         byte[] body = this.getRequestBody();
         if (body == null || body.length == 0) {
             return null;
@@ -215,7 +220,7 @@ public class ControllerRequest {
     }
 
 
-    public JSONArray getRequestBodyArray() throws IOException {
+    public JSONArray getRequestBodyArray() throws Exception {
         byte[] body = this.getRequestBody();
         if (body == null || body.length == 0) {
             return null;
