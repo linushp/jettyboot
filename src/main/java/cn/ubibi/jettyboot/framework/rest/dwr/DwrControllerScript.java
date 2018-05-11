@@ -87,6 +87,7 @@ public class DwrControllerScript {
     }
 
 
+    //如果浏览器不支持Promise，返回一个非常简单的Promise，只支持一层then函数
     private static String toScript(String controllers, String functions, String exportAs,String controllerPrefix) {
         return "(function (exports) {\n" +
                 "\n" +
@@ -95,6 +96,22 @@ public class DwrControllerScript {
                 "    var functions = " + functions + ";\n" +
                 "\n" +
                 "\n" +
+                "" +
+                "    var Promise = window.Promise || function (methodRunner) {\n" +
+                "        var that = this;\n" +
+                "        this.cbOk = null;\n" +
+                "        this.cbError = null;\n" +
+                "        this.then = function(cbOk,cbError){\n" +
+                "            this.cbOk = cbOk;\n" +
+                "            this.cbError = cbError;\n" +
+                "        };\n" +
+                "        methodRunner(function (data) {\n" +
+                "            that.cbOk && that.cbOk(data);\n" +
+                "        },function(err){\n" +
+                "            that.cbError && that.cbError(err);\n" +
+                "        });\n" +
+                "    };" +
+                "" +
                 "    function ajaxPost(url, args, callback) {\n" +
                 "        var data = JSON.stringify(args);\n" +
                 "        var xhr = new XMLHttpRequest();\n" +
