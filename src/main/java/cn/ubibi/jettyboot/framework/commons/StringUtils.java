@@ -15,6 +15,10 @@ public class StringUtils {
         return str == null || str.isEmpty();
     }
 
+    public static boolean isBlank(String str) {
+        return isEmpty(str) || str.trim().isEmpty();
+    }
+
     public static String join(Collection collection, String flag) {
         return join(collection,flag,null);
     }
@@ -135,5 +139,7 @@ public class StringUtils {
 
         return name;
     }
+
+
 
 }

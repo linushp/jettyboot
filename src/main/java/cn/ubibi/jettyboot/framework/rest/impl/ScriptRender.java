@@ -3,12 +3,13 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
+import cn.ubibi.jettyboot.framework.rest.impl.base.TextRespRenderAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class ScriptRender implements ResponseRender {
+public class ScriptRender extends TextRespRenderAdapter {
 
     private String script;
     public ScriptRender(String script) {
@@ -17,23 +18,19 @@ public class ScriptRender implements ResponseRender {
 
     @Override
     public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        byte[] contentBytes = this.script.getBytes(FrameworkConfig.getInstance().getCharset());
-
-
-        response.setContentType("application/javascript; charset=" + FrameworkConfig.getInstance().getCharset().name());
         response.setHeader("Cache-Control","public, max-age=31536000");
-        response.setHeader("Content-Length",""+contentBytes.length);
+        super.doRender(request,response);
+    }
 
 
+    @Override
+    public byte[] getContentBytes() {
+        byte[] contentBytes = this.script.getBytes(FrameworkConfig.getInstance().getCharset());
+        return contentBytes;
+    }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getOutputStream().write(contentBytes);
-        response.getOutputStream().close();
-//
-//        PrintWriter writer = response.getWriter();
-//        writer.print(this.script);
-//        writer.flush();
-        ResponseUtils.tryClose(response);
+    @Override
+    public String getContentType() {
+        return "application/javascript";
     }
 }

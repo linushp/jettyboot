@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DwrControllerScript {
 
-    public static String toDwrScript(String[] controllerArray, String exportAs) {
+    public static String toDwrScript(String[] controllerArray, String exportAs,String controllerPrefix) {
 
         ControllerContextHandler context = (ControllerContextHandler) ServiceManager.getInstance().getService(ControllerContextHandler.class);
 
@@ -47,7 +47,7 @@ public class DwrControllerScript {
 
         String controllerJSONString = JSON.toJSONString(controllerArray);
         String functionJSONString = JSON.toJSONString(apis);
-        return toScript(controllerJSONString, functionJSONString, exportAs);
+        return toScript(controllerJSONString, functionJSONString, exportAs,controllerPrefix);
     }
 
 
@@ -65,7 +65,7 @@ public class DwrControllerScript {
     }
 
 
-    private static String toScript(String controllers, String functions, String exportAs) {
+    private static String toScript(String controllers, String functions, String exportAs,String controllerPrefix) {
         return "(function (exports) {\n" +
                 "\n" +
                 "\n" +
@@ -120,7 +120,7 @@ public class DwrControllerScript {
                 "    }\n" +
                 "    for (var i = 0; i < controllers.length; i++) {\n" +
                 "        var controllerName = controllers[i];\n" +
-                "        exports[\"Dwr\"+controllerName] = buildController(controllerName);\n" +
+                "        exports[\""+controllerPrefix+"\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
                 "})(" + exportAs + ");";
     }

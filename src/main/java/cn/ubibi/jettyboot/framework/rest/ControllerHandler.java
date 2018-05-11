@@ -5,7 +5,7 @@ import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerInterceptor;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,21 +30,21 @@ public class ControllerHandler {
     private List<ControllerMethodHandler> controllerMethodList;
 
 
-    public ControllerHandler(String path, Class<?> clazz, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    public ControllerHandler(String path, Class<?> clazz, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restControllerClazz = clazz;
         this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
-    public ControllerHandler(String path, Object restController, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    public ControllerHandler(String path, Object restController, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         this.restController = restController;
         this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList(methodAspectList, methodArgumentResolvers);
     }
 
 
-    private List<ControllerMethodHandler> buildMethodHandlerList(List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    private List<ControllerMethodHandler> buildMethodHandlerList(List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
 
         List<ControllerMethodHandler> methodList = new ArrayList<>();
         Class<?> clazz = this.getControllerClass();
@@ -104,7 +104,7 @@ public class ControllerHandler {
 
 
     //对于一个方法配置多个路径的情况
-    private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz,String[] value, String request_method, String classPath, Method method, List<ControllerInterceptor> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz, String[] value, String request_method, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         List<ControllerMethodHandler> result = new ArrayList<>(1);
 
         if ("dwr".equals(request_method)){

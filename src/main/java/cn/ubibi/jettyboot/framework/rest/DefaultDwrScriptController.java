@@ -9,15 +9,20 @@ import cn.ubibi.jettyboot.framework.rest.impl.ScriptRender;
 public class DefaultDwrScriptController {
 
     @GetMapping("/")
-    public ScriptRender toDwrScript(@RequestParam("controllers") String controllers, @RequestParam("exportAs") String exportAs) {
+    public ScriptRender toDwrScript(@RequestParam("controllers") String controllers,
+                                    @RequestParam("exportAs") String exportAs,
+                                    @RequestParam("controllerPrefix") String controllerPrefix) {
 
-        if (StringUtils.isEmpty(exportAs)) {
+        if (StringUtils.isBlank(exportAs)) {
             exportAs = "window";
         }
 
+        if (StringUtils.isBlank(controllerPrefix)){
+            controllerPrefix = "";
+        }
 
         String[] controllerArray = controllers.split(";");
-        String script = DwrControllerScript.toDwrScript(controllerArray, exportAs);
+        String script = DwrControllerScript.toDwrScript(controllerArray, exportAs,controllerPrefix);
         return new ScriptRender(script);
     }
 }

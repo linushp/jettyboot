@@ -3,13 +3,15 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
+import cn.ubibi.jettyboot.framework.rest.impl.base.TextRespRenderAdapter;
+import com.alibaba.fastjson.JSON;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class TextRender implements ResponseRender {
+public class TextRender extends TextRespRenderAdapter {
 
     private String text;
 
@@ -18,16 +20,13 @@ public class TextRender implements ResponseRender {
     }
 
     @Override
-    public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public byte[] getContentBytes() {
+        byte[] contentBytes = this.text.getBytes(FrameworkConfig.getInstance().getCharset());
+        return contentBytes;
+    }
 
-        response.setContentType("text/html;charset=" + FrameworkConfig.getInstance().getCharset().name());
-
-        response.setStatus(HttpServletResponse.SC_OK);
-        PrintWriter writer = response.getWriter();
-        writer.print(this.text);
-        writer.flush();
-
-
-        ResponseUtils.tryClose(response);
+    @Override
+    public String getContentType() {
+        return "text/html";
     }
 }

@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 
+import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -51,8 +52,7 @@ public class JettyBootServer{
         String packageName = mainServerClass.getPackage().getName();
         PackageScannerUtils.addByPackageScanner(packageName,controllerContextHandler,this);
 
-
-        controllerContextHandler.addController("/script_dwr_controller",new DefaultDwrScriptController());
+        controllerContextHandler.addController(FrameworkConfig.getInstance().getDwrScriptPath(),new DefaultDwrScriptController());
 
         return this;
     }
