@@ -18,6 +18,7 @@ public abstract class TextRespRenderAdapter implements ResponseRender {
         response.setContentType(getContentType() + "; charset=" + FrameworkConfig.getInstance().getCharset().name());
         response.setHeader("Content-Length", "" + contentBytes.length);
         response.setHeader("Server", FrameworkConfig.getInstance().getResponseServerName());
+        response.setHeader("Connection","keep-alive");
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.getOutputStream().write(contentBytes);

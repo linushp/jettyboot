@@ -31,6 +31,6 @@ public class ScriptRender extends TextRespRenderAdapter {
 
     @Override
     public String getContentType() {
-        return "application/javascript";
+        return "text/javascript";
     }
 }
