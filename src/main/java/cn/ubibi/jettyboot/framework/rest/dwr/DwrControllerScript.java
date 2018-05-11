@@ -1,7 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.dwr;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
-import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ControllerContextHandler;
 import cn.ubibi.jettyboot.framework.rest.ControllerMethodHandler;
@@ -10,9 +9,31 @@ import com.alibaba.fastjson.JSON;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class DwrControllerScript {
 
+
     public static String toDwrScript(String[] controllerArray, String exportAs,String controllerPrefix) {
+
+        List<ApiModel> apis = getApiModelList(controllerArray);
+
+        String controllerJSONString = JSON.toJSONString(controllerArray);
+
+        String functionJSONString = JSON.toJSONString(apis);
+
+        return toScript(controllerJSONString, functionJSONString, exportAs,controllerPrefix);
+
+    }
+
+
+
+
+
+    private static List<ApiModel> getApiModelList(String[] controllerArray){
+
+        if (CollectionUtils.isEmpty(controllerArray)){
+            return new ArrayList<>();
+        }
 
         ControllerContextHandler context = (ControllerContextHandler) ServiceManager.getInstance().getService(ControllerContextHandler.class);
 
@@ -44,10 +65,7 @@ public class DwrControllerScript {
             }
         }
 
-
-        String controllerJSONString = JSON.toJSONString(controllerArray);
-        String functionJSONString = JSON.toJSONString(apis);
-        return toScript(controllerJSONString, functionJSONString, exportAs,controllerPrefix);
+        return apis;
     }
 
 
