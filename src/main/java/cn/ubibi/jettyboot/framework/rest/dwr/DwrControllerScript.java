@@ -58,6 +58,10 @@ public class DwrControllerScript {
                         url = contextPath + url;
                     }
 
+                    if (!url.startsWith("/")){
+                        url = "/" + url;
+                    }
+
                     ApiModel xxx = new ApiModel(methodHandler.getSupportRequestMethod(), url, methodName, controllerName);
                     apis.add(xxx);
 
