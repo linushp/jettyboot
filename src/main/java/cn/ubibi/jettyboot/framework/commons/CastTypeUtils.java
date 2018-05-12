@@ -2,12 +2,10 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class CastTypeUtils {
