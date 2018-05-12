@@ -8,6 +8,7 @@ public class MethodArgument {
     private Method method;
     private Type type;
     private Annotation[] annotations;
+    private boolean basicCharType;
 
 
     public MethodArgument(Method method, Type type, Annotation[] annotations) {
@@ -26,21 +27,5 @@ public class MethodArgument {
 
     public Annotation[] getAnnotations() {
         return annotations;
-    }
-
-    public boolean isBasicNumberType() {
-        if (type == Integer.TYPE ||
-                type == Long.TYPE ||
-                type == Short.TYPE ||
-                type == Double.TYPE ||
-                type == Float.TYPE ||
-                type == Byte.TYPE) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isBasicBooleanType(){
-        return Boolean.TYPE == type;
     }
 }

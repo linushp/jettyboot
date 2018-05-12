@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -184,55 +185,21 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             return null;
         }
 
-
         Class typeClazz = (Class) methodArgument.getType();
 
         Object obj;
 
-
         if (index >= requestBodyArray.size()) {
-            //索引超出了
-            if (methodArgument.isBasicNumberType()) {
-                return CastTypeUtils.toTypeOf("0", typeClazz);
-            } else if (methodArgument.isBasicBooleanType()) {
-                return false;
-            } else {
-                return null;
-            }
+            obj = null;
         } else {
             //索引没有超出
             obj = requestBodyArray.get(index);
-            if (obj == null) {
-                return null;
-            }
         }
 
-
-        if (typeClazz.equals(Object.class)) {
-            return obj;
-        }
-
-        if (typeClazz.equals(String.class)) {
-            return obj.toString();
-        }
-
-
-        if (obj instanceof JSONObject) {
-
-            if (typeClazz.equals(JSONObject.class)) {//无需转换
-                return obj;
-            }
-
-            JSONObject jsonObject = (JSONObject) obj;
-            return jsonObject.toJavaObject(typeClazz);
-        }
-
-        if (obj instanceof JSONArray) {
-            return obj;
-        }
-
-        return CastTypeUtils.toTypeOf(obj, typeClazz);
+        return CastTypeUtils.jsonObjectToJavaObject(obj,typeClazz);
     }
+
+
 
 
     private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {

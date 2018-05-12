@@ -52,7 +52,9 @@ public class BasicConverter {
             result = this.toShort();
         } else if (isTypeOf(targetType, Byte.class, Byte.TYPE)) {
             result = this.toByte();
-        } else if (targetType == Timestamp.class) {
+        } else if (isTypeOf(targetType,Character.class,Character.TYPE)){
+            result = this.toCharacter();
+        }else if (targetType == Timestamp.class) {
             result = this.toTimestamp();
         } else if (targetType == Date.class) {
             result = this.toDate();
@@ -69,6 +71,28 @@ public class BasicConverter {
         }
 
         return (T) result;
+    }
+
+
+    private Character toCharacter() {
+        if (isNull()) {
+            return 0;
+        }
+
+        if (value instanceof Character) {
+            return (Character) value;
+        }
+
+        if (value instanceof String && !((String) value).isEmpty()){
+            String str = getStringValue();
+            return str.charAt(0);
+        }
+
+        if (value instanceof Integer || value instanceof Short || value instanceof Long){
+            int v = toInteger();
+            return (char)v;
+        }
+        return 0;
     }
 
 
