@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class CastTypeUtils {
@@ -53,9 +54,6 @@ public class CastTypeUtils {
     }
 
 
-
-
-
     // JSON对象类型转换
     public static Object jsonObjectToJavaObject(Object obj, Type type) throws Exception {
 
@@ -95,14 +93,14 @@ public class CastTypeUtils {
             }
 
 
-
-            if (Map.class.isAssignableFrom(targetClazz)){
-                if (targetClazz.equals(Map.class)){
+            if (Map.class.isAssignableFrom(targetClazz)) {
+                if (targetClazz.equals(Map.class)) {
                     targetClazz = HashMap.class;
+                } else if (SortedMap.class.equals(targetClazz)) {
+                    targetClazz = TreeMap.class;
                 }
-                return jsonObjectToMapObject((JSONObject) obj,targetClazz, actualTypeArguments);
+                return jsonObjectToMapObject((JSONObject) obj, targetClazz, actualTypeArguments);
             }
-
 
 
             JSONObject jsonObject = (JSONObject) obj;
@@ -128,6 +126,10 @@ public class CastTypeUtils {
                     targetClazz = ArrayList.class;
                 } else if (Set.class.equals(targetClazz)) {
                     targetClazz = HashSet.class;
+                } else if (SortedSet.class.equals(targetClazz)) {
+                    targetClazz = TreeSet.class;
+                } else if (Queue.class.equals(targetClazz)) {
+                    targetClazz = LinkedList.class;
                 }
                 return jsonArrayToJavaCollection((JSONArray) obj, targetClazz, actualTypeArguments);
             }
@@ -137,8 +139,6 @@ public class CastTypeUtils {
 
         return toTypeOf(obj, targetClazz);
     }
-
-
 
 
     private static Collection jsonArrayToJavaCollection(JSONArray jsonArray, Class<? extends Collection> targetClazz, Type[] actualTypeArguments) throws Exception {
@@ -182,7 +182,7 @@ public class CastTypeUtils {
     }
 
 
-    private static Map jsonObjectToMapObject(JSONObject jsonObject,Class targetClazz, Type[] actualTypeArguments) throws Exception {
+    private static Map jsonObjectToMapObject(JSONObject jsonObject, Class targetClazz, Type[] actualTypeArguments) throws Exception {
 
         Type keyType = null;
         Type valueType = null;
