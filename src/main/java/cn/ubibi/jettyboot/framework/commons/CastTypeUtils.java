@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Map;
 
 
 public class CastTypeUtils {
@@ -50,46 +51,46 @@ public class CastTypeUtils {
 
 
     // JSON对象类型转换
-    public static Object jsonObjectToJavaObject(Object obj, Class typeClazz) throws Exception {
+    public static Object jsonObjectToJavaObject(Object obj, Class targetClazz) throws Exception {
 
         if (obj == null) {
-            if (isBasicType(typeClazz)) {
-                return new BasicConverter(0).toTypeOf(typeClazz);
+            if (isBasicType(targetClazz)) {
+                return new BasicConverter(0).toTypeOf(targetClazz);
             }
             return null;
         }
 
 
-        if (typeClazz.equals(Object.class)) {
+        if (targetClazz.equals(Object.class)) {
             return obj;
         }
 
-        if (typeClazz.equals(String.class)) {
+        if (targetClazz.equals(String.class)) {
             return obj.toString();
         }
 
 
         if (obj instanceof JSONObject) {
 
-            if (typeClazz.equals(JSONObject.class)) {//无需转换
+            if (targetClazz.equals(JSONObject.class) || targetClazz.equals(Map.class)) {//无需转换
                 return obj;
             }
 
             JSONObject jsonObject = (JSONObject) obj;
-            return jsonObject.toJavaObject(typeClazz);
+            return jsonObject.toJavaObject(targetClazz);
         }
 
 
         //JSONArray 也是一个 Collection
         if (obj instanceof Collection) {
-            if (typeClazz.isArray()) {
-                Class elementType = typeClazz.getComponentType();
+            if (targetClazz.isArray()) {
+                Class elementType = targetClazz.getComponentType();
                 return jsonArrayToJavaArray((Collection) obj, elementType);
             }
             return obj;
         }
 
-        return toTypeOf(obj, typeClazz);
+        return toTypeOf(obj, targetClazz);
     }
 
 
