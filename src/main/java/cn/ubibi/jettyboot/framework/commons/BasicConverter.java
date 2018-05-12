@@ -76,7 +76,7 @@ public class BasicConverter {
 
     private Character toCharacter() {
         if (isNull()) {
-            return 0;
+            return Character.MIN_VALUE;
         }
 
         if (value instanceof Character) {
@@ -92,7 +92,7 @@ public class BasicConverter {
             int v = toInteger();
             return (char)v;
         }
-        return 0;
+        return Character.MIN_VALUE;
     }
 
 
