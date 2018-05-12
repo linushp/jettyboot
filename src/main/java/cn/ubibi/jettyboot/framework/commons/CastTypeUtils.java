@@ -7,7 +7,6 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 
-
 public class CastTypeUtils {
 
     // 基本数据类型转换
@@ -17,7 +16,10 @@ public class CastTypeUtils {
 
 
     // 基本数据类型转换
-    public static Object toTypeArrayOf(List<Object> jsonArray, Class elementType) throws Exception {
+    public static Object toTypeArrayOf(List<?> jsonArray, Class elementType) throws Exception {
+        if (jsonArray == null) {
+            return null;
+        }
 
         Object result = Array.newInstance(elementType, jsonArray.size());
         int index = 0;
@@ -33,6 +35,9 @@ public class CastTypeUtils {
 
     // JSON对象类型转换
     public static Object jsonArrayToJavaArray(JSONArray jsonArray, Class elementType) throws Exception {
+        if (jsonArray == null) {
+            return null;
+        }
         Object result = Array.newInstance(elementType, jsonArray.size());
         int index = 0;
         for (Object obj : jsonArray) {
@@ -44,12 +49,11 @@ public class CastTypeUtils {
     }
 
 
-
     // JSON对象类型转换
     public static Object jsonObjectToJavaObject(Object obj, Class typeClazz) throws Exception {
 
         if (obj == null) {
-            if (isBasicType(typeClazz)){
+            if (isBasicType(typeClazz)) {
                 return new BasicConverter(0).toTypeOf(typeClazz);
             }
             return null;

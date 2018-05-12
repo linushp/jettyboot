@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.commons;
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class CollectionUtils {
@@ -216,5 +217,25 @@ public class CollectionUtils {
 
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
+    }
+
+
+    //数组转List
+    public static List toListFromArray(Object array) {
+        if (array == null){
+            return null;
+        }
+
+        if (array.getClass().isArray()){
+            List list = new ArrayList();
+            int arrayLength = Array.getLength(array);
+            for (int i = 0 ;i < arrayLength ; i ++){
+                Object obj = Array.get(array,i);
+                list.add(obj);
+            }
+            return list;
+        }
+
+        return null;
     }
 }

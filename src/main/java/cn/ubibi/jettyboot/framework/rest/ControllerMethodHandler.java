@@ -60,9 +60,10 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         return controllerClazzSimpleName;
     }
 
-    public boolean isDWR(){
+    public boolean isDWR() {
         return "dwr".equals(supportRequestMethod);
     }
+
     //判断是否支持
     boolean isSupportRequest(HttpServletRequest request) {
 
@@ -196,10 +197,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             obj = requestBodyArray.get(index);
         }
 
-        return CastTypeUtils.jsonObjectToJavaObject(obj,typeClazz);
+        return CastTypeUtils.jsonObjectToJavaObject(obj, typeClazz);
     }
-
-
 
 
     private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {
@@ -297,36 +296,28 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private List getListParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
-        BasicConverter[] swArray = jettyBootReqParams.getRequestParams(paramName);
+    private List getListParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
+        Object array = getArrayParamValue(request, paramName, elementType);
+        return CollectionUtils.toListFromArray(array);
+    }
+
+
+    /**
+     * 返回一个  Array.newInstance
+     */
+    private Object getArrayParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
+        String[] swArray = request.getParameterValues(paramName);
         if (swArray == null || swArray.length == 0) {
-            return new ArrayList();
+            return Array.newInstance(elementType, 0);
         }
 
-
-        List<Object> objectList = new ArrayList<>();
-
-        for (int i = 0; i < swArray.length; i++) {
-
-            BasicConverter sw = swArray[i];
-
-            Object value = CastTypeUtils.toTypeOf(sw, elementType);
-
-            objectList.add(value);
-        }
-
-
-        return objectList;
+        List stringList = CollectionUtils.toListFromArray(swArray);
+        return CastTypeUtils.toTypeArrayOf(stringList, elementType);
     }
 
 
-    private Object[] getArrayParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
-        List list = getListParamValue(jettyBootReqParams, paramName, elementType);
-        return list.toArray();
-    }
-
-    private Set getSetParamValue(ControllerRequest jettyBootReqParams, String paramName, Class elementType) throws Exception {
-        List list = getListParamValue(jettyBootReqParams, paramName, elementType);
+    private Set getSetParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
+        List list = getListParamValue(request, paramName, elementType);
         return new HashSet(list);
     }
 
