@@ -23,11 +23,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ControllerMethodHandler implements Comparable<ControllerMethodHandler> {
 
@@ -186,7 +184,6 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             return null;
         }
 
-        Class typeClazz = (Class) methodArgument.getType();
 
         Object obj;
 
@@ -197,7 +194,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             obj = requestBodyArray.get(index);
         }
 
-        return CastTypeUtils.jsonObjectToJavaObject(obj, typeClazz);
+        return CastTypeUtils.jsonObjectToJavaObject(obj, methodArgument.getType());
     }
 
 
@@ -209,6 +206,9 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
         return null;
     }
+
+
+
 
 
     /**
@@ -224,7 +224,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private Object getMethodParamsObject(MethodArgument methodArgument, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 
-        Class typeClazz = (Class) methodArgument.getType();
+        Class typeClazz = (Class) methodArgument.getRawType();
+        Type[] actualTypeArguments = methodArgument.getActualTypeArguments();
 
         Annotation[] annotations = methodArgument.getAnnotations();
 
@@ -244,18 +245,31 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
                 RequestParam requestParam = (RequestParam) annotation;
                 String paramName = requestParam.value();
-                Class elementType = requestParam.elementType();
+
+                List<String> values = jbRequest.getParameterValuesAsList(paramName);
+
                 if (typeClazz.isArray()) {
-                    elementType = typeClazz.getComponentType();
-                    object = getArrayParamValue(jbRequest, paramName, elementType);
-                } else if (List.class.isAssignableFrom(typeClazz)) {
-                    object = getListParamValue(jbRequest, paramName, elementType);
-                } else if (Set.class.isAssignableFrom(typeClazz)) {
-                    object = getSetParamValue(jbRequest, paramName, elementType);
+                    Class elementType = typeClazz.getComponentType();
+                    object = CastTypeUtils.toTypeArrayOf(values, elementType);
+                } else if (Collection.class.isAssignableFrom(typeClazz)) {
+
+                    Class elementType = null;
+                    if (!CollectionUtils.isEmpty(actualTypeArguments)) {
+                        elementType = (Class) actualTypeArguments[0];
+                    }
+
+                    if (Set.class.equals(typeClazz)) {
+                        typeClazz = HashSet.class;
+                    } else if (Collection.class.equals(typeClazz) || List.class.equals(typeClazz)) {
+                        typeClazz = ArrayList.class;
+                    }
+
+                    object = CastTypeUtils.toTypeCollectionOf(values, typeClazz, elementType);
                 } else {
-                    BasicConverter sw = jbRequest.getRequestParam(paramName, requestParam.defaultValue());
-                    object = CastTypeUtils.toTypeOf(sw, typeClazz);
+                    String value = jbRequest.getParameter(paramName);
+                    object = CastTypeUtils.toTypeOf(value, typeClazz);
                 }
+
 
             } else if (annotationType == RequestParams.class) {
                 object = jbRequest.getRequestParamObject(typeClazz);
@@ -293,32 +307,6 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
 
         return object;
-    }
-
-
-    private List getListParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
-        Object array = getArrayParamValue(request, paramName, elementType);
-        return CollectionUtils.toListFromArray(array);
-    }
-
-
-    /**
-     * 返回一个  Array.newInstance
-     */
-    private Object getArrayParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
-        String[] swArray = request.getParameterValues(paramName);
-        if (swArray == null || swArray.length == 0) {
-            return Array.newInstance(elementType, 0);
-        }
-
-        List stringList = CollectionUtils.toListFromArray(swArray);
-        return CastTypeUtils.toTypeArrayOf(stringList, elementType);
-    }
-
-
-    private Set getSetParamValue(ControllerRequest request, String paramName, Class elementType) throws Exception {
-        List list = getListParamValue(request, paramName, elementType);
-        return new HashSet(list);
     }
 
 

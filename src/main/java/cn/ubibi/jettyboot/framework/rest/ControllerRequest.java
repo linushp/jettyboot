@@ -1,9 +1,12 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.BasicConverter;
+import cn.ubibi.jettyboot.framework.commons.CastTypeUtils;
+import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -13,10 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ControllerRequest {
 
@@ -74,6 +74,14 @@ public class ControllerRequest {
         return servletRequest.getParameterValues(name);
     }
 
+    public List<String> getParameterValuesAsList(String name){
+        String[] array = servletRequest.getParameterValues(name);
+        if (CollectionUtils.isEmpty(array)){
+            return new ArrayList<>();
+        }
+        return CollectionUtils.toListFromArray(array);
+    }
+
     public String getParameter(String name) {
         return servletRequest.getParameter(name);
     }
@@ -116,7 +124,7 @@ public class ControllerRequest {
         return null;
     }
 
-    public <T> T getRequestParamObject(Class<? extends T> clazz) {
+    public <T> T getRequestParamObject(Class<? extends T> clazz) throws Exception {
 
         Map<String, Object> map2 = new HashMap<>();
         Field[] fields = clazz.getDeclaredFields();
@@ -133,10 +141,8 @@ public class ControllerRequest {
             }
         }
 
-
         String mapString = JSON.toJSONString(map2);
         T obj = JSON.parseObject(mapString, clazz);
-
         return obj;
     }
 
@@ -209,6 +215,7 @@ public class ControllerRequest {
         return in2b;
     }
 
+
     public <T> T getRequestBodyObject(Class<? extends T> clazz) throws Exception {
         byte[] body = this.getRequestBody();
         if (body == null || body.length == 0) {
@@ -216,7 +223,8 @@ public class ControllerRequest {
         }
 
         String bodyString = new String(body, "utf-8");
-        return JSON.parseObject(bodyString, clazz);
+        T obj = JSON.parseObject(bodyString, clazz);
+        return obj;
     }
 
 

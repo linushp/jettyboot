@@ -9,7 +9,4 @@ import java.lang.annotation.*;
 public @interface RequestParam {
     String value();
     String defaultValue() default "";
-
-    //对于List或Set时有用到
-    Class elementType() default String.class;
 }
