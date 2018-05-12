@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Array;
-import java.util.List;
+import java.util.Collection;
 
 
 public class CastTypeUtils {
@@ -16,7 +16,7 @@ public class CastTypeUtils {
 
 
     // 基本数据类型转换
-    public static Object toTypeArrayOf(List<?> jsonArray, Class elementType) throws Exception {
+    public static Object toTypeArrayOf(Collection jsonArray, Class elementType) throws Exception {
         if (jsonArray == null) {
             return null;
         }
@@ -34,7 +34,7 @@ public class CastTypeUtils {
 
 
     // JSON对象类型转换
-    public static Object jsonArrayToJavaArray(JSONArray jsonArray, Class elementType) throws Exception {
+    public static Object jsonArrayToJavaArray(Collection jsonArray, Class elementType) throws Exception {
         if (jsonArray == null) {
             return null;
         }
