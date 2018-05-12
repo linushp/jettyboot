@@ -79,10 +79,12 @@ public class CastTypeUtils {
             return jsonObject.toJavaObject(typeClazz);
         }
 
-        if (obj instanceof JSONArray) {
+
+        //JSONArray 也是一个 Collection
+        if (obj instanceof Collection) {
             if (typeClazz.isArray()) {
                 Class elementType = typeClazz.getComponentType();
-                return jsonArrayToJavaArray((JSONArray) obj, elementType);
+                return jsonArrayToJavaArray((Collection) obj, elementType);
             }
             return obj;
         }
