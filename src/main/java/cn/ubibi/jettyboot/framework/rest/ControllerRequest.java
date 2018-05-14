@@ -1,12 +1,10 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.commons.BasicConverter;
-import cn.ubibi.jettyboot.framework.commons.CastTypeUtils;
+import cn.ubibi.jettyboot.framework.commons.CastBasicTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -87,26 +85,12 @@ public class ControllerRequest {
     }
 
 
-    public BasicConverter getRequestParam(String name) {
-        return new BasicConverter(servletRequest.getParameter(name));
-    }
-
-    public BasicConverter getRequestParam(String name, String defaultValue) {
+    public String getRequestParam(String name, String defaultValue) {
         String mm = servletRequest.getParameter(name);
         if (mm == null || mm.isEmpty()) {
             mm = defaultValue;
         }
-        return new BasicConverter(mm);
-    }
-
-    public BasicConverter[] getRequestParams(String name) {
-        String[] values = servletRequest.getParameterValues(name);
-        BasicConverter[] valuesWrapper = new BasicConverter[values.length];
-        for (int i = 0; i < values.length; i++) {
-            String value = values[i];
-            valuesWrapper[i] = new BasicConverter(value);
-        }
-        return valuesWrapper;
+        return mm;
     }
 
 

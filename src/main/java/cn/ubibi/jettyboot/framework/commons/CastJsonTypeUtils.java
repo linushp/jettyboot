@@ -2,54 +2,16 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
 
-public class CastTypeUtils {
-
-    // 基本数据类型转换
-    public static Object toBasicTypeOf(Object value, Class targetType) throws Exception {
-        if (targetType == null) {
-            return value;
-        }
-        return new BasicConverter(value).toTypeOf(targetType);
-    }
+public class CastJsonTypeUtils {
 
 
-    // 基本数据类型转换,返回一个  Array.newInstance
-    public static Object toBasicTypeArrayOf(Collection jsonArray, Class elementType) throws Exception {
-        if (jsonArray == null) {
-            return null;
-        }
-        Object array_result = Array.newInstance(elementType, jsonArray.size());
-        int index = 0;
-        for (Object obj : jsonArray) {
-            Object obj2 = toBasicTypeOf(obj, elementType);
-            Array.set(array_result, index, obj2);
-            index++;
-        }
-        return array_result;
-
-    }
-
-    // 基本数据类型转换,返回一个  Array.newInstance
-    public static Collection toTypeCollectionOf(Collection jsonArray, Class<? extends Collection> targetClazz, Class elementType) throws Exception {
-        if (jsonArray == null) {
-            return null;
-        }
-        Collection array_result = targetClazz.newInstance();
-        for (Object obj : jsonArray) {
-            Object obj2 = obj;
-            if (elementType != null) {
-                obj2 = toBasicTypeOf(obj, elementType);
-            }
-            array_result.add(obj2);
-        }
-        return array_result;
-    }
 
 
     // JSON对象类型转换
@@ -67,8 +29,8 @@ public class CastTypeUtils {
 
 
         if (obj == null) {
-            if (isBasicType(targetClazz)) {
-                return new BasicConverter(0).toTypeOf(targetClazz);
+            if (CastBasicTypeUtils.isBasicType(targetClazz)) {
+                return CastBasicTypeUtils.toBasicTypeOf(0, targetClazz);
             }
             return null;
         }
@@ -135,7 +97,7 @@ public class CastTypeUtils {
             return obj;
         }
 
-        return toBasicTypeOf(obj, targetClazz);
+        return CastBasicTypeUtils.toBasicTypeOf(obj, targetClazz);
     }
 
 
@@ -201,7 +163,7 @@ public class CastTypeUtils {
             Object value = entry.getValue();
 
             if (keyType != null) {
-                key = toBasicTypeOf(key, (Class) keyType);
+                key = CastBasicTypeUtils.toBasicTypeOf(key, (Class) keyType);
             }
 
             if (valueType != null) {
@@ -214,17 +176,4 @@ public class CastTypeUtils {
     }
 
 
-    public static boolean isBasicType(Class type) {
-        if (type == Integer.TYPE ||
-                type == Long.TYPE ||
-                type == Short.TYPE ||
-                type == Double.TYPE ||
-                type == Float.TYPE ||
-                type == Boolean.TYPE ||
-                type == Character.TYPE ||
-                type == Byte.TYPE) {
-            return true;
-        }
-        return false;
-    }
 }

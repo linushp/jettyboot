@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.commons.CastTypeUtils;
+import cn.ubibi.jettyboot.framework.commons.CastBasicTypeUtils;
+import cn.ubibi.jettyboot.framework.commons.CastJsonTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
@@ -190,7 +191,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             obj = requestBodyArray.get(index);
         }
 
-        return CastTypeUtils.jsonObjectToJavaObject(obj, methodArgument.getType());
+        return CastJsonTypeUtils.jsonObjectToJavaObject(obj, methodArgument.getType());
     }
 
 
@@ -241,12 +242,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
                 RequestParam requestParam = (RequestParam) annotation;
                 String paramName = requestParam.value();
+                String defaultValue = requestParam.defaultValue();
 
                 List<String> values = jbRequest.getParameterValuesAsList(paramName);
 
                 if (typeClazz.isArray()) {
                     Class elementType = typeClazz.getComponentType();
-                    object = CastTypeUtils.toBasicTypeArrayOf(values, elementType);
+                    object = CastBasicTypeUtils.toBasicTypeArrayOf(values, elementType);
                 } else if (Collection.class.isAssignableFrom(typeClazz)) {
 
                     Class elementType = null;
@@ -260,12 +262,20 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                         typeClazz = ArrayList.class;
                     }
 
-                    object = CastTypeUtils.toTypeCollectionOf(values, typeClazz, elementType);
+                    object = CastBasicTypeUtils.toBasicTypeCollectionOf(values, typeClazz, elementType);
                 } else {
-                    String value = jbRequest.getParameter(paramName);
-                    object = CastTypeUtils.toBasicTypeOf(value, typeClazz);
-                }
 
+                    String value = jbRequest.getParameter(paramName);
+                    if (value == null && !StringUtils.isEmpty(defaultValue)) {
+                        value = defaultValue;
+                    }
+
+                    if (value == null && CastBasicTypeUtils.isBasicType(typeClazz)) {
+                        object = CastBasicTypeUtils.toBasicTypeOf(0, typeClazz);
+                    } else {
+                        object = CastBasicTypeUtils.toBasicTypeOf(value, typeClazz);
+                    }
+                }
 
             } else if (annotationType == RequestParams.class) {
                 object = jbRequest.getRequestParamObject(typeClazz);
@@ -274,7 +284,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
                 String sw = jbRequest.getPathVariable(requestPath.value());
-                object = CastTypeUtils.toBasicTypeOf(sw, typeClazz);
+                object = CastBasicTypeUtils.toBasicTypeOf(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
