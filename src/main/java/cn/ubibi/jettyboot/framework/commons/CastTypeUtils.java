@@ -11,7 +11,7 @@ import java.util.*;
 public class CastTypeUtils {
 
     // 基本数据类型转换
-    public static Object toTypeOf(Object value, Class targetType) throws Exception {
+    public static Object toBasicTypeOf(Object value, Class targetType) throws Exception {
         if (targetType == null) {
             return value;
         }
@@ -20,14 +20,14 @@ public class CastTypeUtils {
 
 
     // 基本数据类型转换,返回一个  Array.newInstance
-    public static Object toTypeArrayOf(Collection jsonArray, Class elementType) throws Exception {
+    public static Object toBasicTypeArrayOf(Collection jsonArray, Class elementType) throws Exception {
         if (jsonArray == null) {
             return null;
         }
         Object array_result = Array.newInstance(elementType, jsonArray.size());
         int index = 0;
         for (Object obj : jsonArray) {
-            Object obj2 = toTypeOf(obj, elementType);
+            Object obj2 = toBasicTypeOf(obj, elementType);
             Array.set(array_result, index, obj2);
             index++;
         }
@@ -44,7 +44,7 @@ public class CastTypeUtils {
         for (Object obj : jsonArray) {
             Object obj2 = obj;
             if (elementType != null) {
-                obj2 = toTypeOf(obj, elementType);
+                obj2 = toBasicTypeOf(obj, elementType);
             }
             array_result.add(obj2);
         }
@@ -135,7 +135,7 @@ public class CastTypeUtils {
             return obj;
         }
 
-        return toTypeOf(obj, targetClazz);
+        return toBasicTypeOf(obj, targetClazz);
     }
 
 
@@ -201,7 +201,7 @@ public class CastTypeUtils {
             Object value = entry.getValue();
 
             if (keyType != null) {
-                key = toTypeOf(key, (Class) keyType);
+                key = toBasicTypeOf(key, (Class) keyType);
             }
 
             if (valueType != null) {

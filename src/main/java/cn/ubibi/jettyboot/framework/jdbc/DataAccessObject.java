@@ -273,7 +273,7 @@ public class DataAccessObject<T>  {
     public Long countByWhereSql(String whereSql, Object... whereArgs) throws Exception {
         String sqlCount = "select count(0) from " + schemaTableName() + " " + whereSql;
         Object totalCount = dataAccess.queryValue(sqlCount, whereArgs);
-        return (Long) CastTypeUtils.toTypeOf(totalCount, Long.class);
+        return (Long) CastTypeUtils.toBasicTypeOf(totalCount, Long.class);
     }
 
 

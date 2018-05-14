@@ -3,7 +3,6 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.CastTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
-import cn.ubibi.jettyboot.framework.commons.BasicConverter;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
@@ -13,7 +12,6 @@ import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -21,9 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -250,7 +246,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
                 if (typeClazz.isArray()) {
                     Class elementType = typeClazz.getComponentType();
-                    object = CastTypeUtils.toTypeArrayOf(values, elementType);
+                    object = CastTypeUtils.toBasicTypeArrayOf(values, elementType);
                 } else if (Collection.class.isAssignableFrom(typeClazz)) {
 
                     Class elementType = null;
@@ -267,7 +263,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                     object = CastTypeUtils.toTypeCollectionOf(values, typeClazz, elementType);
                 } else {
                     String value = jbRequest.getParameter(paramName);
-                    object = CastTypeUtils.toTypeOf(value, typeClazz);
+                    object = CastTypeUtils.toBasicTypeOf(value, typeClazz);
                 }
 
 
@@ -278,7 +274,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
                 String sw = jbRequest.getPathVariable(requestPath.value());
-                object = CastTypeUtils.toTypeOf(sw, typeClazz);
+                object = CastTypeUtils.toBasicTypeOf(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
