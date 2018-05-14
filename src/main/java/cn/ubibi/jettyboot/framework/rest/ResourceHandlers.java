@@ -94,7 +94,7 @@ public class ResourceHandlers {
 
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-            if (baseRequest.isHandled()){
+            if (baseRequest.isHandled()) {
                 return;
             }
 

@@ -9,7 +9,7 @@ import java.util.List;
  * Created by luanhaipeng on 2017/6/8.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="strings")
+@XmlRootElement(name = "strings")
 public class RootElement {
 
     private List<StringElement> string;

@@ -1,8 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
-import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
-import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.impl.base.TextRespRenderAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,14 +10,15 @@ import java.io.IOException;
 public class ScriptRender extends TextRespRenderAdapter {
 
     private String script;
+
     public ScriptRender(String script) {
         this.script = script;
     }
 
     @Override
     public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("Cache-Control","public, max-age=31536000");
-        super.doRender(request,response);
+        response.setHeader("Cache-Control", "public, max-age=31536000");
+        super.doRender(request, response);
     }
 
 

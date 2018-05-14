@@ -24,7 +24,6 @@ public class BeanField {
     }
 
 
-
     public Field getField() {
         return field;
     }
@@ -49,8 +48,8 @@ public class BeanField {
         return field.get(bean);
     }
 
-    private void setAccessible(){
-        if (!field.isAccessible()){
+    private void setAccessible() {
+        if (!field.isAccessible()) {
             field.setAccessible(true);
         }
     }

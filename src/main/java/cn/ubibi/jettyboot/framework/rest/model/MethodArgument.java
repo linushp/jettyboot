@@ -20,7 +20,6 @@ public class MethodArgument {
     }
 
 
-
     public Method getMethod() {
         return method;
     }
@@ -30,17 +29,17 @@ public class MethodArgument {
     }
 
     public Type getRawType() {
-        if (type instanceof ParameterizedType){
-            ParameterizedType parameterizedType = (ParameterizedType)type;
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
             return parameterizedType.getRawType();
-        }else {
+        } else {
             return type;
         }
     }
 
     public Type[] getActualTypeArguments() {
-        if (type instanceof ParameterizedType){
-            ParameterizedType parameterizedType = (ParameterizedType)type;
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
             return parameterizedType.getActualTypeArguments();
         }
         return null;
@@ -51,12 +50,12 @@ public class MethodArgument {
     }
 
 
-    public boolean hasAnnotation( Class<? extends Annotation> annotationType){
-        if (CollectionUtils.isEmpty(annotations)){
+    public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
+        if (CollectionUtils.isEmpty(annotations)) {
             return false;
         }
-        for (Annotation annotation : annotations){
-            if (annotationType == annotation.getClass()){
+        for (Annotation annotation : annotations) {
+            if (annotationType == annotation.getClass()) {
                 return true;
             }
         }

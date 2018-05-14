@@ -222,15 +222,15 @@ public class CollectionUtils {
 
     //数组转List
     public static List toListFromArray(Object array) {
-        if (array == null){
+        if (array == null) {
             return null;
         }
 
-        if (array.getClass().isArray()){
+        if (array.getClass().isArray()) {
             List list = new ArrayList();
             int arrayLength = Array.getLength(array);
-            for (int i = 0 ;i < arrayLength ; i ++){
-                Object obj = Array.get(array,i);
+            for (int i = 0; i < arrayLength; i++) {
+                Object obj = Array.get(array, i);
                 list.add(obj);
             }
             return list;

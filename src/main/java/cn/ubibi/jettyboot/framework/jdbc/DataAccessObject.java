@@ -18,7 +18,7 @@ import java.util.*;
  *
  * @param <T> ORM的类名
  */
-public class DataAccessObject<T>  {
+public class DataAccessObject<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAccessObject.class);
 
@@ -123,18 +123,18 @@ public class DataAccessObject<T>  {
 
 
     public List<T> findByIdList(List idList) throws Exception {
-        return findByIdList("id", idList,new DefaultIdCharFilter());
+        return findByIdList("id", idList, new DefaultIdCharFilter());
     }
 
     public List<T> findByIdList(String idFieldName, List idList) throws Exception {
-        return findByIdList(idFieldName, idList,new DefaultIdCharFilter());
+        return findByIdList(idFieldName, idList, new DefaultIdCharFilter());
     }
 
-    public List<T> findByIdList(List idList,CharFilter idCharFilter) throws Exception {
-        return findByIdList("id", idList,idCharFilter);
+    public List<T> findByIdList(List idList, CharFilter idCharFilter) throws Exception {
+        return findByIdList("id", idList, idCharFilter);
     }
 
-    public List<T> findByIdList(String idFieldName, List idList,CharFilter idCharFilter) throws Exception {
+    public List<T> findByIdList(String idFieldName, List idList, CharFilter idCharFilter) throws Exception {
 
         //过滤出合法的Id类型。避免SQL注入的问题。
         idList = CollectionUtils.filterOnlyLegalItems(idList, idCharFilter);

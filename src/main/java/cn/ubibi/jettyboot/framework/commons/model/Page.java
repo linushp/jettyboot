@@ -19,7 +19,7 @@ public class Page<T> {
 
 
         this.pagesCount = totalCount / pageSize;
-        if(totalCount % pageSize > 0 ){
+        if (totalCount % pageSize > 0) {
             this.pagesCount = this.pagesCount + 1;
         }
 

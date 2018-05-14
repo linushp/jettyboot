@@ -14,12 +14,9 @@ public class SQLFormatUtils {
     private static final Pattern PATTERN_REPLACE_VALUE = Pattern.compile("#\\{[a-zA-Z_]+[0-9a-zA-Z_]+}");
 
 
-
-
-
     public static SqlNdArgs formatSQLAndArgs(String sql, Map<String, ?> map) {
         sql = sql.trim();
-        sql = sql.replaceAll("\n"," ");
+        sql = sql.replaceAll("\n", " ");
 
 
         //1.将${XXX}替换成常量
@@ -59,10 +56,6 @@ public class SQLFormatUtils {
 
         return new SqlNdArgs(resultSql, args);
     }
-
-
-
-
 
 
 }

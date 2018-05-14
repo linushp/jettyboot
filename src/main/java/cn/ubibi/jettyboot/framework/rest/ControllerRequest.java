@@ -1,6 +1,5 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.commons.CastBasicTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import com.alibaba.fastjson.JSON;
@@ -41,7 +40,7 @@ public class ControllerRequest {
         String name = ControllerRequest.class.getName() + "_jettyBootRequest";
         ControllerRequest jettyBootRequest = (ControllerRequest) request.getAttribute(name);
         if (jettyBootRequest == null) {
-            jettyBootRequest = new ControllerRequest(request,response, targetPath);
+            jettyBootRequest = new ControllerRequest(request, response, targetPath);
             request.setAttribute(name, jettyBootRequest);
         }
         return jettyBootRequest;
@@ -72,9 +71,9 @@ public class ControllerRequest {
         return servletRequest.getParameterValues(name);
     }
 
-    public List<String> getParameterValuesAsList(String name){
+    public List<String> getParameterValuesAsList(String name) {
         String[] array = servletRequest.getParameterValues(name);
-        if (CollectionUtils.isEmpty(array)){
+        if (CollectionUtils.isEmpty(array)) {
             return new ArrayList<>();
         }
         return CollectionUtils.toListFromArray(array);
@@ -165,7 +164,7 @@ public class ControllerRequest {
             return null;
         }
 
-        if (len > FrameworkConfig.getInstance().getMaxRequestBodySize()){
+        if (len > FrameworkConfig.getInstance().getMaxRequestBodySize()) {
             throw new Exception("RequestBodyTooLarge");
         }
 
@@ -258,7 +257,6 @@ public class ControllerRequest {
         }
         this.aspectVariable.put(name, aspectVariable);
     }
-
 
 
     //不建议直接使用，尽量只在Aspect中使用

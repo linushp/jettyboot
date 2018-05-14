@@ -17,12 +17,12 @@ public class DefaultDwrScriptController {
             exportAs = "window";
         }
 
-        if (StringUtils.isBlank(controllerPrefix)){
+        if (StringUtils.isBlank(controllerPrefix)) {
             controllerPrefix = "";
         }
 
         String[] controllerArray = controllers.split(";");
-        String script = DwrControllerScript.toDwrScript(controllerArray, exportAs,controllerPrefix);
+        String script = DwrControllerScript.toDwrScript(controllerArray, exportAs, controllerPrefix);
         return new ScriptRender(script);
     }
 }

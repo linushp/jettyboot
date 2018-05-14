@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -57,20 +56,19 @@ public class ClasspathPackageScanner implements PackageScanner {
         List<String> names = null; // contains the name of the class file. e.g., Apple.class will be stored as "Apple"
 
 
-
         if (isJarFile(filePath)) {// 先判断是否是jar包，如果是jar包，通过JarInputStream产生的JarEntity去递归查询所有类
             if (logger.isDebugEnabled()) {
                 logger.debug("{} 是一个JAR包", filePath);
             }
 
             names = readFromJarFile(filePath, splashPath);
-            names = toFullyQualifiedName(names,null);
+            names = toFullyQualifiedName(names, null);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("{} 是一个目录", filePath);
             }
             names = readFromDirectory(filePath);
-            names = toFullyQualifiedName(names,basePackage);
+            names = toFullyQualifiedName(names, basePackage);
         }
 
 
@@ -88,12 +86,12 @@ public class ClasspathPackageScanner implements PackageScanner {
 
         List<String> result = new ArrayList<>();
 
-        for (String s:shortName){
+        for (String s : shortName) {
 
             String name;
-            if (!StringUtils.isEmpty(basePackage)){
+            if (!StringUtils.isEmpty(basePackage)) {
                 name = basePackage + "." + s;
-            }else {
+            } else {
                 name = s;
             }
             name = StringUtils.trimExtension(name);
@@ -134,9 +132,9 @@ public class ClasspathPackageScanner implements PackageScanner {
 
 
         List<String> fileNames = new ArrayList<>();
-        for (File file1 : fileList){
+        for (File file1 : fileList) {
             String path1 = file1.getAbsolutePath();
-            String pathShort = path1.substring(prefixLength+1);
+            String pathShort = path1.substring(prefixLength + 1);
             fileNames.add(pathShort);
         }
 
@@ -145,19 +143,19 @@ public class ClasspathPackageScanner implements PackageScanner {
 
     private List<File> listFileOfDirectory(File file) {
 
-        if (file.isDirectory()){
+        if (file.isDirectory()) {
             List<File> result = new ArrayList<>();
             File[] files = file.listFiles();
-            for (File file1 : files){
+            for (File file1 : files) {
 
-                if (file1.isDirectory()){
+                if (file1.isDirectory()) {
 
                     List<File> file1List = listFileOfDirectory(file1);
-                    if (file1List!=null && !file1List.isEmpty()){
+                    if (file1List != null && !file1List.isEmpty()) {
                         result.addAll(file1List);
                     }
 
-                }else {
+                } else {
                     result.add(file1);
                 }
 
@@ -168,9 +166,6 @@ public class ClasspathPackageScanner implements PackageScanner {
 
         return new ArrayList<>();
     }
-
-
-
 
 
     private boolean isClassFile(String name) {

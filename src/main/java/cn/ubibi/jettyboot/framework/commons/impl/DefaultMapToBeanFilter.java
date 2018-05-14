@@ -67,7 +67,6 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
             value = stringValue;
 
 
-
             //2.1 目标类型是JSONObject
             if (targetType == JSONObject.class) {
                 return JSON.parseObject(stringValue);
@@ -79,7 +78,7 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
             JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
             if (jsonTextBeanAnnotation != null) {
                 Object jsonObject = JSON.parse(stringValue);
-                return CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject,targetType);
+                return CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject, targetType);
             }
         }
 

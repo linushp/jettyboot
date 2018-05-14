@@ -4,15 +4,13 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
-import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -66,15 +64,15 @@ public class ControllerHandler {
 
                 List<ControllerMethodHandler> controllerMethodHandler = null;
                 if (methodAnnotation1 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation1.value(), "get", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation2 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation2.value(), "post", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation3 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation3.value(), "put", classPath, method, methodAspectList, methodArgumentResolvers);
                 } else if (methodAnnotation4 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(clazz,methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
-                } else if (methodAnnotation5 !=null){
-                    controllerMethodHandler = toControllerMethodHandler(clazz,null,"dwr",classPath,method, methodAspectList, methodArgumentResolvers);
+                    controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation4.value(), "delete", classPath, method, methodAspectList, methodArgumentResolvers);
+                } else if (methodAnnotation5 != null) {
+                    controllerMethodHandler = toControllerMethodHandler(clazz, null, "dwr", classPath, method, methodAspectList, methodArgumentResolvers);
                 }
 
                 if (controllerMethodHandler != null && !controllerMethodHandler.isEmpty()) {
@@ -107,19 +105,16 @@ public class ControllerHandler {
     private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz, String[] value, String request_method, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
         List<ControllerMethodHandler> result = new ArrayList<>(1);
 
-        if ("dwr".equals(request_method)){
+        if ("dwr".equals(request_method)) {
             String methodPath = "dwr_" + method.getName();
-            result.add(new ControllerMethodHandler(clazz,methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
-        }
-
-        else if (value != null) {
+            result.add(new ControllerMethodHandler(clazz, methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
+        } else if (value != null) {
             for (String methodPath : value) {
-                result.add(new ControllerMethodHandler(clazz,methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
+                result.add(new ControllerMethodHandler(clazz, methodPath, request_method, classPath, method, methodAspectList, methodArgumentResolvers));
             }
         }
         return result;
     }
-
 
 
     public boolean handle(HttpServletRequest request, HttpServletResponse response) throws Exception {

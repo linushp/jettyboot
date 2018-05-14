@@ -3,9 +3,9 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.scan.ClasspathPackageScanner;
 import cn.ubibi.jettyboot.framework.commons.scan.PackageScanner;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
+import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -26,7 +26,6 @@ public class PackageScannerUtils {
         PackageScanner packageScanner = new ClasspathPackageScanner(packageName);
         addByPackageScanner(packageScanner, controllerContextHandler, restServer);
     }
-
 
 
     public static void addByPackageScanner(PackageScanner packageScanner, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {
@@ -53,17 +52,15 @@ public class PackageScannerUtils {
 
                             Object controllerObject = clazz.newInstance();
 
-                            for (String controllerPath1:controllerPath){
+                            for (String controllerPath1 : controllerPath) {
                                 controllerContextHandler.addController(controllerPath1, controllerObject);
                             }
                         } else {
-                            for (String controllerPath1:controllerPath){
+                            for (String controllerPath1 : controllerPath) {
                                 controllerContextHandler.addController(controllerPath1, clazz);
                             }
                         }
-                    }
-
-                    else if (annotation.annotationType() == DwrController.class){
+                    } else if (annotation.annotationType() == DwrController.class) {
                         Object controllerObject = clazz.newInstance();
                         controllerContextHandler.addDwrController(controllerObject);
                     }
@@ -72,9 +69,7 @@ public class PackageScannerUtils {
                     else if (annotation.annotationType() == Service.class) {
                         Object serviceObject = clazz.newInstance();
                         controllerContextHandler.addService(serviceObject);
-                    }
-
-                    else if (annotation.annotationType() == ServiceFactory.class){
+                    } else if (annotation.annotationType() == ServiceFactory.class) {
                         Object serviceFactory = clazz.newInstance();
                         controllerContextHandler.addServiceByFactory(serviceFactory);
                     }
@@ -97,8 +92,6 @@ public class PackageScannerUtils {
 
 
     }
-
-
 
 
     private static void addByComponentFactory(Class<?> clazz, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {

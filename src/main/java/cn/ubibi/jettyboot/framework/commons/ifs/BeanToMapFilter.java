@@ -14,7 +14,8 @@ public interface BeanToMapFilter {
 
     /**
      * 转换成Map的Value数据类型
-     * @param value 数据
+     *
+     * @param value     数据
      * @param beanField Bean Field
      * @return 转换之后的数据类型
      */

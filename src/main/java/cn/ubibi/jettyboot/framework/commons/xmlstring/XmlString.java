@@ -62,7 +62,6 @@ public class XmlString {
     }
 
 
-
     //name可以重复，可以返回多个
     public List<String> getStringByName(String name) {
         List<StringElement> stringElements = rootElement.getString();

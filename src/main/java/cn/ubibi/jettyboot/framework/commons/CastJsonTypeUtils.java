@@ -12,8 +12,6 @@ import java.util.*;
 public class CastJsonTypeUtils {
 
 
-
-
     // JSON对象类型转换
     public static Object jsonObjectToJavaObject(Object obj, Type type) throws Exception {
 

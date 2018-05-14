@@ -8,7 +8,7 @@ public class UpdateResult {
     private Object generatedKey = null;
     private List<Object> generatedKeys = new ArrayList<>();
 
-    private int affectedRows=0;
+    private int affectedRows = 0;
 
     private String errMsg = null;
 

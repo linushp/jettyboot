@@ -3,7 +3,6 @@ package cn.ubibi.jettyboot.framework.rest.impl.base;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
-import com.alibaba.fastjson.JSON;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +17,7 @@ public abstract class TextRespRenderAdapter implements ResponseRender {
         response.setContentType(getContentType() + "; charset=" + FrameworkConfig.getInstance().getCharset().name());
         response.setHeader("Content-Length", "" + contentBytes.length);
         response.setHeader("Server", FrameworkConfig.getInstance().getResponseServerName());
-        response.setHeader("Connection","keep-alive");
+        response.setHeader("Connection", "keep-alive");
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.getOutputStream().write(contentBytes);

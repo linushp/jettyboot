@@ -13,7 +13,7 @@ import java.util.List;
 public class DwrControllerScript {
 
 
-    public static String toDwrScript(String[] controllerArray, String exportAs,String controllerPrefix) {
+    public static String toDwrScript(String[] controllerArray, String exportAs, String controllerPrefix) {
 
         List<ApiModel> apis = getApiModelList(controllerArray);
 
@@ -21,17 +21,14 @@ public class DwrControllerScript {
 
         String functionJSONString = JSON.toJSONString(apis);
 
-        return toScript(controllerJSONString, functionJSONString, exportAs,controllerPrefix);
+        return toScript(controllerJSONString, functionJSONString, exportAs, controllerPrefix);
 
     }
 
 
+    private static List<ApiModel> getApiModelList(String[] controllerArray) {
 
-
-
-    private static List<ApiModel> getApiModelList(String[] controllerArray){
-
-        if (CollectionUtils.isEmpty(controllerArray)){
+        if (CollectionUtils.isEmpty(controllerArray)) {
             return new ArrayList<>();
         }
 
@@ -58,7 +55,7 @@ public class DwrControllerScript {
                         url = contextPath + url;
                     }
 
-                    if (!url.startsWith("/")){
+                    if (!url.startsWith("/")) {
                         url = "/" + url;
                     }
 
@@ -88,7 +85,7 @@ public class DwrControllerScript {
 
 
     //如果浏览器不支持Promise，返回一个非常简单的Promise，只支持一层then函数
-    private static String toScript(String controllers, String functions, String exportAs,String controllerPrefix) {
+    private static String toScript(String controllers, String functions, String exportAs, String controllerPrefix) {
         return "(function (exports) {\n" +
                 "\n" +
                 "\n" +
@@ -159,7 +156,7 @@ public class DwrControllerScript {
                 "    }\n" +
                 "    for (var i = 0; i < controllers.length; i++) {\n" +
                 "        var controllerName = controllers[i];\n" +
-                "        exports[\""+controllerPrefix+"\"+controllerName] = buildController(controllerName);\n" +
+                "        exports[\"" + controllerPrefix + "\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
                 "})(" + exportAs + ");";
     }

@@ -7,13 +7,13 @@ import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.jdbc.utils.SQLFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.dc.pr.PRError;
 
 import java.net.ConnectException;
 import java.sql.*;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataAccess {
 
@@ -371,8 +371,6 @@ public class DataAccess {
         }
 
     }
-
-
 
 
 }

@@ -8,7 +8,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JettyBootServer{
+public class JettyBootServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyBootServer.class);
 
@@ -28,18 +28,18 @@ public class JettyBootServer{
     private String controllerContext;
 
 
-    public JettyBootServer(){
+    public JettyBootServer() {
         this("/");
     }
 
 
-    public JettyBootServer(String controllerContext){
+    public JettyBootServer(String controllerContext) {
         this.controllerContext = controllerContext;
         LOGGER.info(bannerString);
     }
 
 
-    public JettyBootServer addContextHandler(ContextHandler contextHandler){
+    public JettyBootServer addContextHandler(ContextHandler contextHandler) {
         this.handlerCollection.addHandler(contextHandler);
         return this;
     }
@@ -50,13 +50,12 @@ public class JettyBootServer{
         addContextHandler(controllerContextHandler);
 
         String packageName = mainServerClass.getPackage().getName();
-        PackageScannerUtils.addByPackageScanner(packageName,controllerContextHandler,this);
+        PackageScannerUtils.addByPackageScanner(packageName, controllerContextHandler, this);
 
-        controllerContextHandler.addController(FrameworkConfig.getInstance().getDwrScriptPath(),new DefaultDwrScriptController());
+        controllerContextHandler.addController(FrameworkConfig.getInstance().getDwrScriptPath(), new DefaultDwrScriptController());
 
         return this;
     }
-
 
 
     public void listen(int port) throws Exception {

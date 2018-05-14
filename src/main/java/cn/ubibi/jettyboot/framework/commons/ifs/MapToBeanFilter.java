@@ -11,8 +11,9 @@ public interface MapToBeanFilter {
 
     /**
      * 从map中获取BeanField映射的值
+     *
      * @param beanField 类对象的字段类型
-     * @param map 总的数据集合
+     * @param map       总的数据集合
      * @return 字段对应的数据
      * @throws Exception
      */
@@ -20,9 +21,10 @@ public interface MapToBeanFilter {
 
     /**
      * 数据类型转换
-     * @param value1 字段对应的数据
+     *
+     * @param value1    字段对应的数据
      * @param beanField bean字段
-     * @param map 总的数据集合
+     * @param map       总的数据集合
      * @return
      * @throws Exception
      */

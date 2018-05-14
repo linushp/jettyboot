@@ -5,8 +5,8 @@ import cn.ubibi.jettyboot.framework.commons.CastJsonTypeUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
-import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
@@ -203,9 +203,6 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
         return null;
     }
-
-
-
 
 
     /**

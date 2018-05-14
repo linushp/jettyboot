@@ -6,15 +6,17 @@ import java.nio.charset.Charset;
 public class FrameworkConfig {
 
     private static FrameworkConfig instance = new FrameworkConfig();
-    private FrameworkConfig(){}
-    public static FrameworkConfig getInstance(){
+
+    private FrameworkConfig() {
+    }
+
+    public static FrameworkConfig getInstance() {
         return instance;
     }
 
 
-
     //DWR脚本文件的路径
-    private String dwrScriptPath="/script_dwr_controller";
+    private String dwrScriptPath = "/script_dwr_controller";
 
     //DwrController的路径前缀
     private String dwrPrefix = "/dwr_controller/";
@@ -27,13 +29,6 @@ public class FrameworkConfig {
 
     //HTTP Header 输出的Server字段
     private String responseServerName = "jetty_boot";
-
-
-
-
-
-
-
 
 
     public Charset getCharset() {

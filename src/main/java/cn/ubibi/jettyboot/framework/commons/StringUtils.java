@@ -1,7 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 
-
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class StringUtils {
     }
 
     public static String join(Collection collection, String flag) {
-        return join(collection,flag,null);
+        return join(collection, flag, null);
     }
 
 
@@ -139,7 +138,6 @@ public class StringUtils {
 
         return name;
     }
-
 
 
 }

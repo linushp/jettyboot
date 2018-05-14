@@ -8,5 +8,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface RequestParam {
     String value();
+
     String defaultValue() default "";
 }
