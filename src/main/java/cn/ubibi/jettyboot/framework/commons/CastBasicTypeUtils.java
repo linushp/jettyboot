@@ -324,6 +324,11 @@ public class CastBasicTypeUtils {
     }
 
 
+    /**
+     * 八种基本数据类型
+     * @param type 类型
+     * @return 是否是基本数据类型
+     */
     public static boolean isBasicType(Class type) {
         if (type == Integer.TYPE ||
                 type == Long.TYPE ||
