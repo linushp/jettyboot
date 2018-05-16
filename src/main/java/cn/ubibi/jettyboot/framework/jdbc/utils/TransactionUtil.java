@@ -12,13 +12,6 @@ public class TransactionUtil {
     private static ThreadLocal<SqlSession> localSqlSession = new ThreadLocal<>();
 
 
-    public static void beginTransaction(DataAccessObject dataAccessObject) throws SQLException {
-        ConnectionFactory connectionFactory = dataAccessObject.getDataAccess().getConnectionFactory();
-        beginTransaction(connectionFactory);
-    }
-
-
-
     public static void beginTransaction(ConnectionFactory connectionFactory) throws SQLException {
         Connection connection = connectionFactory.getConnection();
         connection.setAutoCommit(false);
