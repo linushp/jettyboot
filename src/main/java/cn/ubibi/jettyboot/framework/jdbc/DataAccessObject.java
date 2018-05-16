@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.jdbc;
 import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
+import cn.ubibi.jettyboot.framework.jdbc.model.SingleConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,6 @@ public class DataAccessObject<T> {
     protected String schemaName = "";
     protected DataAccess dataAccess;
 
-
     /**
      * 创建一个数据访问对象
      *
@@ -42,11 +42,17 @@ public class DataAccessObject<T> {
         this.dataAccess = new DataAccess(connectionFactory);
     }
 
+    @Deprecated
     public DataAccessObject(Class<T> clazz, String tableName, Connection connection) {
         this.clazz = clazz;
         this.tableName = tableName;
-        this.dataAccess = new DataAccess(connection);
+        this.dataAccess = new DataAccess(new SingleConnectionFactory(connection));
     }
+
+    public DataAccess getDataAccess(){
+        return this.dataAccess;
+    }
+
 
     /**
      * protected方法方便子类扩展
@@ -97,7 +103,7 @@ public class DataAccessObject<T> {
 
     public DataAccessObject<T> use(Connection connection) {
         DataAccessObject dao = (DataAccessObject) this.clone();
-        dao.dataAccess = new DataAccess(connection);
+        dao.dataAccess = new DataAccess(new SingleConnectionFactory(connection));
         return dao;
     }
 
@@ -282,7 +288,7 @@ public class DataAccessObject<T> {
      *
      * @param id bean id
      */
-    public UpdateResult deleteById(Object id) throws ConnectException {
+    public UpdateResult deleteById(Object id) throws Exception {
         return deleteByWhereSql("where `id`=?", id);
     }
 
@@ -304,18 +310,18 @@ public class DataAccessObject<T> {
      * @param whereSql  条件
      * @param whereArgs 参数
      */
-    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) throws ConnectException {
+    public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) throws Exception {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
         return dataAccess.update(sql, whereArgs);
     }
 
 
-    public UpdateResult updateById(Map<String, Object> newValues, Object id) throws ConnectException {
+    public UpdateResult updateById(Map<String, Object> newValues, Object id) throws Exception {
         return updateByWhereSql(newValues, "where `id` = ? ", id);
     }
 
 
-    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws ConnectException {
+    public UpdateResult updateByWhereSql(Map<String, Object> newValues, String whereSql, Object... whereArgs) throws Exception {
         if (!CollectionUtils.isEmpty(newValues)) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -337,7 +343,7 @@ public class DataAccessObject<T> {
     }
 
 
-    public UpdateResult insertObject(Map<String, Object> newValues) throws ConnectException {
+    public UpdateResult insertObject(Map<String, Object> newValues) throws Exception {
         if (!CollectionUtils.isEmpty(newValues)) {
 
             List[] keysValues = CollectionUtils.listKeyValues(newValues);
@@ -398,7 +404,7 @@ public class DataAccessObject<T> {
      * @param objectList 需要插入大对象
      * @return Update Result
      */
-    public UpdateResult batchInsertUsingLargeSQL(List<Map<String, Object>> objectList) throws ConnectException {
+    public UpdateResult batchInsertUsingLargeSQL(List<Map<String, Object>> objectList) throws Exception {
 
         objectList = CollectionUtils.removeEmptyMap(objectList);
 

@@ -2,13 +2,14 @@ package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlNdArgs;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.jdbc.utils.SQLFormatUtils;
+import cn.ubibi.jettyboot.framework.jdbc.utils.TransactionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.ConnectException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,35 +20,23 @@ public class DataAccess {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAccess.class);
 
-
     private ConnectionFactory connectionFactory;
-    private Connection connection;
-    private boolean autoClose;
 
     public DataAccess(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
-        this.autoClose = true;
     }
 
-    public DataAccess(Connection connection) {
-        this.connection = connection;
-        this.autoClose = false;
+    public ConnectionFactory getConnectionFactory(){
+        return this.connectionFactory;
     }
 
-
-    public static DataAccess use(Connection connection) {
-        return new DataAccess(connection);
-    }
-
-
-    public UpdateResult update(String sql, List<Object> args) throws ConnectException {
+    public UpdateResult update(String sql, List<Object> args) throws Exception {
         Object[] objects = args.toArray(new Object[args.size()]);
         return update(sql, objects);
     }
 
-
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
-    public UpdateResult update(String sql, Object... args) throws ConnectException {
+    public UpdateResult update(String sql, Object... args) throws Exception {
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
@@ -62,9 +51,13 @@ public class DataAccess {
         ResultSet generatedKeyResultSet = null;
         UpdateResult updateResult = new UpdateResult();
 
+        SqlSession sqlSession = getSqlSession();
+
+
         try {
             LOGGER.info("update sql : " + sql);
-            connection = getConnection();
+            connection = sqlSession.getConnection();
+
             preparedStatement = connection.prepareStatement(sql);
 
             for (int i = 0; i < args.length; i++) {
@@ -88,15 +81,11 @@ public class DataAccess {
             }
             return updateResult;
 
-        } catch (java.net.ConnectException ee) {
-            throw ee;
         } catch (Exception e) {
-            LOGGER.debug("update error ", e);
-            updateResult.setErrMsg(e.getMessage());
+            throw e;
         } finally {
-            release(generatedKeyResultSet, preparedStatement, connection);
+            release(generatedKeyResultSet, preparedStatement, sqlSession);
         }
-        return updateResult;
     }
 
 
@@ -131,9 +120,10 @@ public class DataAccess {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
 
+        SqlSession sqlSession = getSqlSession();
         try {
             //1. 得到结果集
-            connection = getConnection();
+            connection = sqlSession.getConnection();
             preparedStatement = connection.prepareStatement(sql);
 
             for (int i = 0; i < args.length; i++) {
@@ -148,7 +138,7 @@ public class DataAccess {
         } catch (Exception ex) {
             throw ex;
         } finally {
-            release(resultSet, preparedStatement, connection);
+            release(resultSet, preparedStatement, sqlSession);
         }
 
         //2. 取得结果
@@ -220,10 +210,11 @@ public class DataAccess {
 
         LOGGER.info("query sql : " + sql);
 
+        SqlSession sqlSession = getSqlSession();
 
         try {
             //1. 得到结果集
-            connection = getConnection();
+            connection = sqlSession.getConnection();
             preparedStatement = connection.prepareStatement(sql);
 
             for (int i = 0; i < args.length; i++) {
@@ -238,7 +229,7 @@ public class DataAccess {
         } catch (Exception e) {
             throw e;
         } finally {
-            release(resultSet, preparedStatement, connection);
+            release(resultSet, preparedStatement, sqlSession);
         }
 
         return list;
@@ -259,10 +250,11 @@ public class DataAccess {
         ResultSet resultSet = null;
 
         LOGGER.info("query sql : " + sql);
+        SqlSession sqlSession = getSqlSession();
 
         try {
             //1. 得到结果集
-            connection = getConnection();
+            connection = sqlSession.getConnection();
             preparedStatement = connection.createStatement();
             resultSet = preparedStatement.executeQuery(sql);
 
@@ -272,7 +264,7 @@ public class DataAccess {
         } catch (Exception e) {
             throw e;
         } finally {
-            release(resultSet, preparedStatement, connection);
+            release(resultSet, preparedStatement, sqlSession);
         }
 
         return list;
@@ -327,19 +319,20 @@ public class DataAccess {
     }
 
 
-    private Connection getConnection() throws Exception {
-        if (this.connection != null) {
-            return this.connection;
-        }
+    private SqlSession getSqlSession() throws Exception {
 
+        SqlSession connection1 = TransactionUtil.getSqlSession();
+        if (connection1 != null) {
+            return connection1;
+        }
 
         Connection connection = connectionFactory.getConnection();
         connection.setAutoCommit(true);
-        return connection;
+        return new SqlSession(connection, true);
     }
 
 
-    private void release(ResultSet resultSet, Statement statement, Connection connection) {
+    private void release(ResultSet resultSet, Statement statement, SqlSession connection) throws SQLException {
 
         if (resultSet != null) {
             try {
@@ -357,19 +350,15 @@ public class DataAccess {
             }
         }
 
-
-        //使用Connection创建的实例不能自动关闭
-        //只能自动关闭dataSource创建的connection
-        if (this.autoClose) {
-            if (connection != null) {
+        if (connection != null) {
+            if (connection.isAutoClose()){
                 try {
-                    connection.close();
+                    connection.getConnection().close();
                 } catch (SQLException e) {
                     LOGGER.info("Connection close error");
                 }
             }
         }
-
     }
 
 
