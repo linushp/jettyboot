@@ -4,6 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.ifs.BeanToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.MapToBeanFilter;
 import cn.ubibi.jettyboot.framework.commons.impl.DefaultBeanToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.impl.DefaultMapToBeanFilter;
+import cn.ubibi.jettyboot.framework.commons.impl.IgnoreNullToMapFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,17 +17,17 @@ public class BeanUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanUtils.class);
 
-    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList) throws IllegalAccessException {
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList) throws Exception {
         return beanListToMapList(beanList, false);
     }
 
 
-    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, boolean isUnderlineKey) throws IllegalAccessException {
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, boolean isUnderlineKey) throws Exception {
         return beanListToMapList(beanList, new DefaultBeanToMapFilter(isUnderlineKey));
     }
 
 
-    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, BeanToMapFilter beanToMapFilter) throws IllegalAccessException {
+    public static List<Map<String, Object>> beanListToMapList(List<Object> beanList, BeanToMapFilter beanToMapFilter) throws Exception {
 
         if (CollectionUtils.isEmpty(beanList)) {
             return new ArrayList<>();
@@ -43,12 +44,12 @@ public class BeanUtils {
         return result;
     }
 
-    public static Map<String, Object> beanToMap(Object bean) throws IllegalAccessException {
+    public static Map<String, Object> beanToMap(Object bean) throws Exception {
         return beanToMap(bean, false);
     }
 
 
-    public static Map<String, Object> beanToMap(Object bean, boolean isUnderlineKey) throws IllegalAccessException {
+    public static Map<String, Object> beanToMap(Object bean, boolean isUnderlineKey) throws Exception {
         return beanToMap(bean, new DefaultBeanToMapFilter(isUnderlineKey));
     }
 
@@ -60,7 +61,7 @@ public class BeanUtils {
      * @return map对象
      * @throws IllegalAccessException
      */
-    public static Map<String, Object> beanToMap(Object bean, BeanToMapFilter beanToMapFilter) throws IllegalAccessException {
+    public static Map<String, Object> beanToMap(Object bean, BeanToMapFilter beanToMapFilter) throws Exception {
         if (bean == null) {
             return null;
         }
@@ -69,7 +70,8 @@ public class BeanUtils {
         Map<String, Object> map = new HashMap<>(beanFields.size());
 
         for (BeanField beanField : beanFields) {
-            if (beanToMapFilter.isInclude(beanField)) {
+
+            if (beanToMapFilter.isInclude(bean,beanField)) {
 
                 String mapKey = beanToMapFilter.getMapKey(beanField);
 
@@ -193,5 +195,17 @@ public class BeanUtils {
         } catch (IllegalAccessException e) {
             LOGGER.error("", e);
         }
+    }
+
+    public static <T> Map<String, Object> beanToMap(T entity, boolean isUnderlineKey, boolean isIgnoreNull) throws Exception {
+
+        BeanToMapFilter beanFieldFilter;
+        if (isIgnoreNull) {
+            beanFieldFilter = new IgnoreNullToMapFilter(isUnderlineKey);
+        } else {
+            beanFieldFilter = new DefaultBeanToMapFilter(isUnderlineKey);
+        }
+
+        return beanToMap(entity,beanFieldFilter);
     }
 }

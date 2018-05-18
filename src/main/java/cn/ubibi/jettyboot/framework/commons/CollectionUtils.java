@@ -2,7 +2,9 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
+import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -92,18 +94,16 @@ public class CollectionUtils {
     }
 
 
-    public static List<String> toListAddAll(String[] urls1, String[] urls2) {
+    //二维数组转一维数组
+    public static List<String> toListAddAll(String[]... array2) {
         List<String> result = new ArrayList<>();
-
-        if (!isEmpty(urls1)) {
-            for (String s : urls1) {
-                result.add(s);
-            }
-        }
-
-        if (!isEmpty(urls2)) {
-            for (String s2 : urls2) {
-                result.add(s2);
+        if (!isEmpty(array2)) {
+            for (String[] arr1 : array2) {
+                if (!isEmpty(arr1)) {
+                    for (String obj : arr1) {
+                        result.add(obj);
+                    }
+                }
             }
         }
         return result;
@@ -237,5 +237,18 @@ public class CollectionUtils {
         }
 
         return null;
+    }
+
+    //创建list的快捷方式
+    public static List toObjectList(Object... objects) {
+        if (objects == null) {
+            return null;
+        }
+
+        List list = new ArrayList<>();
+        for (Object object : objects) {
+            list.add(object);
+        }
+        return list;
     }
 }

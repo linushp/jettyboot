@@ -8,7 +8,7 @@ import cn.ubibi.jettyboot.framework.commons.BeanField;
  */
 public interface BeanToMapFilter {
 
-    boolean isInclude(BeanField beanField);
+    boolean isInclude(Object value,BeanField beanField) throws Exception;
 
     String getMapKey(BeanField beanField);
 

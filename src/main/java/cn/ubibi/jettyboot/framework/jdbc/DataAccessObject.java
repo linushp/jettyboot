@@ -1,7 +1,10 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
+import cn.ubibi.jettyboot.framework.commons.ifs.BeanToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
+import cn.ubibi.jettyboot.framework.commons.impl.DefaultBeanToMapFilter;
+import cn.ubibi.jettyboot.framework.commons.impl.IgnoreNullToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.SingleConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
@@ -341,6 +344,29 @@ public class DataAccessObject<T> {
         }
         return new UpdateResult("params is empty");
     }
+
+
+
+
+    public UpdateResult insertObject(T entity) throws Exception {
+        return insertObject(entity,true,true);
+    }
+
+
+    /**
+     * 保存对象
+     *
+     * @param entity         要保存的对象
+     * @param isUnderlineKey 生成SQL时，自动将驼峰字段名转换为下划线
+     * @param isIgnoreNull   忽略值为null的字段
+     * @return
+     * @throws Exception
+     */
+    public UpdateResult insertObject(T entity, boolean isUnderlineKey, boolean isIgnoreNull) throws Exception {
+        Map<String, Object> map = BeanUtils.beanToMap(entity, isUnderlineKey, isIgnoreNull);
+        return insertObject(map);
+    }
+
 
 
     public UpdateResult insertObject(Map<String, Object> newValues) throws Exception {
