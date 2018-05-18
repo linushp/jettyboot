@@ -52,7 +52,7 @@ public class DataAccessObject<T> {
         this.dataAccess = new DataAccess(new SingleConnectionFactory(connection));
     }
 
-    public DataAccess getDataAccess(){
+    public DataAccess getDataAccess() {
         return this.dataAccess;
     }
 
@@ -173,6 +173,12 @@ public class DataAccessObject<T> {
         return findByWhere(whereSqlAndArgs.whereSql, whereSqlAndArgs.whereArgs);
     }
 
+    public List<T> findByExample(T example) throws Exception {
+        Map<String, Object> exampleMap = BeanUtils.beanToMap(example, true, true);
+        return findByExample(exampleMap);
+    }
+
+
     public List<T> findByExample(Map<String, Object> example) throws Exception {
         return findByWhere(toWhereSqlAndArgs(example));
     }
@@ -186,6 +192,15 @@ public class DataAccessObject<T> {
         return findPageByExample(pageNo, pageSize, example, "");
     }
 
+    public Page<T> findPageByExample(int pageNo, int pageSize, T example) throws Exception {
+        Map<String, Object> exampleMap = BeanUtils.beanToMap(example, true, true);
+        return findPageByExample(pageNo, pageSize, exampleMap, "");
+    }
+
+    public Page<T> findPageByExample(int pageNo, int pageSize, T example, String orderBy) throws Exception {
+        Map<String, Object> exampleMap = BeanUtils.beanToMap(example, true, true);
+        return findPageByExample(pageNo, pageSize, exampleMap, orderBy);
+    }
 
     public Page<T> findPageByExample(int pageNo, int pageSize, Map<String, Object> example, String orderBy) throws Exception {
         WhereSqlAndArgs mm = toWhereSqlAndArgs(example);
@@ -303,7 +318,7 @@ public class DataAccessObject<T> {
      * @return 操作结果
      */
     public UpdateResult deleteByExample(T entity) throws Exception {
-        Map<String,Object> example =  BeanUtils.beanToMap(entity, true, true);
+        Map<String, Object> example = BeanUtils.beanToMap(entity, true, true);
         return deleteByExample(example);
     }
 
@@ -364,10 +379,8 @@ public class DataAccessObject<T> {
     }
 
 
-
-
     public UpdateResult insertObject(T entity) throws Exception {
-        return insertObject(entity,true,true);
+        return insertObject(entity, true, true);
     }
 
 
@@ -384,7 +397,6 @@ public class DataAccessObject<T> {
         Map<String, Object> map = BeanUtils.beanToMap(entity, isUnderlineKey, isIgnoreNull);
         return insertObject(map);
     }
-
 
 
     public UpdateResult insertObject(Map<String, Object> newValues) throws Exception {
