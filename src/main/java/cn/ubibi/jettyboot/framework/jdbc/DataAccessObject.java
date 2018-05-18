@@ -299,6 +299,18 @@ public class DataAccessObject<T> {
     /**
      * 根据条件删除
      *
+     * @param entity 查询条件,不包括null值，并自动驼峰转下划线
+     * @return 操作结果
+     */
+    public UpdateResult deleteByExample(T entity) throws Exception {
+        Map<String,Object> example =  BeanUtils.beanToMap(entity, true, true);
+        return deleteByExample(example);
+    }
+
+
+    /**
+     * 根据条件删除
+     *
      * @param example 查询条件
      * @return 操作结果
      */
@@ -316,6 +328,12 @@ public class DataAccessObject<T> {
     public UpdateResult deleteByWhereSql(String whereSql, Object... whereArgs) throws Exception {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
         return dataAccess.update(sql, whereArgs);
+    }
+
+
+    public UpdateResult updateById(T entity, Object id) throws Exception {
+        Map<String, Object> newValues = BeanUtils.beanToMap(entity, true, true);
+        return updateByWhereSql(newValues, "where `id` = ? ", id);
     }
 
 
