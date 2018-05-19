@@ -173,7 +173,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             if (methodArgumentResolver != null) {
                 object = methodArgumentResolver.resolveArgument(methodArgument, httpParsedRequest);
             } else {
-                object = getMethodParamsObject(methodArgument, httpParsedRequest, response);
+                object = getMethodParamObjectByAnnotation(methodArgument, httpParsedRequest, response);
             }
 
             //使用DWR的参数来补充
@@ -232,7 +232,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
      * @return
      * @throws IOException
      */
-    private Object getMethodParamsObject(MethodArgument methodArgument, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
+    private Object getMethodParamObjectByAnnotation(MethodArgument methodArgument, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
 
         Class typeClazz = (Class) methodArgument.getRawType();
