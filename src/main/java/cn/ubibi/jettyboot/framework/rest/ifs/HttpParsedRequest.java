@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface HttpParsedRequest extends HttpServletRequest {
 
-    void init(HttpServletRequest httpServletRequest, String matchedControllerPat);
-
     String getPathVariable(String name);
 
     String getCookieValue(String cookieName);

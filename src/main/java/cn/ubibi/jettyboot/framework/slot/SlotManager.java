@@ -2,7 +2,10 @@ package cn.ubibi.jettyboot.framework.slot;
 
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequestFactory;
+import cn.ubibi.jettyboot.framework.rest.ifs.HttpPathComparator;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpParsedRequestFactory;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpPathComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +22,11 @@ public class SlotManager {
     }
 
 
-    private HttpParsedRequestFactory httpParsedRequestFactory;
-    private List<ControllerAspect> controllerAspects = new ArrayList<>();
-    private List<MethodArgumentResolver> methodArgumentResolverList = new ArrayList<>();
+    private final List<ControllerAspect> controllerAspects = new ArrayList<>();
+    private final List<MethodArgumentResolver> methodArgumentResolverList = new ArrayList<>();
+    private HttpPathComparator httpPathComparator = new DefaultHttpPathComparator();
+    private HttpParsedRequestFactory httpParsedRequestFactory = new DefaultHttpParsedRequestFactory();
+
 
 
     public List<MethodArgumentResolver> getMethodArgumentResolverList() {
@@ -32,11 +37,20 @@ public class SlotManager {
         return controllerAspects;
     }
 
+
     public void setHttpParsedRequestFactory(HttpParsedRequestFactory httpParsedRequestFactory) {
         this.httpParsedRequestFactory = httpParsedRequestFactory;
     }
 
     public HttpParsedRequestFactory getHttpParsedRequestFactory() {
         return httpParsedRequestFactory;
+    }
+
+    public void setHttpPathComparator(HttpPathComparator httpPathComparator) {
+        this.httpPathComparator = httpPathComparator;
+    }
+
+    public HttpPathComparator getHttpPathComparator() {
+        return httpPathComparator;
     }
 }

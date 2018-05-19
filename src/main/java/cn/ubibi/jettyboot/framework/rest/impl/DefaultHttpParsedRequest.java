@@ -25,7 +25,8 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     protected byte[] _requestBody = null;
 
 
-    public void init(HttpServletRequest httpServletRequest, String matchedControllerPat) {
+
+    public DefaultHttpParsedRequest(HttpServletRequest httpServletRequest, String matchedControllerPat) {
         this.httpServletRequest = httpServletRequest;
         this.matchedControllerPath = matchedControllerPat;
         this.pathVariable = parsePathVariable();

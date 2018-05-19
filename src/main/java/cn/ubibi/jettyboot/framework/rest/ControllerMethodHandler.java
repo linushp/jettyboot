@@ -61,11 +61,14 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             supportRequestMethod = "post";
         }
 
-
         if (supportRequestMethod.equalsIgnoreCase(request.getMethod())) {
-            String reqPath = request.getPathInfo();
-            return isHandleMethodPath(targetPath, reqPath);
+            String requestPathInfo = request.getPathInfo();
+            HttpPathComparator httpPathComparator = SlotManager.getInstance().getHttpPathComparator();
+            if (httpPathComparator.isMatch(targetPath, requestPathInfo)) {
+                return true;
+            }
         }
+
 
         return false;
     }
@@ -81,8 +84,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         try {
 
 
-            httpParsedRequest = createHttpParsedRequest();
-            httpParsedRequest.init(request, targetPath);
+            //解析HTTP请求
+            httpParsedRequest = createHttpParsedRequest(controller, method, request, targetPath);
 
 
             //Aspect前置
@@ -126,18 +129,15 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private HttpParsedRequest createHttpParsedRequest() {
+    private HttpParsedRequest createHttpParsedRequest(Object controller, Method method, HttpServletRequest request, String targetPath) {
         HttpParsedRequestFactory httpParsedRequestFactory = SlotManager.getInstance().getHttpParsedRequestFactory();
-        if (httpParsedRequestFactory != null) {
-            return httpParsedRequestFactory.createHttpParsedRequest();
-        }
-        return new DefaultHttpParsedRequest();
+        return httpParsedRequestFactory.createHttpParsedRequest(controller, method, request, targetPath);
     }
 
 
     private Object[] getMethodParamsObjects(Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
-        boolean isDWR = "dwr".equals(supportRequestMethod);
+        boolean isDWR = this.isDWR();
         JSONArray dwrArgArray = null;
         if (isDWR) {
             Charset requestBodyCharset = FrameworkConfig.getInstance().getRequestBodyCharset();
@@ -160,14 +160,14 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         List<Object> objects = new ArrayList<>();
 
-        for (int i = 0; i < paramsCount; i++) {
+        for (int argIndex = 0; argIndex < paramsCount; argIndex++) {
 
-            Type type = paramsTypes[i];
-            Annotation[] annotations = paramAnnotations[i];
+            Type type = paramsTypes[argIndex];
+            Annotation[] annotations = paramAnnotations[argIndex];
 
-            MethodArgument methodArgument = new MethodArgument(method, type, annotations);
+            MethodArgument methodArgument = new MethodArgument(method, type, annotations, argIndex, isDWR, dwrArgArray);
 
-            Object object;
+            Object object = null;
 
             MethodArgumentResolver methodArgumentResolver = findMethodArgumentResolver(methodArgument);
             if (methodArgumentResolver != null) {
@@ -178,7 +178,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             //使用DWR的参数来补充
             if (object == null && isDWR) {
-                object = getDwrMethodParamObject(methodArgument, dwrArgArray, i);
+                object = getDwrMethodParamObject(methodArgument, dwrArgArray, argIndex);
             }
 
 
@@ -332,44 +332,6 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
 
         return object;
-    }
-
-
-    private boolean isHandleMethodPath(String targetPath, String reqPath) {
-        if (targetPath.equals(reqPath)) {
-            return true;
-        }
-
-        //   /user/abc
-        //   /user/:id
-        //   /user/23332
-        List<String> path1Array = CollectionUtils.removeEmptyString(targetPath.split("/"));
-        List<String> path2Array = CollectionUtils.removeEmptyString(reqPath.split("/"));
-        if (path1Array.size() != path2Array.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < path1Array.size(); i++) {
-            String pp1 = path1Array.get(i);
-            String pp2 = path2Array.get(i);
-            if (!isPathEquals(pp1, pp2)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean isPathEquals(String configPath, String pp2) {
-        if (configPath.equals(pp2)) {
-            return true;
-        }
-
-        if (configPath.startsWith(":")) {
-            return true;
-        }
-
-        return false;
     }
 
 

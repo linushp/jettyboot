@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest.model;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import com.alibaba.fastjson.JSONArray;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,12 +12,18 @@ public class MethodArgument {
     private Method method;
     private Type type;
     private Annotation[] annotations;
+    private boolean dwr;
+    private int argIndex;
+    private JSONArray dwrJSONArray;
 
 
-    public MethodArgument(Method method, Type type, Annotation[] annotations) {
+    public MethodArgument(Method method, Type type, Annotation[] annotations , int argIndex, boolean isDWR, JSONArray dwrJSONArray) {
         this.method = method;
         this.type = type;
         this.annotations = annotations;
+        this.dwr = isDWR;
+        this.argIndex = argIndex;
+        this.dwrJSONArray = dwrJSONArray;
     }
 
 
@@ -60,5 +67,17 @@ public class MethodArgument {
             }
         }
         return false;
+    }
+
+    public boolean isDwr() {
+        return this.dwr;
+    }
+
+    public int getArgIndex() {
+        return argIndex;
+    }
+
+    public JSONArray getDwrJSONArray() {
+        return dwrJSONArray;
     }
 }
