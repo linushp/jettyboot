@@ -28,7 +28,6 @@ public class SlotManager {
     private HttpParsedRequestFactory httpParsedRequestFactory = new DefaultHttpParsedRequestFactory();
 
 
-
     public List<MethodArgumentResolver> getMethodArgumentResolverList() {
         return methodArgumentResolverList;
     }
@@ -39,6 +38,7 @@ public class SlotManager {
 
 
     public void setHttpParsedRequestFactory(HttpParsedRequestFactory httpParsedRequestFactory) {
+        assertNotNull(httpParsedRequestFactory);
         this.httpParsedRequestFactory = httpParsedRequestFactory;
     }
 
@@ -47,10 +47,17 @@ public class SlotManager {
     }
 
     public void setHttpPathComparator(HttpPathComparator httpPathComparator) {
+        assertNotNull(httpPathComparator);
         this.httpPathComparator = httpPathComparator;
     }
 
     public HttpPathComparator getHttpPathComparator() {
         return httpPathComparator;
+    }
+
+    private void assertNotNull(Object object) {
+        if (object == null) {
+            throw new NullPointerException("params can not null");
+        }
     }
 }
