@@ -25,7 +25,6 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     protected byte[] _requestBody = null;
 
 
-
     public DefaultHttpParsedRequest(HttpServletRequest httpServletRequest, String matchedControllerPat) {
         this.httpServletRequest = httpServletRequest;
         this.matchedControllerPath = matchedControllerPat;
@@ -159,14 +158,28 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
         String pathInfo = httpServletRequest.getPathInfo();
         String[] pathInfoArray = pathInfo.split("/");
         String[] targetPathArray = matchedControllerPath.split("/");
+
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < targetPathArray.length; i++) {
             String p1 = targetPathArray[i];
             String p2 = pathInfoArray[i];
+
+            /**
+             * 支持两种形式
+             * @see DefaultHttpPathComparator
+             */
             if (p1.startsWith(":")) {
-                String k = p1.replaceFirst(":", "");
+                String k = p1.replace(':', ' ');
+                k = k.trim();
                 map.put(k, p2);
             }
+            else if (p1.startsWith("{") && p1.endsWith("}")) {
+                String k = p1.replace('{', ' ').replace('}', ' ');
+                k = k.trim();
+                map.put(k, p2);
+            }
+
+
         }
         return map;
     }

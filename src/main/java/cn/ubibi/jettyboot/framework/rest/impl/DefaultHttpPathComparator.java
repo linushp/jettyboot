@@ -16,6 +16,7 @@ public class DefaultHttpPathComparator implements HttpPathComparator {
 
         //   /user/abc
         //   /user/:id
+        //   /user/{name}/3232
         //   /user/23332
         List<String> path1Array = CollectionUtils.removeEmptyString(targetPath.split("/"));
         List<String> path2Array = CollectionUtils.removeEmptyString(requestPathInfo.split("/"));
@@ -34,13 +35,17 @@ public class DefaultHttpPathComparator implements HttpPathComparator {
         return true;
     }
 
+
     private boolean isPathEquals(String pp1, String pp2) {
         if (pp1.equals(pp2)) {
             return true;
         }
 
-        //支持两种形式的
-        if (pp1.startsWith(":")) {
+        /**
+         * 支持两种形式的
+         * @see DefaultHttpParsedRequest
+         */
+        if (pp1.startsWith(":") || (pp1.startsWith("{") && pp1.endsWith("}"))) {
             return true;
         }
 
