@@ -1,7 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpParsedRequest;
 import cn.ubibi.jettyboot.framework.slot.SlotManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
