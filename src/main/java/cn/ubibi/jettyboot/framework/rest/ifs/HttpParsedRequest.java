@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface HttpParsedRequest extends HttpServletRequest {
 
-    public void init(HttpServletRequest httpServletRequest, String matchedControllerPat);
+    void init(HttpServletRequest httpServletRequest, String matchedControllerPat);
 
     String getPathVariable(String name);
 
