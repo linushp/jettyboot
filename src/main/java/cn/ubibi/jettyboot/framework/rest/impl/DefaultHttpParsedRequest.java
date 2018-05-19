@@ -21,7 +21,7 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     protected String matchedControllerPath;
     protected HttpServletRequest httpServletRequest;
     protected Map<String, String> pathVariable;
-    protected Map<String, Object> aspectVariable = new HashMap<>();
+    protected Map<String, Object> aspectVariable;
     protected byte[] _requestBody = null;
 
 
@@ -29,6 +29,7 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
         this.httpServletRequest = httpServletRequest;
         this.matchedControllerPath = matchedControllerPat;
         this.pathVariable = parsePathVariable();
+        this.aspectVariable = new HashMap<>();
     }
 
 
