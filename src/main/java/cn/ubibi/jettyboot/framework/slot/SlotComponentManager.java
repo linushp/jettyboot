@@ -10,11 +10,11 @@ import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpPathComparator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotManager {
+public class SlotComponentManager {
 
-    private static final SlotManager instance = new SlotManager();
+    private static final SlotComponentManager instance = new SlotComponentManager();
 
-    public static SlotManager getInstance() {
+    public static SlotComponentManager getInstance() {
         return instance;
     }
 

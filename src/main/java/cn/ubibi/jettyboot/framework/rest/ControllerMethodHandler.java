@@ -1,7 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.slot.SlotManager;
+import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
@@ -62,7 +62,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         if (supportRequestMethod.equalsIgnoreCase(request.getMethod())) {
             String requestPathInfo = request.getPathInfo();
-            HttpPathComparator httpPathComparator = SlotManager.getInstance().getHttpPathComparator();
+            HttpPathComparator httpPathComparator = SlotComponentManager.getInstance().getHttpPathComparator();
             if (httpPathComparator.isMatch(targetPath, requestPathInfo)) {
                 return true;
             }
@@ -76,7 +76,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     //处理请求
     void doHandleRequest(Object controller, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        List<ControllerAspect> methodWrappers = SlotManager.getInstance().getControllerAspects();
+        List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects();
 
         HttpParsedRequest httpParsedRequest;
         Object invokeResult;
@@ -129,7 +129,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
     private HttpParsedRequest createHttpParsedRequest(Object controller, Method method, HttpServletRequest request, String targetPath) {
-        HttpParsedRequestFactory httpParsedRequestFactory = SlotManager.getInstance().getHttpParsedRequestFactory();
+        HttpParsedRequestFactory httpParsedRequestFactory = SlotComponentManager.getInstance().getHttpParsedRequestFactory();
         return httpParsedRequestFactory.createHttpParsedRequest(controller, method, request, targetPath);
     }
 
@@ -211,7 +211,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {
 
-        List<MethodArgumentResolver> methodArgumentResolvers = SlotManager.getInstance().getMethodArgumentResolverList();
+        List<MethodArgumentResolver> methodArgumentResolvers = SlotComponentManager.getInstance().getMethodArgumentResolverList();
 
         for (MethodArgumentResolver resolver : methodArgumentResolvers) {
             if (resolver.isSupport(methodArgument)) {
