@@ -6,15 +6,12 @@ import cn.ubibi.jettyboot.framework.rest.ifs.HttpPathComparator;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpParsedRequestFactory;
 import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpPathComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SlotManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SlotManager.class);
     private static final SlotManager instance = new SlotManager();
 
     public static SlotManager getInstance() {
