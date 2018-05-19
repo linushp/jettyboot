@@ -3,10 +3,13 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpPathComparator;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class DefaultHttpPathComparator implements HttpPathComparator {
 
+    //提高对象重复利用
+    private static final HashMap<String, List<String>> targetPathSplitCache = new HashMap<>();
 
     @Override
     public boolean isMatch(String targetPath, String requestPathInfo) {
@@ -18,7 +21,7 @@ public class DefaultHttpPathComparator implements HttpPathComparator {
         //   /user/:id
         //   /user/{name}/3232
         //   /user/23332
-        List<String> path1Array = CollectionUtils.removeEmptyString(targetPath.split("/"));
+        List<String> path1Array = splitTargetPath(targetPath);
         List<String> path2Array = CollectionUtils.removeEmptyString(requestPathInfo.split("/"));
         if (path1Array.size() != path2Array.size()) {
             return false;
@@ -33,6 +36,16 @@ public class DefaultHttpPathComparator implements HttpPathComparator {
         }
 
         return true;
+    }
+
+
+    private List<String> splitTargetPath(String targetPath) {
+        List<String> result = targetPathSplitCache.get(targetPath);
+        if (result == null) {
+            result = CollectionUtils.removeEmptyString(targetPath.split("/"));
+            targetPathSplitCache.put(targetPath, result);
+        }
+        return result;
     }
 
 
