@@ -1,17 +1,14 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.commons.CastBasicTypeUtils;
-import cn.ubibi.jettyboot.framework.commons.CastJsonTypeUtils;
-import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
-import cn.ubibi.jettyboot.framework.commons.StringUtils;
+import cn.ubibi.jettyboot.framework.commons.*;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpParsedRequest;
+import cn.ubibi.jettyboot.framework.slot.SlotManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
-import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
-import cn.ubibi.jettyboot.framework.rest.ifs.RequestParser;
-import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
+import cn.ubibi.jettyboot.framework.rest.ifs.*;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
 import javax.servlet.ServletRequest;
@@ -22,6 +19,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class ControllerMethodHandler implements Comparable<ControllerMethodHandler> {
@@ -30,26 +28,20 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private String supportRequestMethod;
     private Method method;
 
-    private List<MethodArgumentResolver> methodArgumentResolvers;
-    private List<ControllerAspect> requestAspectList;
 
     private Class<?> controllerClazz;
     private String controllerClazzSimpleName;
 
 
-    ControllerMethodHandler(Class<?> controllerClazz, String methodPath, String supportRequestMethod, String classPath, Method method, List<ControllerAspect> methodAspectList, List<MethodArgumentResolver> methodArgumentResolvers) {
+    ControllerMethodHandler(Class<?> controllerClazz, String methodPath, String supportRequestMethod, String classPath, Method method) {
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
-        this.methodArgumentResolvers = methodArgumentResolvers;
-        this.requestAspectList = methodAspectList;
+
         this.controllerClazz = controllerClazz;
         this.controllerClazzSimpleName = controllerClazz.getSimpleName();
     }
 
-    public Class<?> getControllerClazz() {
-        return controllerClazz;
-    }
 
     public String getControllerClazzSimpleName() {
         return controllerClazzSimpleName;
@@ -82,21 +74,24 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     //处理请求
     void doHandleRequest(Object controller, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        List<ControllerAspect> methodWrappers = SlotManager.getInstance().getControllerAspects();
+
+        HttpParsedRequest httpParsedRequest;
         Object invokeResult;
         try {
 
-            List<ControllerAspect> methodWrappers = this.requestAspectList;
 
-            ControllerRequest jbRequest = ControllerRequest.getInstance(request, response, targetPath);
+            httpParsedRequest = createHttpParsedRequest();
+            httpParsedRequest.init(request, targetPath);
+
 
             //Aspect前置
             for (ControllerAspect methodWrapper : methodWrappers) {
-                methodWrapper.invokeBefore(method, jbRequest);
+                methodWrapper.beforeInvoke(method, httpParsedRequest);
             }
 
-
             //准备参数
-            Object[] paramsObjects = getMethodParamsObjects(method, jbRequest, request, response);
+            Object[] paramsObjects = getMethodParamsObjects(method, httpParsedRequest, response);
 
             //方法调用
             invokeResult = method.invoke(controller, paramsObjects);
@@ -104,7 +99,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             //Aspect后置
             for (ControllerAspect methodWrapper : methodWrappers) {
-                methodWrapper.invokeAfter(method, jbRequest, invokeResult);
+                methodWrapper.afterInvoke(method, httpParsedRequest, invokeResult, response);
             }
 
 
@@ -121,15 +116,35 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         } else {
             new JsonRender(invokeResult).doRender(request, response);
         }
+
+
+        //Aspect后置
+        for (ControllerAspect methodWrapper : methodWrappers) {
+            methodWrapper.afterRender(method, httpParsedRequest, invokeResult, response);
+        }
+
     }
 
 
-    private Object[] getMethodParamsObjects(Method method, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private HttpParsedRequest createHttpParsedRequest() {
+        HttpParsedRequestFactory httpParsedRequestFactory = SlotManager.getInstance().getHttpParsedRequestFactory();
+        if (httpParsedRequestFactory != null) {
+            return httpParsedRequestFactory.createHttpParsedRequest();
+        }
+        return new DefaultHttpParsedRequest();
+    }
+
+
+    private Object[] getMethodParamsObjects(Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
         boolean isDWR = "dwr".equals(supportRequestMethod);
         JSONArray dwrArgArray = null;
         if (isDWR) {
-            dwrArgArray = jbRequest.getRequestBodyArray();
+            Charset requestBodyCharset = FrameworkConfig.getInstance().getRequestBodyCharset();
+            String jsonString = httpParsedRequest.getRequestBodyAsString(requestBodyCharset);
+            if (!StringUtils.isEmpty(jsonString)) {
+                dwrArgArray = JSON.parseArray(jsonString);
+            }
         }
 
 
@@ -156,9 +171,9 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             MethodArgumentResolver methodArgumentResolver = findMethodArgumentResolver(methodArgument);
             if (methodArgumentResolver != null) {
-                object = methodArgumentResolver.resolveArgument(methodArgument, jbRequest);
+                object = methodArgumentResolver.resolveArgument(methodArgument, httpParsedRequest);
             } else {
-                object = getMethodParamsObject(methodArgument, jbRequest, request, response);
+                object = getMethodParamsObject(methodArgument, httpParsedRequest, response);
             }
 
             //使用DWR的参数来补充
@@ -196,6 +211,9 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
     private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {
+
+        List<MethodArgumentResolver> methodArgumentResolvers = SlotManager.getInstance().getMethodArgumentResolverList();
+
         for (MethodArgumentResolver resolver : methodArgumentResolvers) {
             if (resolver.isSupport(methodArgument)) {
                 return resolver;
@@ -208,14 +226,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     /**
      * 获取某个方法参数的默认实现
      *
-     * @param methodArgument 类型
-     * @param jbRequest      请求参数
-     * @param request        请求对象
-     * @param response       响应
+     * @param methodArgument    类型
+     * @param httpParsedRequest 请求参数
+     * @param response          响应
      * @return
      * @throws IOException
      */
-    private Object getMethodParamsObject(MethodArgument methodArgument, ControllerRequest jbRequest, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Object getMethodParamsObject(MethodArgument methodArgument, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
 
         Class typeClazz = (Class) methodArgument.getRawType();
@@ -241,7 +258,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 String paramName = requestParam.value();
                 String defaultValue = requestParam.defaultValue();
 
-                List<String> values = jbRequest.getParameterValuesAsList(paramName);
+                List<String> values = httpParsedRequest.getParameterValuesAsList(paramName);
 
                 if (typeClazz.isArray()) {
                     Class elementType = typeClazz.getComponentType();
@@ -262,7 +279,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                     object = CastBasicTypeUtils.toBasicTypeCollectionOf(values, typeClazz, elementType);
                 } else {
 
-                    String value = jbRequest.getParameter(paramName);
+                    String value = httpParsedRequest.getParameter(paramName);
                     if (value == null && !StringUtils.isEmpty(defaultValue)) {
                         value = defaultValue;
                     }
@@ -275,20 +292,25 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 }
 
             } else if (annotationType == RequestParams.class) {
-                object = jbRequest.getRequestParamObject(typeClazz);
+                object = httpParsedRequest.getParameterValuesAsObject(typeClazz);
             } else if (annotationType == RequestBody.class) {
-                object = jbRequest.getRequestBodyObject(typeClazz);
+
+                Charset charset = FrameworkConfig.getInstance().getRequestBodyCharset();
+                String jsonString = httpParsedRequest.getRequestBodyAsString(charset);
+
+                object = JSON.parseObject(jsonString, typeClazz);
+
             } else if (annotationType == PathVariable.class) {
                 PathVariable requestPath = (PathVariable) annotation;
-                String sw = jbRequest.getPathVariable(requestPath.value());
+                String sw = httpParsedRequest.getPathVariable(requestPath.value());
                 object = CastBasicTypeUtils.toBasicTypeOf(sw, typeClazz);
             } else if (annotationType == AspectVariable.class) {
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
                 if (!aspectVariableName.isEmpty()) {
-                    object = jbRequest.getAspectVariable(aspectVariableName);
+                    object = httpParsedRequest.getAspectVariable(aspectVariableName);
                 } else {
-                    object = jbRequest.getAspectVariableByClassType(typeClazz);
+                    object = httpParsedRequest.getAspectVariable(typeClazz);
                 }
             }
         }
@@ -296,16 +318,16 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         //2.通过类型注入
         if (object == null) {
+
             if (RequestParser.class.isAssignableFrom(typeClazz)) {
                 RequestParser m = (RequestParser) typeClazz.newInstance();
-                m.doParse(jbRequest, request);
+                m.doParse(httpParsedRequest);
                 object = m;
-            } else if (typeClazz.equals(ServletRequest.class) || typeClazz.equals(HttpServletRequest.class)) {
-                object = request;
+
+            } else if (ServletRequest.class.isAssignableFrom(typeClazz)) {
+                object = httpParsedRequest;
             } else if (typeClazz.equals(ServletResponse.class) || typeClazz.equals(HttpServletResponse.class)) {
                 object = response;
-            } else if (typeClazz.equals(ControllerRequest.class)) {
-                object = jbRequest;
             }
         }
 

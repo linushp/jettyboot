@@ -26,7 +26,7 @@ public class DataAccess {
         this.connectionFactory = connectionFactory;
     }
 
-    public ConnectionFactory getConnectionFactory(){
+    public ConnectionFactory getConnectionFactory() {
         return this.connectionFactory;
     }
 
@@ -351,7 +351,7 @@ public class DataAccess {
         }
 
         if (connection != null) {
-            if (connection.isAutoClose()){
+            if (connection.isAutoClose()) {
                 try {
                     connection.getConnection().close();
                 } catch (SQLException e) {

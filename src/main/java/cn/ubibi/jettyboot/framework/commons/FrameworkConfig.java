@@ -7,6 +7,7 @@ public class FrameworkConfig {
 
     private static FrameworkConfig instance = new FrameworkConfig();
 
+
     private FrameworkConfig() {
     }
 
@@ -26,6 +27,8 @@ public class FrameworkConfig {
 
     //默认字符集
     private Charset charset = Charset.forName("UTF-8");
+
+    private Charset requestBodyCharset = Charset.forName("UTF-8");
 
     //HTTP Header 输出的Server字段
     private String responseServerName = "jetty_boot";
@@ -69,5 +72,13 @@ public class FrameworkConfig {
 
     public void setResponseServerName(String responseServerName) {
         this.responseServerName = responseServerName;
+    }
+
+    public Charset getRequestBodyCharset() {
+        return requestBodyCharset;
+    }
+
+    public void setRequestBodyCharset(Charset requestBodyCharset) {
+        this.requestBodyCharset = requestBodyCharset;
     }
 }

@@ -6,7 +6,7 @@ public class SqlSession {
     private boolean autoClose;
     private Connection connection;
 
-    public SqlSession(Connection connection , boolean autoClose) {
+    public SqlSession(Connection connection, boolean autoClose) {
         this.autoClose = autoClose;
         this.connection = connection;
     }

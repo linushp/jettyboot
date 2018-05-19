@@ -71,7 +71,7 @@ public class BeanUtils {
 
         for (BeanField beanField : beanFields) {
 
-            if (beanToMapFilter.isInclude(bean,beanField)) {
+            if (beanToMapFilter.isInclude(bean, beanField)) {
 
                 String mapKey = beanToMapFilter.getMapKey(beanField);
 
@@ -206,6 +206,6 @@ public class BeanUtils {
             beanFieldFilter = new DefaultBeanToMapFilter(isUnderlineKey);
         }
 
-        return beanToMap(entity,beanFieldFilter);
+        return beanToMap(entity, beanFieldFilter);
     }
 }

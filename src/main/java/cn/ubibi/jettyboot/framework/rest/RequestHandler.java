@@ -22,9 +22,6 @@ public class RequestHandler extends AbstractHandler {
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ControllerExceptionHandler> exceptionHandlers = new ArrayList<>();
-    private final List<ControllerAspect> controllerAspects = new ArrayList<>();
-    private final List<MethodArgumentResolver> methodArgumentResolvers = new ArrayList<>();
-
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
@@ -82,7 +79,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + clazz.getName());
-        controllerHandlers.add(new ControllerHandler(path, clazz, controllerAspects, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, clazz));
     }
 
     public void addController(String path, Object restController) throws Exception {
@@ -90,7 +87,7 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + restController.getClass().getName());
-        controllerHandlers.add(new ControllerHandler(path, restController, controllerAspects, methodArgumentResolvers));
+        controllerHandlers.add(new ControllerHandler(path, restController));
     }
 
 
@@ -100,24 +97,6 @@ public class RequestHandler extends AbstractHandler {
         }
         LOGGER.info("addExceptionHandler " + exceptionHandler.getClass().getName());
         exceptionHandlers.add(exceptionHandler);
-    }
-
-
-    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
-        if (methodAspect == null) {
-            throw new Exception("addControllerAspect can not null");
-        }
-        LOGGER.info("addControllerAspect " + methodAspect.getClass().getName());
-        controllerAspects.add(methodAspect);
-    }
-
-
-    public void addMethodArgumentResolver(MethodArgumentResolver methodArgumentResolver) throws Exception {
-        if (methodArgumentResolver == null) {
-            throw new Exception("addMethodArgumentResolver can not null");
-        }
-        LOGGER.info("addMethodArgumentResolver " + methodArgumentResolver.getClass().getName());
-        methodArgumentResolvers.add(methodArgumentResolver);
     }
 
 

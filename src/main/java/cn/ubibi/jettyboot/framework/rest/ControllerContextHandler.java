@@ -6,6 +6,7 @@ import cn.ubibi.jettyboot.framework.rest.annotation.Service;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
+import cn.ubibi.jettyboot.framework.slot.SlotManager;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -47,14 +48,6 @@ public class ControllerContextHandler extends ContextHandler {
 
     public void addExceptionHandler(ControllerExceptionHandler exceptionHandler) throws Exception {
         this.requestHandler.addExceptionHandler(exceptionHandler);
-    }
-
-    public void addControllerAspect(ControllerAspect methodAspect) throws Exception {
-        this.requestHandler.addControllerAspect(methodAspect);
-    }
-
-    public void addMethodArgumentResolver(MethodArgumentResolver argumentResolver) throws Exception {
-        this.requestHandler.addMethodArgumentResolver(argumentResolver);
     }
 
     public void addService(Object service) {

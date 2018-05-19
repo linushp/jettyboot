@@ -219,7 +219,6 @@ public class CollectionUtils {
         return str == null || str.isEmpty();
     }
 
-
     //数组转List
     public static List toListFromArray(Object array) {
         if (array == null) {

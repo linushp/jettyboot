@@ -1,10 +1,9 @@
-package cn.ubibi.jettyboot.framework.rest;
+package cn.ubibi.jettyboot.framework.rest.impl;
 
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.annotation.GetMapping;
 import cn.ubibi.jettyboot.framework.rest.annotation.RequestParam;
 import cn.ubibi.jettyboot.framework.rest.dwr.DwrControllerScript;
-import cn.ubibi.jettyboot.framework.rest.impl.ScriptRender;
 
 public class DefaultDwrScriptController {
 

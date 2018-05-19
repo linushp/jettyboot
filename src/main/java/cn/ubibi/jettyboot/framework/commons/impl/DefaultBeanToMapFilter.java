@@ -15,7 +15,7 @@ public class DefaultBeanToMapFilter implements BeanToMapFilter {
         this.isUnderlineKey = isUnderlineKey;
     }
 
-    public boolean isInclude(Object value,BeanField beanField) throws Exception {
+    public boolean isInclude(Object value, BeanField beanField) throws Exception {
         return true;
     }
 

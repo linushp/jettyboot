@@ -5,7 +5,9 @@ import cn.ubibi.jettyboot.framework.commons.scan.PackageScanner;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
+import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequestFactory;
 import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
+import cn.ubibi.jettyboot.framework.slot.SlotManager;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -76,7 +78,8 @@ public class PackageScannerUtils {
 
                     //3
                     else if (annotation.annotationType() == Component.class) {
-                        addByComponentAnnotation(clazz, controllerContextHandler, restServer);
+                        Object object = clazz.newInstance();
+                        addByComponent(object, controllerContextHandler, restServer);
                     }
 
                     //4
@@ -114,46 +117,6 @@ public class PackageScannerUtils {
     }
 
 
-    private static void addByComponentAnnotation(Class<?> clazz, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {
-
-        Object object = null;
-
-        // 3.1
-        if (ControllerExceptionHandler.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-
-        //3.2
-        else if (ControllerAspect.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-        //3.3
-        else if (MethodArgumentResolver.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-
-        //3.4
-        else if (ContextHandler.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-        //3.4
-        else if (ResourceHandler.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-        //3.5
-        else if (Handler.class.isAssignableFrom(clazz)) {
-            object = clazz.newInstance();
-        }
-
-        addByComponent(object, controllerContextHandler, restServer);
-    }
-
-
     private static void addByComponent(Object object, ControllerContextHandler controllerContextHandler, JettyBootServer restServer) throws Exception {
         if (object == null) {
             return;
@@ -167,12 +130,12 @@ public class PackageScannerUtils {
 
         //3.2
         else if (object instanceof ControllerAspect) {
-            controllerContextHandler.addControllerAspect((ControllerAspect) object);
+            SlotManager.getInstance().getControllerAspects().add((ControllerAspect) object);
         }
 
         //3.3
         else if (object instanceof MethodArgumentResolver) {
-            controllerContextHandler.addMethodArgumentResolver((MethodArgumentResolver) object);
+            SlotManager.getInstance().getMethodArgumentResolverList().add((MethodArgumentResolver) object);
         }
 
         //3.4
@@ -187,10 +150,14 @@ public class PackageScannerUtils {
             controllerContextHandler.addResourceHandler((ResourceHandler) object);
         }
 
-
         //3.5
         else if (object instanceof Handler) {
             controllerContextHandler.addHandler((Handler) object);
+        }
+
+        //3.6
+        else if (object instanceof HttpParsedRequestFactory) {
+            SlotManager.getInstance().setHttpParsedRequestFactory((HttpParsedRequestFactory) object);
         }
 
         //其他不认识的就不处理

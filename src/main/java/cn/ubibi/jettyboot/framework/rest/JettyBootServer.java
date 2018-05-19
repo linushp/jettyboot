@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.rest;
 
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultDwrScriptController;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;

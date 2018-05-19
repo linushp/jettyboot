@@ -1,15 +1,16 @@
 package cn.ubibi.jettyboot.framework.rest.ifs;
 
-import cn.ubibi.jettyboot.framework.rest.ControllerRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 public interface ControllerAspect {
 
     //此方法如果抛出异常，将停止调用Controller里面的方法
-    void invokeBefore(Method method, ControllerRequest request) throws Exception;
+    void beforeInvoke(Method method, HttpParsedRequest request) throws Exception;
 
-    void invokeAfter(Method method, ControllerRequest request, Object invokeResult) throws Exception;
+    void afterInvoke(Method method, HttpParsedRequest request, Object invokeResult, HttpServletResponse response) throws Exception;
 
+    void afterRender(Method method, HttpParsedRequest request, Object invokeResult, HttpServletResponse response);
 }
 
