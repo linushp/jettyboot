@@ -9,6 +9,7 @@ import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -234,6 +235,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private Object getMethodParamObjectByAnnotation(MethodArgument methodArgument, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
 
+        Type type = methodArgument.getType();
         Class typeClazz = (Class) methodArgument.getRawType();
         Type[] actualTypeArguments = methodArgument.getActualTypeArguments();
 
@@ -276,6 +278,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                     }
 
                     object = CastBasicTypeUtils.toBasicTypeCollectionOf(values, typeClazz, elementType);
+
                 } else {
 
                     String value = httpParsedRequest.getParameter(paramName);
@@ -291,19 +294,24 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 }
 
             } else if (annotationType == RequestParams.class) {
+
                 object = httpParsedRequest.getParameterValuesAsObject(typeClazz);
+
             } else if (annotationType == RequestBody.class) {
 
                 Charset charset = FrameworkConfig.getInstance().getRequestBodyCharset();
                 String jsonString = httpParsedRequest.getRequestBodyAsString(charset);
-
-                object = JSON.parseObject(jsonString, typeClazz);
+                JSONObject jsonObject = JSON.parseObject(jsonString);
+                object = CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject, type);
 
             } else if (annotationType == PathVariable.class) {
+
                 PathVariable requestPath = (PathVariable) annotation;
                 String sw = httpParsedRequest.getPathVariable(requestPath.value());
                 object = CastBasicTypeUtils.toBasicTypeOf(sw, typeClazz);
+
             } else if (annotationType == AspectVariable.class) {
+
                 AspectVariable aspectVariable = (AspectVariable) annotation;
                 String aspectVariableName = aspectVariable.value();
                 if (!aspectVariableName.isEmpty()) {
@@ -311,6 +319,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 } else {
                     object = httpParsedRequest.getAspectVariable(typeClazz);
                 }
+
             }
         }
 
