@@ -345,8 +345,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private String pathJoin(String path1, String path2) {
 
-        List<String> path1Arr = CollectionUtils.removeEmptyString(path1.split("/"));
-        List<String> path2Arr = CollectionUtils.removeEmptyString(path2.split("/"));
+        List<String> path1Arr = CollectionUtils.removeEmptyString(path1.split(Constants.PATH_SPLIT));
+        List<String> path2Arr = CollectionUtils.removeEmptyString(path2.split(Constants.PATH_SPLIT));
 
 
         List<String> pathList = new ArrayList<>();

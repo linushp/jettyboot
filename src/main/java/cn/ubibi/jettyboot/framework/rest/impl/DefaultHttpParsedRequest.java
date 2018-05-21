@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.commons.Constants;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.IOUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
@@ -156,8 +157,8 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     //解析路径中的参数
     private Map<String, String> parsePathVariable() {
         String pathInfo = httpServletRequest.getPathInfo();
-        String[] pathInfoArray = pathInfo.split("/");
-        String[] targetPathArray = matchedControllerPath.split("/");
+        String[] pathInfoArray = pathInfo.split(Constants.PATH_SPLIT);
+        String[] targetPathArray = matchedControllerPath.split(Constants.PATH_SPLIT);
 
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < targetPathArray.length; i++) {
