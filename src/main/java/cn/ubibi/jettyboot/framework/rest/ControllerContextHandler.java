@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,11 +23,19 @@ public class ControllerContextHandler extends ContextHandler {
 
     private HandlerCollection handlerCollection;
 
-    public ControllerContextHandler(String context) {
+    public ControllerContextHandler(String context, SessionHandler sessionHandler) {
         super(context);
         this.requestHandler = new RequestHandler();
         this.handlerCollection = new HandlerCollection(this.requestHandler);
-        this.setHandler(this.handlerCollection);
+
+
+        if (sessionHandler!=null) {
+            sessionHandler.setHandler(this.handlerCollection);
+            this.setHandler(sessionHandler);
+        } else {
+            this.setHandler(this.handlerCollection);
+        }
+
 
         ServiceManager.getInstance().addService(this);
     }

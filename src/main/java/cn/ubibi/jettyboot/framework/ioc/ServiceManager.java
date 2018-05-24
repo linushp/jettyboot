@@ -86,8 +86,7 @@ public class ServiceManager {
 
     public Object getService(Class<?> type) {
         for (Object service : this.serviceList) {
-            Class serviceClass = service.getClass();
-            if (type == serviceClass || type.isAssignableFrom(serviceClass)) {
+            if (type.isInstance(service)){
                 return service;
             }
         }
