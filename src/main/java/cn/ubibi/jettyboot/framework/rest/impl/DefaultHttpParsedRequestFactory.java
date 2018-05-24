@@ -9,6 +9,6 @@ import java.lang.reflect.Method;
 public class DefaultHttpParsedRequestFactory implements HttpParsedRequestFactory {
     @Override
     public HttpParsedRequest createHttpParsedRequest(Object controller, Method method, HttpServletRequest request, String targetPath) {
-        return new DefaultHttpParsedRequest(request,targetPath);
+        return new DefaultHttpParsedRequest(request, targetPath);
     }
 }

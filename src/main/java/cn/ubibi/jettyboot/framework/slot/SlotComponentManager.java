@@ -19,10 +19,17 @@ public class SlotComponentManager {
     }
 
 
+    //会自动注入服务
     private final List<ControllerAspect> controllerAspects = new ArrayList<>();
+
+    //会自动注入服务
     private final List<MethodArgumentResolver> methodArgumentResolverList = new ArrayList<>();
-    private HttpPathComparator httpPathComparator = new DefaultHttpPathComparator();
+
+    //会自动注入服务
     private HttpParsedRequestFactory httpParsedRequestFactory = new DefaultHttpParsedRequestFactory();
+
+    //不会自动注入服务
+    private HttpPathComparator httpPathComparator = new DefaultHttpPathComparator();
 
 
     public List<MethodArgumentResolver> getMethodArgumentResolverList() {

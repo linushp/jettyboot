@@ -17,7 +17,7 @@ public class MethodArgument {
     private JSONArray dwrJSONArray;
 
 
-    public MethodArgument(Method method, Type type, Annotation[] annotations , int argIndex, boolean isDWR, JSONArray dwrJSONArray) {
+    public MethodArgument(Method method, Type type, Annotation[] annotations, int argIndex, boolean isDWR, JSONArray dwrJSONArray) {
         this.method = method;
         this.type = type;
         this.annotations = annotations;

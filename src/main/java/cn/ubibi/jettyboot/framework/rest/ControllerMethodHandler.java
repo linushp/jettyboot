@@ -1,12 +1,13 @@
 package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
+import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
+import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -90,6 +91,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             //Aspect前置
             for (ControllerAspect methodWrapper : methodWrappers) {
+                ServiceManager.getInstance().injectDependency(methodWrapper);
                 methodWrapper.beforeInvoke(method, httpParsedRequest);
             }
 
@@ -129,8 +131,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private HttpParsedRequest createHttpParsedRequest(Object controller, Method method, HttpServletRequest request, String targetPath) {
+    private HttpParsedRequest createHttpParsedRequest(Object controller, Method method, HttpServletRequest request, String targetPath) throws Exception {
+
         HttpParsedRequestFactory httpParsedRequestFactory = SlotComponentManager.getInstance().getHttpParsedRequestFactory();
+
+        ServiceManager.getInstance().injectDependency(httpParsedRequestFactory);
+
         return httpParsedRequestFactory.createHttpParsedRequest(controller, method, request, targetPath);
     }
 
@@ -210,7 +216,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) {
+    private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) throws Exception {
 
         List<MethodArgumentResolver> methodArgumentResolvers = SlotComponentManager.getInstance().getMethodArgumentResolverList();
 

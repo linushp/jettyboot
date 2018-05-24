@@ -173,8 +173,7 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
                 String k = p1.replace(':', ' ');
                 k = k.trim();
                 map.put(k, p2);
-            }
-            else if (p1.startsWith("{") && p1.endsWith("}")) {
+            } else if (p1.startsWith("{") && p1.endsWith("}")) {
                 String k = p1.replace('{', ' ').replace('}', ' ');
                 k = k.trim();
                 map.put(k, p2);

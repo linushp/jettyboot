@@ -2,7 +2,6 @@ package cn.ubibi.jettyboot.framework.rest;
 
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
-import cn.ubibi.jettyboot.framework.rest.impl.DefaultDwrScriptController;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -26,19 +25,22 @@ public class JettyBootServer {
 
     private HandlerCollection handlerCollection = new HandlerCollection();
 
-    private String controllerContext;
+    private String context = "/";
+    private ControllerContextHandler controllerContextHandler;
 
 
     public JettyBootServer() {
-        this("/");
     }
 
-
-    public JettyBootServer(String controllerContext) {
-        this.controllerContext = controllerContext;
-        LOGGER.info(bannerString);
+    public JettyBootServer setServerName(String name) {
+        FrameworkConfig.getInstance().setResponseServerName(name);
+        return this;
     }
 
+    public JettyBootServer setContext(String context) {
+        this.context = context;
+        return this;
+    }
 
     public JettyBootServer addContextHandler(ContextHandler contextHandler) {
         this.handlerCollection.addHandler(contextHandler);
@@ -47,19 +49,31 @@ public class JettyBootServer {
 
 
     public JettyBootServer doScanPackage(Class mainServerClass) throws Exception {
-        ControllerContextHandler controllerContextHandler = new ControllerContextHandler(controllerContext);
-        addContextHandler(controllerContextHandler);
 
         String packageName = mainServerClass.getPackage().getName();
+        ControllerContextHandler controllerContextHandler = this.getControllerContextHandler();
+
+        controllerContextHandler.usingDefaultDwrScript();
+
         PackageScannerUtils.addByPackageScanner(packageName, controllerContextHandler, this);
 
-        controllerContextHandler.addController(FrameworkConfig.getInstance().getDwrScriptPath(), new DefaultDwrScriptController());
+        addContextHandler(controllerContextHandler);
 
         return this;
     }
 
 
+    public ControllerContextHandler getControllerContextHandler() {
+        if (this.controllerContextHandler == null) {
+            this.controllerContextHandler = new ControllerContextHandler(this.context);
+        }
+        return this.controllerContextHandler;
+    }
+
+
     public void listen(int port) throws Exception {
+
+        LOGGER.info(bannerString);
 
         Server server = new Server(port);
         server.setHandler(handlerCollection);

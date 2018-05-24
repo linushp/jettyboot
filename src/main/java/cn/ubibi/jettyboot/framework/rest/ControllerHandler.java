@@ -4,8 +4,6 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
-import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

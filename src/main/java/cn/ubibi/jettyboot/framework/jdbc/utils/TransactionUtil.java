@@ -1,7 +1,6 @@
 package cn.ubibi.jettyboot.framework.jdbc.utils;
 
 import cn.ubibi.jettyboot.framework.jdbc.ConnectionFactory;
-import cn.ubibi.jettyboot.framework.jdbc.DataAccessObject;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 
 import java.sql.Connection;

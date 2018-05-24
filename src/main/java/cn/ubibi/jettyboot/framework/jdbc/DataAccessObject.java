@@ -1,10 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.*;
-import cn.ubibi.jettyboot.framework.commons.ifs.BeanToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
-import cn.ubibi.jettyboot.framework.commons.impl.DefaultBeanToMapFilter;
-import cn.ubibi.jettyboot.framework.commons.impl.IgnoreNullToMapFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.SingleConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;

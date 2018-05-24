@@ -42,6 +42,7 @@ public class ServiceManager {
         //获取连同父类的字段,这样就能够连同继承的父类的字段也可以注入了。
         List<BeanField> beanFields = BeanFieldUtils.getBeanFields(beanObject.getClass());
 
+
         if (!CollectionUtils.isEmpty(beanFields)) {
 
             for (BeanField beanField : beanFields) {
@@ -61,6 +62,7 @@ public class ServiceManager {
                         if (service != null) {
 
                             beanField.setBeanValue(beanObject, service);
+//                            markBeanObjectFieldSettled(beanObject,beanField);
 
                             //放在set后面，允许循环依赖，只要调用不循环就行。
                             injectDependency(service);

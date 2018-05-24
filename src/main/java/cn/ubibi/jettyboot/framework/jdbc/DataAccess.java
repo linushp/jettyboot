@@ -2,8 +2,8 @@ package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
-import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlNdArgs;
+import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.jdbc.utils.SQLFormatUtils;
 import cn.ubibi.jettyboot.framework.jdbc.utils.TransactionUtil;

@@ -2,9 +2,7 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
-import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 
-import java.io.File;
 import java.lang.reflect.Array;
 import java.util.*;
 

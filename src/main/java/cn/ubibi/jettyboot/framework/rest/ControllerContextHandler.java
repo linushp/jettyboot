@@ -3,7 +3,9 @@ package cn.ubibi.jettyboot.framework.rest;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.Service;
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
+import cn.ubibi.jettyboot.framework.rest.ifs.*;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultDwrScriptController;
+import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
@@ -81,6 +83,27 @@ public class ControllerContextHandler extends ContextHandler {
         }
     }
 
+
+    public void addControllerAspect(ControllerAspect controllerAspect) {
+        SlotComponentManager.getInstance().getControllerAspects().add(controllerAspect);
+    }
+
+
+    public void addMethodArgumentResolver(MethodArgumentResolver resolver) {
+        SlotComponentManager.getInstance().getMethodArgumentResolverList().add(resolver);
+    }
+
+    public void setSlotHttpParsedRequestFactory(HttpParsedRequestFactory httpParsedRequestFactory) {
+        SlotComponentManager.getInstance().setHttpParsedRequestFactory(httpParsedRequestFactory);
+    }
+
+    public void setSlotHttpPathComparator(HttpPathComparator httpPathComparator) {
+        SlotComponentManager.getInstance().setHttpPathComparator(httpPathComparator);
+    }
+
+    public void usingDefaultDwrScript() throws Exception {
+        addController(FrameworkConfig.getInstance().getDwrScriptPath(), new DefaultDwrScriptController());
+    }
 
     public void addResourceHandler(ResourceHandler resourceHandler) {
         this.handlerCollection.addHandler(resourceHandler);

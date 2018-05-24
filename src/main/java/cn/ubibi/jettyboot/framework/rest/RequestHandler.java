@@ -1,8 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest;
 
-import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
+import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerExceptionHandler;
-import cn.ubibi.jettyboot.framework.rest.ifs.MethodArgumentResolver;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -34,7 +33,11 @@ public class RequestHandler extends AbstractHandler {
                     return;
                 }
             } catch (Exception e) {
-                handleException2(e, request, response);
+                try {
+                    handleException2(e, request, response);
+                } catch (Exception e1) {
+                    LOGGER.error("", e1);
+                }
                 baseRequest.setHandled(true);
                 return;
             }
@@ -43,7 +46,7 @@ public class RequestHandler extends AbstractHandler {
 
     }
 
-    private void handleException2(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void handleException2(Exception e, HttpServletRequest request, HttpServletResponse response) throws Exception {
         boolean isHandled = handleException(e, request, response);
         if (!isHandled) {
 
@@ -63,8 +66,13 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private boolean handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         for (ControllerExceptionHandler exceptionHandler : exceptionHandlers) {
+
+            //可以使用注入Service
+            ServiceManager.getInstance().injectDependency(exceptionHandler);
+
             boolean isHandled = exceptionHandler.handle(e, request, response);
             if (isHandled) {
                 return true;

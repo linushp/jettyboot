@@ -4,7 +4,6 @@ import cn.ubibi.jettyboot.framework.commons.scan.ClasspathPackageScanner;
 import cn.ubibi.jettyboot.framework.commons.scan.PackageScanner;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
-import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -127,12 +126,12 @@ public class PackageScannerUtils {
 
         //3.2
         else if (object instanceof ControllerAspect) {
-            SlotComponentManager.getInstance().getControllerAspects().add((ControllerAspect) object);
+            controllerContextHandler.addControllerAspect((ControllerAspect) object);
         }
 
         //3.3
         else if (object instanceof MethodArgumentResolver) {
-            SlotComponentManager.getInstance().getMethodArgumentResolverList().add((MethodArgumentResolver) object);
+            controllerContextHandler.addMethodArgumentResolver((MethodArgumentResolver) object);
         }
 
         //3.4
@@ -154,12 +153,12 @@ public class PackageScannerUtils {
 
         //3.6
         else if (object instanceof HttpParsedRequestFactory) {
-            SlotComponentManager.getInstance().setHttpParsedRequestFactory((HttpParsedRequestFactory) object);
+            controllerContextHandler.setSlotHttpParsedRequestFactory((HttpParsedRequestFactory) object);
         }
 
         //3.7
-        else if (object instanceof HttpPathComparator){
-            SlotComponentManager.getInstance().setHttpPathComparator((HttpPathComparator) object);
+        else if (object instanceof HttpPathComparator) {
+            controllerContextHandler.setSlotHttpPathComparator((HttpPathComparator) object);
         }
 
         //其他不认识的就不处理
