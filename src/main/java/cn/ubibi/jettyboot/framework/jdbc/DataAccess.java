@@ -1,18 +1,14 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
-import cn.ubibi.jettyboot.framework.commons.BeanUtils;
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlNdArgs;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
-import cn.ubibi.jettyboot.framework.jdbc.utils.SQLFormatUtils;
-import cn.ubibi.jettyboot.framework.jdbc.utils.TransactionUtil;
+import cn.ubibi.jettyboot.framework.jdbc.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +17,7 @@ public class DataAccess {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataAccess.class);
 
     private ConnectionFactory connectionFactory;
+    private ResultSetParser<?> resultSetParser = null;
 
     public DataAccess(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
@@ -69,7 +66,7 @@ public class DataAccess {
 
 
             generatedKeyResultSet = preparedStatement.getGeneratedKeys();
-            List<Map<String, ?>> mapList = resultSetToMapList(generatedKeyResultSet);
+            List<Map<String, ?>> mapList = ResultSetUtils.resultSetToMapList(generatedKeyResultSet);
             if (mapList != null && !mapList.isEmpty()) {
                 for (Map<String, ?> map : mapList) {
                     Object generatedKey = map.get("GENERATED_KEY");
@@ -164,26 +161,6 @@ public class DataAccess {
         return query(clazz, sql, objects);
     }
 
-
-    /**
-     * 传入 SQL 语句和 Class 对象, 返回 SQL 语句查询到的记录对应的 Class 类的对象的集合
-     *
-     * @param clazz: 对象的类型
-     * @param sql:   SQL 语句
-     * @param args:  填充 SQL 语句的占位符的可变参数.
-     * @return
-     */
-    public <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
-        List<Map<String, ?>> mapList = this.query(sql, args);
-        return BeanUtils.mapListToBeanList(clazz, mapList);
-    }
-
-
-    public List<Map<String, ?>> query(String sql, List<?> args) throws Exception {
-        Object[] objects = args.toArray(new Object[args.size()]);
-        return query(sql, objects);
-    }
-
     /**
      * 传入 SQL 语句， 返回 SQL 语句查询到的记录对应的 Map对象的集合
      *
@@ -192,7 +169,7 @@ public class DataAccess {
      * @return
      * @throws Exception
      */
-    public List<Map<String, ?>> query(String sql, Object... args) throws Exception {
+    public <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
 
 
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
@@ -203,7 +180,7 @@ public class DataAccess {
         }
 
 
-        List<Map<String, ?>> list;
+        List<T> list;
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -224,7 +201,7 @@ public class DataAccess {
             resultSet = preparedStatement.executeQuery();
 
             //2. 转换成List<Map>
-            list = resultSetToMapList(resultSet);
+            list = resultSetToObjectList(clazz, resultSet);
 
         } catch (Exception e) {
             throw e;
@@ -233,6 +210,17 @@ public class DataAccess {
         }
 
         return list;
+    }
+
+
+    private <T> List<T> resultSetToObjectList(Class<T> clazz, ResultSet resultSet) throws Exception {
+        ResultSetParser<?> resultSetParser;
+        if (this.resultSetParser != null) {
+            resultSetParser = this.resultSetParser;
+        } else {
+            resultSetParser = new DefaultResultSetParser(clazz);
+        }
+        return (List<T>) resultSetParser.parseResultSet(resultSet);
     }
 
 
@@ -259,7 +247,7 @@ public class DataAccess {
             resultSet = preparedStatement.executeQuery(sql);
 
             //2. 转换成List<Map>
-            list = resultSetToMapList(resultSet);
+            list = ResultSetUtils.resultSetToMapList(resultSet);
 
         } catch (Exception e) {
             throw e;
@@ -268,54 +256,6 @@ public class DataAccess {
         }
 
         return list;
-    }
-
-
-    /**
-     * 处理结果集, 得到 Map 的一个 List, 其中一个 Map 对象对应一条记录
-     *
-     * @param resultSet
-     * @return
-     * @throws SQLException
-     */
-    private List<Map<String, ?>> resultSetToMapList(ResultSet resultSet) throws SQLException {
-        List<Map<String, ?>> values = new ArrayList<>();
-        if (resultSet != null) {
-            List<String> columnLabels = getColumnLabels(resultSet);
-            // 7. 处理 ResultSet, 使用 while 循环
-            while (resultSet.next()) {
-
-                Map<String, Object> map = new HashMap<>();
-
-                for (String columnLabel : columnLabels) {
-                    Object value = resultSet.getObject(columnLabel);
-                    map.put(columnLabel, value);
-                }
-
-                // 11. 把一条记录的一个 Map 对象放入 5 准备的 List 中
-                values.add(map);
-            }
-        }
-
-        return values;
-    }
-
-    /**
-     * 获取结果集的 ColumnLabel 对应的 List
-     *
-     * @param rs
-     * @return
-     * @throws SQLException
-     */
-    private List<String> getColumnLabels(ResultSet rs) throws SQLException {
-        List<String> labels = new ArrayList<>();
-
-        ResultSetMetaData rsmd = rs.getMetaData();
-        for (int i = 0; i < rsmd.getColumnCount(); i++) {
-            labels.add(rsmd.getColumnLabel(i + 1));
-        }
-
-        return labels;
     }
 
 
@@ -361,5 +301,9 @@ public class DataAccess {
         }
     }
 
+
+    public void setResultSetParser(ResultSetParser<?> resultSetParser) {
+        this.resultSetParser = resultSetParser;
+    }
 
 }

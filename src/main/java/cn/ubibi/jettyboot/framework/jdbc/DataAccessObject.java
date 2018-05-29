@@ -5,11 +5,13 @@ import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
 import cn.ubibi.jettyboot.framework.jdbc.model.SingleConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
+import cn.ubibi.jettyboot.framework.jdbc.utils.ResultSetParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.*;
 
 
@@ -72,6 +74,11 @@ public class DataAccessObject<T> {
     }
 
 
+    protected void setResultSetParser(ResultSetParser<T> resultSetParser) {
+        this.dataAccess.setResultSetParser(resultSetParser);
+    }
+
+
     //克隆的是一个子类对象
     //子类对象必须实现一个无参构造方法
     public Object clone() {
@@ -86,31 +93,6 @@ public class DataAccessObject<T> {
             LOGGER.error("", e);
         }
         return null;
-    }
-
-
-    public DataAccessObject<T> use(String tableName) {
-        DataAccessObject dao = (DataAccessObject) this.clone();
-        dao.tableName = tableName;
-        return dao;
-    }
-
-    public DataAccessObject<T> useSchema(String schemaName) {
-        DataAccessObject dao = (DataAccessObject) this.clone();
-        dao.schemaName = schemaName;
-        return dao;
-    }
-
-    public DataAccessObject<T> use(Connection connection) {
-        DataAccessObject dao = (DataAccessObject) this.clone();
-        dao.dataAccess = new DataAccess(new SingleConnectionFactory(connection));
-        return dao;
-    }
-
-    public DataAccessObject<T> use(ConnectionFactory connSource) {
-        DataAccessObject dao = (DataAccessObject) this.clone();
-        dao.dataAccess = new DataAccess(connSource);
-        return dao;
     }
 
 
