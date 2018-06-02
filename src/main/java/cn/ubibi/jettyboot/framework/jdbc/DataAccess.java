@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -214,6 +215,11 @@ public class DataAccess {
 
 
     private <T> List<T> resultSetToObjectList(Class<T> clazz, ResultSet resultSet) throws Exception {
+
+        if (resultSet == null) {
+            return new ArrayList<>(0);
+        }
+
         ResultSetParser<?> resultSetParser;
         if (this.resultSetParser != null) {
             resultSetParser = this.resultSetParser;
