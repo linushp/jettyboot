@@ -12,6 +12,9 @@ public class DefaultResultSetParser<T> implements ResultSetParser<T> {
 
 
     public DefaultResultSetParser(Class<T> clazz) {
+        if (clazz == null) {
+            throw new NullPointerException();
+        }
         this.clazz = clazz;
     }
 

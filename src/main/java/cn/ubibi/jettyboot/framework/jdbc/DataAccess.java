@@ -164,9 +164,10 @@ public class DataAccess {
 
     /**
      * 传入 SQL 语句， 返回 SQL 语句查询到的记录对应的 Map对象的集合
-     *
+     * @param clazz 可以为Null
      * @param sql
      * @param args
+     * @param <T>
      * @return
      * @throws Exception
      */

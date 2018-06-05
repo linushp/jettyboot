@@ -74,6 +74,11 @@ public class DataAccessObject<T> {
     }
 
 
+    /**
+     * 请在子类的构造方法中调用
+     *
+     * @param resultSetParser
+     */
     protected void setResultSetParser(ResultSetParser<T> resultSetParser) {
         this.dataAccess.setResultSetParser(resultSetParser);
     }
