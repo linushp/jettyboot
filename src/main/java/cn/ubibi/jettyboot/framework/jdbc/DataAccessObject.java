@@ -70,7 +70,7 @@ public class DataAccessObject<T> {
     }
 
 
-    private DataAccessObject() {
+    public DataAccessObject() {
     }
 
 
