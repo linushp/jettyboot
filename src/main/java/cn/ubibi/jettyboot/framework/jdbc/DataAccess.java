@@ -36,12 +36,11 @@ public class DataAccess {
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
     public UpdateResult update(String sql, Object... args) throws Exception {
 
-        //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
-        if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
-            sql = sqlNdArgs.getSql();
-            args = sqlNdArgs.getArgs().toArray();
-        }
+        SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
+        sql = sqlNdArgs.getSql();
+        args = sqlNdArgs.getArgs();
+
+
 
 
         Connection connection = null;
@@ -103,12 +102,9 @@ public class DataAccess {
      */
     public <E> E queryValue(String sql, Object... args) throws Exception {
 
-        //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
-        if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
-            sql = sqlNdArgs.getSql();
-            args = sqlNdArgs.getArgs().toArray();
-        }
+        SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
+        sql = sqlNdArgs.getSql();
+        args = sqlNdArgs.getArgs();
 
 
         LOGGER.info("query sql : " + sql);
@@ -173,13 +169,10 @@ public class DataAccess {
      */
     public <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
 
+        SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
+        sql = sqlNdArgs.getSql();
+        args = sqlNdArgs.getArgs();
 
-        //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
-        if (args.length > 0 && args[0] instanceof Map) {
-            SqlNdArgs sqlNdArgs = SQLFormatUtils.formatSQLAndArgs(sql, (Map<String, Object>) args[0]);
-            sql = sqlNdArgs.getSql();
-            args = sqlNdArgs.getArgs().toArray();
-        }
 
 
         List<T> list;
@@ -279,6 +272,16 @@ public class DataAccess {
     }
 
 
+    private SqlNdArgs parseSqlNdArgs(String sql, Object... args){
+        //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
+        if (args.length > 0 && args[0] instanceof Map) {
+            Map map = (Map) args[0];
+            return SQLFormatUtils.formatSQLAndArgs(sql, map);
+        }
+        return new SqlNdArgs(sql,args);
+    }
+
+
     private void release(ResultSet resultSet, Statement statement, SqlSession connection) throws SQLException {
 
         if (resultSet != null) {
@@ -307,7 +310,6 @@ public class DataAccess {
             }
         }
     }
-
 
     public void setResultSetParser(ResultSetParser<?> resultSetParser) {
         this.resultSetParser = resultSetParser;

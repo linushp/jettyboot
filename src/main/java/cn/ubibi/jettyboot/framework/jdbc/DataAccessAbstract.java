@@ -10,13 +10,21 @@ import java.util.List;
 
 
 public abstract class DataAccessAbstract<T> implements ResultSetParser<T> {
-    private DataAccess dataAccess;
+    protected DataAccess dataAccess;
 
     public DataAccessAbstract(ConnectionFactory connectionFactory) {
         this.dataAccess = new DataAccess(connectionFactory);
         this.dataAccess.setResultSetParser(this);
     }
 
+    /**
+     * update , insert , delete 都是调用此方法
+     *
+     * @param sql
+     * @param args
+     * @return
+     * @throws Exception
+     */
     public UpdateResult update(String sql, Object... args) throws Exception {
         return dataAccess.update(sql, args);
     }
@@ -38,11 +46,11 @@ public abstract class DataAccessAbstract<T> implements ResultSetParser<T> {
     public List<T> parseResultSet(ResultSet resultSet) throws Exception {
         List<T> result = new ArrayList<>();
         while (resultSet.next()) {
-            T obj = this.parse(resultSet);
+            T obj = this.resultSetToObject(resultSet);
             result.add(obj);
         }
         return result;
     }
 
-    abstract public T parse(ResultSet resultSet);
+    abstract public T resultSetToObject(ResultSet resultSet);
 }

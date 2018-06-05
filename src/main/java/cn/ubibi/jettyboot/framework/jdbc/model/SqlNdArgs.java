@@ -1,12 +1,11 @@
 package cn.ubibi.jettyboot.framework.jdbc.model;
 
-import java.util.List;
 
 public class SqlNdArgs {
     private String sql;
-    private List<Object> args;
+    private Object[] args;
 
-    public SqlNdArgs(String sql, List<Object> args) {
+    public SqlNdArgs(String sql, Object[] args) {
         this.sql = sql;
         this.args = args;
     }
@@ -20,11 +19,11 @@ public class SqlNdArgs {
         this.sql = sql;
     }
 
-    public List<Object> getArgs() {
+    public Object[] getArgs() {
         return args;
     }
 
-    public void setArgs(List<Object> args) {
+    public void setArgs(Object[] args) {
         this.args = args;
     }
 }

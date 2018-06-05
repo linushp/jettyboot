@@ -54,7 +54,7 @@ public class SQLFormatUtils {
 
         String resultSql = sb2.toString();
 
-        return new SqlNdArgs(resultSql, args);
+        return new SqlNdArgs(resultSql, args.toArray());
     }
 
 
