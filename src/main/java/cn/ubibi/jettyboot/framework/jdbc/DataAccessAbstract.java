@@ -52,5 +52,5 @@ public abstract class DataAccessAbstract<T> implements ResultSetParser<T> {
         return result;
     }
 
-    abstract public T resultSetToObject(ResultSet resultSet);
+    abstract protected T resultSetToObject(ResultSet resultSet);
 }
