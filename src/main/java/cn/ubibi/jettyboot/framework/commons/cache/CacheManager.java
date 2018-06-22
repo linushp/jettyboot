@@ -37,7 +37,7 @@ public class CacheManager {
                 while (true) {
 
                     try {
-                        Thread.sleep(1000 * 60 * 5);
+                        Thread.sleep(1000 * 60 * 5); //5分钟
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
