@@ -80,11 +80,24 @@ public class ServiceManager {
 
     private Object findServiceByField(Field field) throws Exception {
         Class<?> fieldType = field.getType();
-        return getService(fieldType);
+        return getServiceInner(fieldType);
     }
 
 
-    public Object getService(Class<?> type) {
+
+
+    public Object getService(Class<?> type) throws Exception {
+        Object serviceObj = getServiceInner(type);
+        if (serviceObj == null) {
+            return null;
+        }
+        injectDependency(serviceObj);
+        return serviceObj;
+    }
+
+
+
+    private Object getServiceInner(Class<?> type) {
         for (Object service : this.serviceList) {
             if (type.isInstance(service)){
                 return service;

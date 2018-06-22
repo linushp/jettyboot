@@ -34,6 +34,18 @@ public class FrameworkConfig {
     private String responseServerName = "jetty_boot";
 
 
+    //Controller的请求是否可以被缓存
+    private boolean cacheAnnotation = true;
+
+
+    public boolean isCacheAnnotation() {
+        return cacheAnnotation;
+    }
+
+    public void setCacheAnnotation(boolean cacheAnnotation) {
+        this.cacheAnnotation = cacheAnnotation;
+    }
+
     public Charset getCharset() {
         return charset;
     }

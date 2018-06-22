@@ -10,7 +10,7 @@ public class DefaultDwrScriptController {
     @GetMapping("/")
     public ScriptRender toDwrScript(@RequestParam("controllers") String controllers,
                                     @RequestParam("exportAs") String exportAs,
-                                    @RequestParam("controllerPrefix") String controllerPrefix) {
+                                    @RequestParam("controllerPrefix") String controllerPrefix) throws Exception {
 
         if (StringUtils.isBlank(exportAs)) {
             exportAs = "window";

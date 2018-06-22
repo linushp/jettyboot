@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.rest;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
+import cn.ubibi.jettyboot.framework.rest.annotation.Controller;
 import cn.ubibi.jettyboot.framework.rest.annotation.Service;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
 import cn.ubibi.jettyboot.framework.rest.impl.DefaultDwrScriptController;
@@ -22,6 +23,14 @@ public class ControllerContextHandler extends ContextHandler {
     private RequestHandler requestHandler;
 
     private HandlerCollection handlerCollection;
+
+    public ControllerContextHandler() {
+        this("/",null);
+    }
+
+    public ControllerContextHandler(String context) {
+        this(context,null);
+    }
 
     public ControllerContextHandler(String context, SessionHandler sessionHandler) {
         super(context);
@@ -48,6 +57,16 @@ public class ControllerContextHandler extends ContextHandler {
     public void addController(String path, Object restController) throws Exception {
         this.requestHandler.addController(path, restController);
     }
+
+
+    public void addController(Object restController) throws Exception {
+        Controller x = restController.getClass().getAnnotation(Controller.class);
+        String[] pathArr = x.value();
+        for(String path : pathArr){
+            this.requestHandler.addController(path, restController);
+        }
+    }
+
 
     public void addDwrController(Object restController) throws Exception {
         String path = FrameworkConfig.getInstance().getDwrPrefix() + restController.getClass().getSimpleName();

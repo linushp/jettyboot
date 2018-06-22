@@ -4,6 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
+import cn.ubibi.jettyboot.framework.rest.impl.CacheAnnotationUtils;
 import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
 import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
@@ -98,8 +99,14 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             //准备参数
             Object[] paramsObjects = getMethodParamsObjects(method, httpParsedRequest, response);
 
-            //方法调用
-            invokeResult = method.invoke(controller, paramsObjects);
+
+            //先从缓存里取
+            invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, controller, paramsObjects);
+            if (invokeResult == null) {
+                //方法调用
+                invokeResult = method.invoke(controller, paramsObjects);
+                CacheAnnotationUtils.saveResultToCacheAnnotation(method, controller, paramsObjects, invokeResult);
+            }
 
 
             //Aspect后置
