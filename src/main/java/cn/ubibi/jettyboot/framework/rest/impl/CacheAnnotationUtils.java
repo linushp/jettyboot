@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 
 public class CacheAnnotationUtils {
 
+    private static final String CACHE_KEY_PREFIX = "ctrl:";
+
     public static Object getResultFromCacheAnnotation(Method method, Object controller, Object[] params) {
         if (!FrameworkConfig.getInstance().isCacheAnnotation()) {
             return null;
@@ -37,9 +39,9 @@ public class CacheAnnotationUtils {
     }
 
 
-
     private static String toCacheKey(Cache cacheAnnotation, Object[] params) {
-        String key = cacheAnnotation.cacheKey();
+        String key = CACHE_KEY_PREFIX + cacheAnnotation.cacheKey();
+
         int[] paramsKey = cacheAnnotation.paramKey();
         if (paramsKey.length == 0) {
             return key;
@@ -49,7 +51,7 @@ public class CacheAnnotationUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(key);
         for (int i = 0; i < paramsKey.length; i++) {
-            sb.append(".");
+            sb.append("_");
             sb.append(String.valueOf(params[paramsKey[i]]));
         }
 
