@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * 不固定表名
+ * @param <T>
+ */
 public abstract class DataAccessAbstract<T> implements ResultSetParser<T> {
     protected DataAccess dataAccess;
 

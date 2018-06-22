@@ -19,6 +19,7 @@ import java.util.*;
  * 1.如果想动态选择DB，可以在ConnectionFactory中实现
  * 2.如果想动态选择schemaName,可以在子类中的schemaTableName方法实现.
  *
+ * 固定表名
  * @param <T> ORM的类名
  */
 public class DataAccessObject<T> {
