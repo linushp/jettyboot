@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.commons;
 
-import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
+import cn.ubibi.jettyboot.framework.commons.annotation.TextBean;
+import cn.ubibi.jettyboot.framework.commons.annotation.TextBeanTypeEnum;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -60,6 +61,18 @@ public class BeanField {
     }
 
 
+    /**
+     * 会自动转换
+     * @param bean
+     * @param value
+     * @throws Exception
+     */
+    public void setBeanValue_autoConvert(Object bean, Object value) throws Exception {
+        setAccessible();
+        value = valueOf(value);
+        field.set(bean, value);
+    }
+
 
     public Object valueOf(Object value) throws Exception {
 
@@ -71,6 +84,11 @@ public class BeanField {
         Field field = this.field;
 
         Class<?> targetType = field.getType();
+
+        if (targetType == value.getClass()){
+            return value;
+        }
+
 
         //2. 对于字符串数据
         if (value instanceof String || value instanceof StringBuilder || value instanceof StringBuffer) {
@@ -87,10 +105,14 @@ public class BeanField {
             }
 
             //2.2 目标类型是普通JAVA类
-            JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
-            if (jsonTextBeanAnnotation != null) {
-                Object jsonObject = JSON.parse(stringValue);
-                return CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject, targetType);
+            TextBean textBean = field.getAnnotation(TextBean.class);
+            if (textBean != null) {
+
+                if (textBean.textType() == TextBeanTypeEnum.JSON){
+                    JSONObject jsonObject = JSON.parseObject(stringValue);
+                    return CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject, targetType);
+                }
+
             }
         }
 

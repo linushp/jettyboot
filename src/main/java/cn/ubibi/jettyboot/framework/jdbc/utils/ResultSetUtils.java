@@ -38,10 +38,7 @@ public class ResultSetUtils {
 
             Object value = getValueOfResultSet(columnLabelSet, resultSet, beanField.getFieldName(), beanField.getFieldNameUnderline());
 
-            //类型转换
-            value = beanField.valueOf(value);
-
-            beanField.setBeanValue(obj, value);
+            beanField.setBeanValue_autoConvert(obj, value);
         }
 
         return obj;

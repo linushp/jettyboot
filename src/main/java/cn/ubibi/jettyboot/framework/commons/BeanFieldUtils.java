@@ -1,10 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons;
 
-import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

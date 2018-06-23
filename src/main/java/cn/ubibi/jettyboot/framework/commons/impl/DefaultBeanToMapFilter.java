@@ -1,7 +1,8 @@
 package cn.ubibi.jettyboot.framework.commons.impl;
 
 import cn.ubibi.jettyboot.framework.commons.BeanField;
-import cn.ubibi.jettyboot.framework.commons.annotation.JSONTextBean;
+import cn.ubibi.jettyboot.framework.commons.annotation.TextBean;
+import cn.ubibi.jettyboot.framework.commons.annotation.TextBeanTypeEnum;
 import cn.ubibi.jettyboot.framework.commons.ifs.BeanToMapFilter;
 import com.alibaba.fastjson.JSON;
 
@@ -32,9 +33,11 @@ public class DefaultBeanToMapFilter implements BeanToMapFilter {
         Field field = beanField.getField();
 
         // 根据JSONTextBean注解转换，此时原始的value必须是字符串
-        JSONTextBean jsonTextBeanAnnotation = field.getAnnotation(JSONTextBean.class);
-        if (jsonTextBeanAnnotation != null) {
-            return JSON.toJSONString(value);
+        TextBean textBean = field.getAnnotation(TextBean.class);
+        if (textBean != null) {
+            if (textBean.textType() == TextBeanTypeEnum.JSON){
+                return JSON.toJSONString(value);
+            }
         }
 
         return value;
