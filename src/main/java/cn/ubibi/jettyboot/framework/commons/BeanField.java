@@ -75,17 +75,18 @@ public class BeanField {
 
 
     public Object valueOf(Object value) throws Exception {
+        Field field = this.field;
+        Class<?> targetType = field.getType();
 
         if (value == null) {
+            if (CastBasicTypeUtils.isBasicType(targetType)) {
+                return CastBasicTypeUtils.toBasicTypeOf(0, targetType);
+            }
             return null;
         }
 
 
-        Field field = this.field;
-
-        Class<?> targetType = field.getType();
-
-        if (targetType == value.getClass()){
+        if (targetType == value.getClass()) {
             return value;
         }
 
@@ -108,7 +109,7 @@ public class BeanField {
             TextBean textBean = field.getAnnotation(TextBean.class);
             if (textBean != null) {
 
-                if (textBean.textType() == TextBeanTypeEnum.JSON){
+                if (textBean.textType() == TextBeanTypeEnum.JSON) {
                     JSONObject jsonObject = JSON.parseObject(stringValue);
                     return CastJsonTypeUtils.jsonObjectToJavaObject(jsonObject, targetType);
                 }

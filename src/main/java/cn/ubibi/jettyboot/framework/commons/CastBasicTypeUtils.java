@@ -9,6 +9,10 @@ import java.util.Date;
 
 public class CastBasicTypeUtils {
 
+    private static final Integer integer_0 = 0;
+    private static final Long long_0 = 0L;
+    private static final String empty_str = "";
+
     // 基本数据类型转换
     public static Object toBasicTypeOf(Object value, Class targetType) throws Exception {
         if (targetType == null) {
@@ -229,13 +233,13 @@ public class CastBasicTypeUtils {
     }
 
 
-    //广义的boolean类型
+    //广义的boolean类型,null,0,"" 都认为是false
     public static Boolean toGeneralizedBoolean(Object value) {
         if (value instanceof Boolean) {
             return (Boolean) value;
         }
 
-        if (isNull(value)) {
+        if (isNull(value) || integer_0.equals(value) || long_0.equals(value) || empty_str.equals(value)){
             return false;
         }
 
