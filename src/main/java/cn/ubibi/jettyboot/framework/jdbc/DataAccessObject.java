@@ -524,6 +524,9 @@ public class DataAccessObject<T> {
 
     private static class DefaultIdCharFilter implements CharFilter {
 
+
+        private static final char[] WHITE_LIST = {'-','_','~','.'};
+
         /**
          * 判断是否是合法的ID允许出现的字符
          *
@@ -542,8 +545,10 @@ public class DataAccessObject<T> {
                 return true;
             }
 
-            if (cc == '-' || cc == '_' || cc == '~' || cc == '.') {
-                return true;
+            for (int i = 0 ; i < WHITE_LIST.length ; i ++){
+                if (cc == WHITE_LIST[i]){
+                    return true;
+                }
             }
 
             return false;
