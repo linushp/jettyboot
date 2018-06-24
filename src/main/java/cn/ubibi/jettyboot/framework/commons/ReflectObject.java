@@ -8,7 +8,7 @@ public class ReflectObject {
 
     private final List<BeanField> beanFields;
     private final List<Method> methodList;
-    private Object object;
+    private final Object object;
 
     public ReflectObject(Object object) {
         this.object = object;
