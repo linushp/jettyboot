@@ -24,7 +24,19 @@ public class ReflectObject {
 
     public void setFieldValue(String fieldName, Object value) throws Exception {
         BeanField beanField = getBeanField(fieldName);
+        if (beanField == null) {
+            return;
+        }
         beanField.setBeanValue_autoConvert(this.object, value);
+    }
+
+
+    public Object getFieldValue(String fieldName) throws Exception {
+        BeanField beanField = getBeanField(fieldName);
+        if (beanField == null) {
+            return null;
+        }
+        return beanField.getBeanValue(this.object);
     }
 
 
