@@ -5,12 +5,13 @@ import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public abstract class TextRespRenderAdapter implements ResponseRender {
 
-    public void doRender(HttpParsedRequest request, HttpServletResponse response) throws IOException {
+    public void doRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         byte[] contentBytes = getContentBytes();
 
