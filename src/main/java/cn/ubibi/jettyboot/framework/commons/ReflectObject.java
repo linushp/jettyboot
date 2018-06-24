@@ -17,6 +17,10 @@ public class ReflectObject {
         this.methodList = BeanFieldUtils.getBeanMethods(aClass);
     }
 
+    public Object getObject() {
+        return this.object;
+    }
+
 
     public void setFieldValue(String fieldName, Object value) throws Exception {
         BeanField beanField = getBeanField(fieldName);
