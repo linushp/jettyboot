@@ -25,19 +25,53 @@ public class ReflectObject {
 
 
     public void invokeSetter(String setter_name, Object value) throws Exception {
-        Method method = getBeanMethod(setter_name);
+        invokeMethod(setter_name,value);
+    }
+
+    public void invokeMethod(String methodName,Object... values) throws Exception {
+        Method method = getBeanMethod(methodName,values);
         method.setAccessible(true);
-        method.invoke(this.object, value);
+        method.invoke(this.object, values);
     }
 
 
-    private Method getBeanMethod(String methodName) {
-        for (Method beanField : this.methodList) {
-            if (methodName.equals(beanField.getName()) && beanField.getParameterCount() == 1) {
-                return beanField;
+    private Method getBeanMethod(String methodName,Object... values) {
+        for (Method method : this.methodList) {
+            if (methodName.equals(method.getName()) && values.length == method.getParameterCount()) {
+                if (isParameterTypesMatched(method,values)){
+                    return method;
+                }
             }
         }
         return null;
+    }
+
+
+    private boolean isParameterTypesMatched(Method beanField ,Object... values){
+        Class<?>[] types = beanField.getParameterTypes();
+        if (types.length == 0 || values.length ==0){
+            return true;
+        }
+
+        for (int i=0 ; i < types.length;i++){
+            Class<?> paramType = types[i];
+            Object value = values[i];
+            Class<? extends Object> valueType = value.getClass();
+            if (!isClassEqualsOrAssignableFrom(paramType,valueType)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+    private boolean isClassEqualsOrAssignableFrom(Class<?> paramType, Class<?> valueType) {
+        if (paramType.equals(valueType) || paramType.isAssignableFrom(valueType)){
+            return true;
+        }
+        return false;
     }
 
 
