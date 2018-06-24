@@ -29,20 +29,20 @@ public class ReflectObject {
 
 
     public void invokeSetter(String setter_name, Object value) throws Exception {
-        invokeMethod(setter_name,value);
+        invokeMethod(setter_name, value);
     }
 
-    public void invokeMethod(String methodName,Object... values) throws Exception {
-        Method method = getBeanMethod(methodName,values);
+    public void invokeMethod(String methodName, Object... values) throws Exception {
+        Method method = getBeanMethod(methodName, values);
         method.setAccessible(true);
         method.invoke(this.object, values);
     }
 
 
-    private Method getBeanMethod(String methodName,Object... values) {
+    private Method getBeanMethod(String methodName, Object... values) {
         for (Method method : this.methodList) {
             if (methodName.equals(method.getName()) && values.length == method.getParameterCount()) {
-                if (isParameterTypesMatched(method,values)){
+                if (isParameterTypesMatched(method, values)) {
                     return method;
                 }
             }
@@ -51,17 +51,17 @@ public class ReflectObject {
     }
 
 
-    private boolean isParameterTypesMatched(Method beanField ,Object... values){
+    private boolean isParameterTypesMatched(Method beanField, Object... values) {
         Class<?>[] types = beanField.getParameterTypes();
-        if (types.length == 0 || values.length ==0){
+        if (types.length == 0 || values.length == 0) {
             return true;
         }
 
-        for (int i=0 ; i < types.length;i++){
+        for (int i = 0; i < types.length; i++) {
             Class<?> paramType = types[i];
             Object value = values[i];
             Class<? extends Object> valueType = value.getClass();
-            if (!isClassEqualsOrAssignableFrom(paramType,valueType)){
+            if (!isClassEqualsOrAssignableFrom(paramType, valueType)) {
                 return false;
             }
         }
@@ -70,9 +70,8 @@ public class ReflectObject {
     }
 
 
-
     private boolean isClassEqualsOrAssignableFrom(Class<?> paramType, Class<?> valueType) {
-        if (paramType.equals(valueType) || paramType.isAssignableFrom(valueType)){
+        if (paramType.equals(valueType) || paramType.isAssignableFrom(valueType)) {
             return true;
         }
         return false;
