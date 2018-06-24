@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.commons;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,10 +15,26 @@ public class BeanFieldUtils {
      */
     private static final Map<Class, List<BeanField>> beanFieldCacheMap = new ConcurrentHashMap<>();
 
+
     /**
      * 静态变量字段
      */
     private static final Map<Class, List<BeanField>> classStaticFieldCacheMap = new ConcurrentHashMap<>();
+
+    /**
+     *
+     */
+    private static final Map<Class, List<Method>> beanSetterMethodCacheMap = new ConcurrentHashMap<>();
+
+
+    public static List<Method> getBeanMethods(Class clazz){
+        List<Method> beanFields = beanSetterMethodCacheMap.get(clazz);
+        if (beanFields == null) {
+            beanFields = getBeanMethodsImpl(clazz);
+            beanSetterMethodCacheMap.put(clazz, beanFields);
+        }
+        return beanFields;
+    }
 
 
     //获取类字段（静态字段）
@@ -67,6 +84,25 @@ public class BeanFieldUtils {
     }
 
 
+
+    private static List<Method> getBeanMethodsImpl(Class clazz) {
+        List<Class> classList = getSuperClass(clazz);
+        classList.add(clazz);
+
+        Map<String, Method> map = new HashMap<>();
+        for (Class superClass : classList) {
+            Method[] methods = superClass.getDeclaredMethods();
+            if (!CollectionUtils.isEmpty(methods)) {
+                for (Method method : methods) {
+                    map.put(method.getName(), method);
+                }
+            }
+        }
+
+        return new ArrayList<>(map.values());
+    }
+
+
     private static List<BeanField> getClassOrBeanFields(Class clazz, ObjectFilter<Field> fieldFilter) {
 
         List<Class> classList = getSuperClass(clazz);
@@ -111,7 +147,6 @@ public class BeanFieldUtils {
             listSuperClass.add(superclass);
             superclass = superclass.getSuperclass();
         }
-
 
         if (!listSuperClass.isEmpty()) {
             //反转

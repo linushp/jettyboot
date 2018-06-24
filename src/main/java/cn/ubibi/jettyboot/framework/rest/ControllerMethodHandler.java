@@ -91,9 +91,9 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
 
             //Aspect前置
-            for (ControllerAspect methodWrapper : methodWrappers) {
-                ServiceManager.getInstance().injectDependency(methodWrapper);
-                methodWrapper.beforeInvoke(method, httpParsedRequest);
+            for (ControllerAspect controllerAspect : methodWrappers) {
+                ServiceManager.getInstance().injectDependency(controllerAspect);
+                controllerAspect.beforeInvoke(method, httpParsedRequest);
             }
 
             //准备参数
@@ -122,11 +122,11 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         //2.执行Render
         if (invokeResult instanceof ResponseRender) {
-            ((ResponseRender) invokeResult).doRender(request, response);
+            ((ResponseRender) invokeResult).doRender(httpParsedRequest, response);
         } else if (invokeResult instanceof String) {
-            new TextRender(invokeResult.toString()).doRender(request, response);
+            new TextRender(invokeResult.toString()).doRender(httpParsedRequest, response);
         } else {
-            new JsonRender(invokeResult).doRender(request, response);
+            new JsonRender(invokeResult).doRender(httpParsedRequest, response);
         }
 
 
