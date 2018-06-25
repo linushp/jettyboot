@@ -140,4 +140,19 @@ public class StringUtils {
     }
 
 
+    public static boolean isIntegerNumeric(String str){
+        if (isEmpty(str)) {
+            return false;
+        }
+        int len = str.length();
+        for (int i = 0; i < len; i++) {
+            char x = str.charAt(i);
+            if (x < '0' || x > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }
