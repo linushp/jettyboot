@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Cache {
+public @interface MapCache {
     long activeTime() default 5000;
     String cacheKey();
     int[] paramKey() default {};

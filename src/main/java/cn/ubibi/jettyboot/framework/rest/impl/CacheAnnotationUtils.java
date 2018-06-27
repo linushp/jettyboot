@@ -2,7 +2,7 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.cache.CacheManager;
-import cn.ubibi.jettyboot.framework.rest.annotation.Cache;
+import cn.ubibi.jettyboot.framework.rest.annotation.MapCache;
 
 import java.lang.reflect.Method;
 
@@ -15,7 +15,7 @@ public class CacheAnnotationUtils {
             return null;
         }
 
-        Cache cacheAnnotation = method.getAnnotation(Cache.class);
+        MapCache cacheAnnotation = method.getAnnotation(MapCache.class);
         if (cacheAnnotation == null) {
             return null;
         }
@@ -27,7 +27,7 @@ public class CacheAnnotationUtils {
 
     public static void saveResultToCacheAnnotation(Method method, Object controller, Object[] params, Object invokeResult) {
 
-        Cache cacheAnnotation = method.getAnnotation(Cache.class);
+        MapCache cacheAnnotation = method.getAnnotation(MapCache.class);
         if (cacheAnnotation == null) {
             return;
         }
@@ -39,7 +39,7 @@ public class CacheAnnotationUtils {
     }
 
 
-    private static String toCacheKey(Cache cacheAnnotation, Object[] params) {
+    private static String toCacheKey(MapCache cacheAnnotation, Object[] params) {
         String key = CACHE_KEY_PREFIX + cacheAnnotation.cacheKey();
 
         int[] paramsKey = cacheAnnotation.paramKey();
