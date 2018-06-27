@@ -1,8 +1,6 @@
 package cn.ubibi.jettyboot.framework.commons.cache;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class CacheManager {
@@ -43,13 +41,16 @@ public class CacheManager {
                     }
 
                     synchronized (CacheManager.lock) {
+
                         Map<String, CacheObject> cache0 = CacheManager.cacheMap;
-                        Collection<CacheObject> values = cache0.values();
+
+                        Collection<CacheObject> values = new ArrayList<>(cache0.values());
                         for (CacheObject object : values) {
                             if (isExpired(object.getExpireTimeMs())) {
                                 cache0.remove(object.getKey());
                             }
                         }
+
                     }
 
                 }
