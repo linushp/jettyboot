@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DefaultResultSetParser<T> implements ResultSetParser<T> {
 
-    private Class<T> clazz;
+    public Class<T> clazz;
 
 
     public DefaultResultSetParser(Class<T> clazz) {
