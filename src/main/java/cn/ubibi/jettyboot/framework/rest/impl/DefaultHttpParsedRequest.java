@@ -149,6 +149,23 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
 
 
     @Override
+    public Map<String, String> getParameterValuesAsMap() {
+        Map<String, String[]> map1 = httpServletRequest.getParameterMap();
+        Map<String, String> map2 = new HashMap<>();
+        Set<Map.Entry<String, String[]>> entryset = map1.entrySet();
+        for (Map.Entry<String, String[]> e : entryset) {
+            String[] vv = e.getValue();
+            if (vv != null && vv.length > 0) {
+                String key = e.getKey();
+                String value = vv[0];
+                map2.put(key, value);
+            }
+        }
+        return map2;
+    }
+
+
+    @Override
     public String getMatchedControllerPath() {
         return this.matchedControllerPath;
     }
