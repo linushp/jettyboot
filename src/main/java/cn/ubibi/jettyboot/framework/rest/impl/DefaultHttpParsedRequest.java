@@ -151,6 +151,9 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     @Override
     public Map<String, String> getParameterValuesAsMap() {
         Map<String, String[]> map1 = httpServletRequest.getParameterMap();
+        if (map1 == null) {
+            return new HashMap<>();
+        }
         Map<String, String> map2 = new HashMap<>();
         Set<Map.Entry<String, String[]>> entryset = map1.entrySet();
         for (Map.Entry<String, String[]> e : entryset) {
