@@ -5,6 +5,18 @@ public class Event {
 
     private Object data;
 
+    public Event(String name, Object data) {
+        this.name = name;
+        this.data = data;
+    }
+
+    public Event(String name) {
+        this.name = name;
+    }
+
+    public Event() {
+    }
+
     public String getName() {
         return name;
     }

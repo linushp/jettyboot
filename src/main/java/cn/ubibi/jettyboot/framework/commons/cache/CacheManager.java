@@ -77,6 +77,12 @@ public class CacheManager {
     }
 
 
+    public static void removeObject(String key) {
+        synchronized(CacheManager.lock) {
+            cacheMap.remove(key);
+        }
+    }
+
     /**
      * 判断是否已过期
      *
