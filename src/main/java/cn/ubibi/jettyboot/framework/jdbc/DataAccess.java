@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.jdbc;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.jdbc.model.DataModifyListener;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlNdArgs;
 import cn.ubibi.jettyboot.framework.jdbc.model.SqlSession;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
@@ -19,6 +20,7 @@ public class DataAccess {
 
     private ConnectionFactory connectionFactory;
     private ResultSetParser<?> resultSetParser = null;
+    private DataModifyListener dataModifyListener = null;
 
     public DataAccess(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
@@ -28,6 +30,26 @@ public class DataAccess {
         return this.connectionFactory;
     }
 
+
+    public void setDataModifyListener(DataModifyListener dataModifyListener) {
+        this.dataModifyListener = dataModifyListener;
+    }
+
+
+    private void emitBeforeUpdateEvent(String sql, Object[] args) throws Exception {
+        if (this.dataModifyListener != null) {
+            this.dataModifyListener.onBeforeDataModify(sql, args);
+        }
+    }
+
+    private void emitAfterUpdateEvent(String sql, Object[] args, UpdateResult updateResult) throws Exception {
+        if (this.dataModifyListener != null) {
+            this.dataModifyListener.onAfterDataModify(sql, args, updateResult);
+        }
+    }
+
+
+
     public UpdateResult update(String sql, List<Object> args) throws Exception {
         Object[] objects = args.toArray(new Object[args.size()]);
         return update(sql, objects);
@@ -35,11 +57,13 @@ public class DataAccess {
 
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
     public UpdateResult update(String sql, Object... args) throws Exception {
+        emitBeforeUpdateEvent(sql,args);
+
+
 
         SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
         sql = sqlNdArgs.getSql();
         args = sqlNdArgs.getArgs();
-
 
 
 
@@ -76,6 +100,11 @@ public class DataAccess {
                     }
                 }
             }
+
+
+
+            emitAfterUpdateEvent(sql,args,updateResult);
+
             return updateResult;
 
         } catch (Exception e) {

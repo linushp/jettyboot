@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.jdbc;
 import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.model.Page;
+import cn.ubibi.jettyboot.framework.jdbc.model.DataModifyListener;
 import cn.ubibi.jettyboot.framework.jdbc.model.SingleConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.model.UpdateResult;
 import cn.ubibi.jettyboot.framework.jdbc.utils.ResultSetParser;
@@ -74,6 +75,10 @@ public class DataAccessObject<T> {
     public DataAccessObject() {
     }
 
+
+    public void setDataModifyListener(DataModifyListener dataModifyListener) {
+        this.dataAccess.setDataModifyListener(dataModifyListener);
+    }
 
     /**
      * 请在子类的构造方法中调用
