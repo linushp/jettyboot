@@ -6,10 +6,14 @@
 
     <groupId>com.github.luanhaipeng</groupId>
     <artifactId>jettyboot</artifactId>
-    <version>1.0.27</version>
+    <version>1.0.28</version>
     <name>jettyboot</name>
     <description>jetty boot Library, simple mvc and data ORM framework</description>
     <url>https://github.com/luanhaipeng/jettyboot</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <developers>
         <developer>

@@ -332,6 +332,7 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     }
 
     @Override
+    @Deprecated
     public boolean isRequestedSessionIdFromUrl() {
         return httpServletRequest.isRequestedSessionIdFromUrl();
     }
@@ -492,6 +493,7 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
     }
 
     @Override
+    @Deprecated
     public String getRealPath(String path) {
         return httpServletRequest.getRealPath(path);
     }
