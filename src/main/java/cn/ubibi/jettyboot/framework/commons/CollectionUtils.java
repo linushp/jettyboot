@@ -92,6 +92,8 @@ public class CollectionUtils {
     }
 
 
+
+
     //二维数组转一维数组
     public static List<String> toListAddAll(String[]... array2) {
         List<String> result = new ArrayList<>();
@@ -215,6 +217,17 @@ public class CollectionUtils {
 
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
+    }
+
+    public static <T> List<T> toList(T[] array) {
+        if (array == null) {
+            return null;
+        }
+        List<T> result = new ArrayList<>();
+        for (T e:array) {
+            result.add(e);
+        }
+        return result;
     }
 
     //数组转List

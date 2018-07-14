@@ -2,6 +2,8 @@ package cn.ubibi.jettyboot.framework.commons;
 
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FrameworkConfig {
 
@@ -22,6 +24,12 @@ public class FrameworkConfig {
     //DwrController的路径前缀
     private String dwrPrefix = "/dwr_controller/";
 
+    //获取所有dwr方法时的秘密参数
+    private String dwrGetAllMethodSecretKey = "get_all_controllers";
+
+    //所有的Controller的名称都会放在这里
+    private List<String> dwrControllerNameList  = new ArrayList<>();
+
     //HTTP Request Max Body
     private int maxRequestBodySize = 10000;
 
@@ -32,7 +40,6 @@ public class FrameworkConfig {
 
     //HTTP Header 输出的Server字段
     private String responseServerName = "jetty_boot";
-
 
     //Controller的请求是否可以被缓存
     private boolean cacheAnnotation = true;
@@ -93,4 +100,21 @@ public class FrameworkConfig {
     public void setRequestBodyCharset(Charset requestBodyCharset) {
         this.requestBodyCharset = requestBodyCharset;
     }
+
+    public void addDwrControllerName(String simpleName) {
+        this.dwrControllerNameList.add(simpleName);
+    }
+
+    public List<String> getDwrControllerNameList() {
+        return dwrControllerNameList;
+    }
+
+    public String getDwrGetAllMethodSecretKey() {
+        return dwrGetAllMethodSecretKey;
+    }
+
+    public void setDwrGetAllMethodSecretKey(String dwrGetAllMethodSecretKey) {
+        this.dwrGetAllMethodSecretKey = dwrGetAllMethodSecretKey;
+    }
+
 }

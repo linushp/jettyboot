@@ -70,6 +70,7 @@ public class ControllerContextHandler extends ContextHandler {
 
     public void addDwrController(Object restController) throws Exception {
         String path = FrameworkConfig.getInstance().getDwrPrefix() + restController.getClass().getSimpleName();
+        FrameworkConfig.getInstance().addDwrControllerName(restController.getClass().getSimpleName());
         this.requestHandler.addController(path, restController);
     }
 

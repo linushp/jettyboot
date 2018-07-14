@@ -13,7 +13,7 @@ import java.util.List;
 public class DwrControllerScript {
 
 
-    public static String toDwrScript(String[] controllerArray, String exportAs, String controllerPrefix) throws Exception {
+    public static String toDwrScript(List<String> controllerArray, String exportAs, String controllerPrefix) throws Exception {
 
         List<ApiModel> apis = getApiModelList(controllerArray);
 
@@ -26,7 +26,7 @@ public class DwrControllerScript {
     }
 
 
-    private static List<ApiModel> getApiModelList(String[] controllerArray) throws Exception {
+    private static List<ApiModel> getApiModelList(List<String> controllerArray) throws Exception {
 
         if (CollectionUtils.isEmpty(controllerArray)) {
             return new ArrayList<>();
@@ -70,7 +70,7 @@ public class DwrControllerScript {
     }
 
 
-    private static boolean isIncludeController(String[] controllerArray, String controllerName) {
+    private static boolean isIncludeController(List<String> controllerArray, String controllerName) {
         if (CollectionUtils.isEmpty(controllerArray)) {
             return false;
         }

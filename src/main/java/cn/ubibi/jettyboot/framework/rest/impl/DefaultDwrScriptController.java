@@ -1,13 +1,22 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
+import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.annotation.GetMapping;
+import cn.ubibi.jettyboot.framework.rest.annotation.MapCache;
 import cn.ubibi.jettyboot.framework.rest.annotation.RequestParam;
 import cn.ubibi.jettyboot.framework.rest.dwr.DwrControllerScript;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class DefaultDwrScriptController {
 
+
     @GetMapping("/")
+    @MapCache(cacheKey = "DefaultDwrScriptController_toDwrScript", activeTime = 1000L * 60 * 60 * 24)
     public ScriptRender toDwrScript(@RequestParam("controllers") String controllers,
                                     @RequestParam("exportAs") String exportAs,
                                     @RequestParam("controllerPrefix") String controllerPrefix) throws Exception {
@@ -20,7 +29,14 @@ public class DefaultDwrScriptController {
             controllerPrefix = "";
         }
 
-        String[] controllerArray = controllers.split(";");
+        List<String> controllerArray = null;
+        if (FrameworkConfig.getInstance().getDwrGetAllMethodSecretKey().equals(controllers)) {
+            controllerArray = FrameworkConfig.getInstance().getDwrControllerNameList();
+        } else {
+            controllerArray = CollectionUtils.toList(controllers.split(";"));
+        }
+
+
         String script = DwrControllerScript.toDwrScript(controllerArray, exportAs, controllerPrefix);
         return new ScriptRender(script);
     }
