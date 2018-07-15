@@ -223,6 +223,11 @@ public class DataAccessObject<T> {
             pageSize = 30;
         }
 
+        if (pageSize > FrameworkConfig.getInstance().getJbdcMaxPageRowSize()){
+            pageSize = FrameworkConfig.getInstance().getJbdcMaxPageRowSize();
+        }
+
+
         if (whereSql == null) {
             whereSql = "";
         }

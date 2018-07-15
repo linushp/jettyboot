@@ -16,7 +16,7 @@ public class DefaultDwrScriptController {
 
 
     @GetMapping("/")
-    @MapCache(cacheKey = "DefaultDwrScriptController_toDwrScript", activeTime = 1000L * 60 * 60 * 24)
+    @MapCache(cacheKey = "DefaultDwrScriptController_toDwrScript", activeTime = 1000L * 60 * 5,paramKey = {0,1,2})
     public ScriptRender toDwrScript(@RequestParam("controllers") String controllers,
                                     @RequestParam("exportAs") String exportAs,
                                     @RequestParam("controllerPrefix") String controllerPrefix) throws Exception {

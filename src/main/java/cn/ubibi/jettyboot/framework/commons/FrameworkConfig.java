@@ -30,6 +30,9 @@ public class FrameworkConfig {
     //所有的Controller的名称都会放在这里
     private List<String> dwrControllerNameList  = new ArrayList<>();
 
+    //jdbc查询中，最多页面条数
+    private int jbdcMaxPageRowSize = 50;
+
     //HTTP Request Max Body
     private int maxRequestBodySize = 10000;
 
@@ -115,6 +118,14 @@ public class FrameworkConfig {
 
     public void setDwrGetAllMethodSecretKey(String dwrGetAllMethodSecretKey) {
         this.dwrGetAllMethodSecretKey = dwrGetAllMethodSecretKey;
+    }
+
+    public int getJbdcMaxPageRowSize() {
+        return jbdcMaxPageRowSize;
+    }
+
+    public void setJbdcMaxPageRowSize(int jbdcMaxPageRowSize) {
+        this.jbdcMaxPageRowSize = jbdcMaxPageRowSize;
     }
 
 }
