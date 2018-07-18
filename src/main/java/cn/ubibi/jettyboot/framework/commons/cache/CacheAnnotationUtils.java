@@ -1,21 +1,19 @@
-package cn.ubibi.jettyboot.framework.rest.impl;
+package cn.ubibi.jettyboot.framework.commons.cache;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
-import cn.ubibi.jettyboot.framework.commons.cache.CacheManager;
-import cn.ubibi.jettyboot.framework.rest.annotation.MapCache;
 
 import java.lang.reflect.Method;
 
 public class CacheAnnotationUtils {
 
-    private static final String CACHE_KEY_PREFIX = "ctrl:";
+    private static final String CACHE_KEY_PREFIX = "sys:";
 
-    public static Object getResultFromCacheAnnotation(Method method, Object controller, Object[] params) {
+    public static Object getResultFromCacheAnnotation(Method method, Object[] params) {
         if (!FrameworkConfig.getInstance().isCacheAnnotation()) {
             return null;
         }
 
-        MapCache cacheAnnotation = method.getAnnotation(MapCache.class);
+        MapCache cacheAnnotation = method.getDeclaredAnnotation(MapCache.class);
         if (cacheAnnotation == null) {
             return null;
         }
@@ -25,7 +23,7 @@ public class CacheAnnotationUtils {
     }
 
 
-    public static void saveResultToCacheAnnotation(Method method, Object controller, Object[] params, Object invokeResult) {
+    public static void saveResultToCacheAnnotation(Method method, Object[] params, Object invokeResult) {
 
         MapCache cacheAnnotation = method.getAnnotation(MapCache.class);
         if (cacheAnnotation == null) {

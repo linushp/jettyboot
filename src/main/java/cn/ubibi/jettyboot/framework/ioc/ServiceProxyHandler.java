@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.ioc;
 
-import java.lang.annotation.Annotation;
+import cn.ubibi.jettyboot.framework.commons.cache.CacheAnnotationUtils;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -11,14 +12,18 @@ public class ServiceProxyHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] paramsObjects) throws Throwable {
 
-        Annotation[] aaa = method.getDeclaredAnnotations();
+        //先从缓存里取
+        Object invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, paramsObjects);
+        if (invokeResult == null) {
+            invokeResult = method.invoke(this.realServiceObject, paramsObjects);
+            CacheAnnotationUtils.saveResultToCacheAnnotation(method, paramsObjects, invokeResult);
+        }
 
-        //TODO 事务，缓存，
-        Object result = method.invoke(this.realServiceObject, args);
-
-
-        return result;
+        return invokeResult;
     }
+
+
+
 }

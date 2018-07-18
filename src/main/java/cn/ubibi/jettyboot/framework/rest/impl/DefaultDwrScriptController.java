@@ -4,12 +4,10 @@ import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.rest.annotation.GetMapping;
-import cn.ubibi.jettyboot.framework.rest.annotation.MapCache;
+import cn.ubibi.jettyboot.framework.commons.cache.MapCache;
 import cn.ubibi.jettyboot.framework.rest.annotation.RequestParam;
 import cn.ubibi.jettyboot.framework.rest.dwr.DwrControllerScript;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class DefaultDwrScriptController {

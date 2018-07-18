@@ -1,4 +1,4 @@
-package cn.ubibi.jettyboot.framework.rest.annotation;
+package cn.ubibi.jettyboot.framework.commons.cache;
 
 
 import java.lang.annotation.ElementType;
