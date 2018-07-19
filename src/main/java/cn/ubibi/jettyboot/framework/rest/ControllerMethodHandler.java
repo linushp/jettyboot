@@ -121,7 +121,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         if (invokeResult instanceof VoidResult) {
             //do nothing
         } else {
-            ResultRenderMisc.render(invokeResult, method, httpParsedRequest, response);
+            ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, httpParsedRequest, response);
         }
     }
 

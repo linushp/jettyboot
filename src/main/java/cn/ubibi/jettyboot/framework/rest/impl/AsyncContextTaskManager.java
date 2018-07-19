@@ -88,7 +88,8 @@ public class AsyncContextTaskManager {
 
                             HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
                             HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-                            ResultRenderMisc.render(invokeResult, null, request, response);
+
+                            ResultRenderMisc.renderAndAfterInvoke(invokeResult, null, request, response);
 
                             asyncContext.complete();
                         }

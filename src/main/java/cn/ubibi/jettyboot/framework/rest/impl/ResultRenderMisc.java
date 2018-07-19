@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class ResultRenderMisc {
-    public static void render(Object invokeResult, Method method, HttpServletRequest httpParsedRequest, HttpServletResponse response) throws Exception {
+    public static void renderAndAfterInvoke(Object invokeResult, Method method, HttpServletRequest httpParsedRequest, HttpServletResponse response) throws Exception {
         //Aspect后置
         List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects();
         for (ControllerAspect methodWrapper : methodWrappers) {
