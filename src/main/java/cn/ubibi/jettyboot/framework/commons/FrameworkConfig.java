@@ -1,12 +1,17 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 
+import cn.ubibi.jettyboot.framework.jdbc.ConnectionFactory;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FrameworkConfig {
 
+    public static final String DEFAULT_CONNECTION_FACTORY_NAME = "default";
     private static FrameworkConfig instance = new FrameworkConfig();
 
 
@@ -46,6 +51,9 @@ public class FrameworkConfig {
 
     //Controller的请求是否可以被缓存
     private boolean cacheAnnotation = true;
+
+    //ConnectionFactory存储
+    private Map<String,ConnectionFactory> connectionFactoryMap = new HashMap<>();
 
 
     public boolean isCacheAnnotation() {
@@ -127,5 +135,18 @@ public class FrameworkConfig {
     public void setJbdcMaxPageRowSize(int jbdcMaxPageRowSize) {
         this.jbdcMaxPageRowSize = jbdcMaxPageRowSize;
     }
+
+    public void addConnectionFactory(ConnectionFactory instance) {
+        connectionFactoryMap.put(DEFAULT_CONNECTION_FACTORY_NAME,instance);
+    }
+
+    public void addConnectionFactory(String connectionFactoryName, ConnectionFactory instance) {
+        connectionFactoryMap.put(connectionFactoryName,instance);
+    }
+
+    public ConnectionFactory getConnectionFactory(String connectionFactoryName) {
+        return connectionFactoryMap.get(connectionFactoryName);
+    }
+
 
 }

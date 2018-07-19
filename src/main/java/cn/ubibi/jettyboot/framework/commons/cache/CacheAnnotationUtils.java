@@ -13,7 +13,7 @@ public class CacheAnnotationUtils {
             return null;
         }
 
-        MapCache cacheAnnotation = method.getDeclaredAnnotation(MapCache.class);
+        MethodCache cacheAnnotation = method.getDeclaredAnnotation(MethodCache.class);
         if (cacheAnnotation == null) {
             return null;
         }
@@ -25,7 +25,7 @@ public class CacheAnnotationUtils {
 
     public static void saveResultToCacheAnnotation(Method method, Object[] params, Object invokeResult) {
 
-        MapCache cacheAnnotation = method.getAnnotation(MapCache.class);
+        MethodCache cacheAnnotation = method.getAnnotation(MethodCache.class);
         if (cacheAnnotation == null) {
             return;
         }
@@ -37,7 +37,7 @@ public class CacheAnnotationUtils {
     }
 
 
-    private static String toCacheKey(MapCache cacheAnnotation, Object[] params) {
+    private static String toCacheKey(MethodCache cacheAnnotation, Object[] params) {
         String key = CACHE_KEY_PREFIX + cacheAnnotation.cacheKey();
 
         int[] paramsKey = cacheAnnotation.paramKey();

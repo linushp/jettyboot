@@ -33,6 +33,33 @@ public class DataAccessObject<T> {
     protected String schemaName = "";
     protected DataAccess dataAccess;
 
+
+    /**
+     * 创建一个数据访问对象
+     *
+     * @param clazz             ORM的类
+     * @param tableName         表名
+     * @param connectionFactoryName 如果想动态选择DB，可以在ConnectionFactory中实现
+     */
+    public DataAccessObject(Class<T> clazz, String tableName, String connectionFactoryName) {
+        this.clazz = clazz;
+        this.tableName = tableName;
+        ConnectionFactory connectionFactory = FrameworkConfig.getInstance().getConnectionFactory(connectionFactoryName);
+        this.dataAccess = new DataAccess(connectionFactory);
+    }
+
+
+    /**
+     * 创建一个数据访问对象
+     *
+     * @param clazz     ORM的类
+     * @param tableName 表名
+     */
+    public DataAccessObject(Class<T> clazz, String tableName) {
+        this(clazz, tableName, FrameworkConfig.DEFAULT_CONNECTION_FACTORY_NAME);
+    }
+
+
     /**
      * 创建一个数据访问对象
      *
