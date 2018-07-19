@@ -1,13 +1,12 @@
 package cn.ubibi.jettyboot.framework.rest.impl;
 
 
-import cn.ubibi.jettyboot.framework.rest.annotation.AsyncMergeCall;
+import cn.ubibi.jettyboot.framework.rest.annotation.AsyncMergeMethod;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class AsyncContextTaskManager {
     }
 
 
-    public static String toTaskKey(Method method, AsyncMergeCall unionMethodCall, Object[] params) {
+    public static String toTaskKey(Method method, AsyncMergeMethod unionMethodCall, Object[] params) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(method.getDeclaringClass().getSimpleName());
