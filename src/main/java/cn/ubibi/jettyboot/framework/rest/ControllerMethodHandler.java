@@ -5,7 +5,7 @@ import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
 import cn.ubibi.jettyboot.framework.rest.impl.AsyncContextTaskManager;
-import cn.ubibi.jettyboot.framework.rest.impl.DeferredResult;
+import cn.ubibi.jettyboot.framework.rest.impl.VoidResult;
 import cn.ubibi.jettyboot.framework.rest.impl.InvokeResultCallable;
 import cn.ubibi.jettyboot.framework.rest.impl.ResultRenderMisc;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
@@ -106,7 +106,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 String taskKey = AsyncContextTaskManager.toTaskKey(method, unionMethodCall, paramsObjects);
                 AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
                 AsyncContextTaskManager.addTask(taskKey, asyncContext, invokeResultCallable);
-                invokeResult = new DeferredResult();
+                invokeResult = new VoidResult();
 
             } else {
                 invokeResult = invokeResultCallable.call();
@@ -118,7 +118,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         }
 
         //2.执行Render
-        if (invokeResult instanceof DeferredResult) {
+        if (invokeResult instanceof VoidResult) {
             //do nothing
         } else {
             ResultRenderMisc.render(invokeResult, method, httpParsedRequest, response);
