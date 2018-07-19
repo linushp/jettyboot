@@ -105,7 +105,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
                 String taskKey = AsyncContextTaskManager.toTaskKey(method, unionMethodCall, paramsObjects);
                 AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
-                AsyncContextTaskManager.addTask(taskKey, asyncContext, invokeResultCallable);
+                AsyncContextTaskManager.addTask(taskKey, method,asyncContext, invokeResultCallable);
                 invokeResult = new VoidResult();
 
             } else {

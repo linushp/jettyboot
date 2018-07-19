@@ -19,13 +19,18 @@ public class InvokeResultCallable implements Callable {
 
     @Override
     public Object call() throws Exception {
-        //先从缓存里取
-        Object invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, paramsObjects);
-        if (invokeResult == null) {
-            //方法调用
-            invokeResult = method.invoke(controller, paramsObjects);
-            CacheAnnotationUtils.saveResultToCacheAnnotation(method, paramsObjects, invokeResult);
+
+        if (CacheAnnotationUtils.isNeedCache(method)){
+            //先从缓存里取
+            Object invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, paramsObjects);
+            if (invokeResult == null) {
+                //方法调用
+                invokeResult = method.invoke(controller, paramsObjects);
+                CacheAnnotationUtils.saveResultToCacheAnnotation(method, paramsObjects, invokeResult);
+            }
+            return invokeResult;
+        }else {
+            return method.invoke(controller, paramsObjects);
         }
-        return invokeResult;
     }
 }

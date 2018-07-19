@@ -9,16 +9,26 @@ public class CacheAnnotationUtils {
 
     private static final String CACHE_KEY_PREFIX = "sys:";
 
-    public static Object getResultFromCacheAnnotation(Method method, Object[] params) {
+
+    public static boolean isNeedCache(Method method){
         if (!FrameworkConfig.getInstance().isCacheAnnotation()) {
-            return null;
+            return false;
         }
 
         CacheMethod cacheAnnotation = method.getDeclaredAnnotation(CacheMethod.class);
         if (cacheAnnotation == null) {
-            return null;
+            return false;
         }
 
+        return true;
+    }
+
+
+    public static Object getResultFromCacheAnnotation(Method method, Object[] params) {
+        CacheMethod cacheAnnotation = method.getDeclaredAnnotation(CacheMethod.class);
+        if (cacheAnnotation == null) {
+            return null;
+        }
         String key = toCacheKey(method, cacheAnnotation, params);
         return CacheManager.getObject(key);
     }

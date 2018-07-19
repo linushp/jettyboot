@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 
 
 import cn.ubibi.jettyboot.framework.rest.annotation.AsyncMergeCall;
+import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AsyncContextTaskManager {
+
     private static Logger logger = LoggerFactory.getLogger(AsyncContextTaskManager.class);
 
     private static ExecutorService execPools = Executors.newFixedThreadPool(10);
@@ -25,10 +27,10 @@ public class AsyncContextTaskManager {
     //正在执行的
     private static final Map<String, DeferredResultUnionTask> runningTaskMap = new HashMap<>();
 
-    public static synchronized void addTask(String taskKey, AsyncContext deferredResult, Callable callable) {
+    public static synchronized void addTask(String taskKey, Method method,AsyncContext deferredResult, Callable callable) {
         DeferredResultUnionTask deferredResultUnionTask = runningTaskMap.get(taskKey);
         if (deferredResultUnionTask == null) {
-            deferredResultUnionTask = new DeferredResultUnionTask(taskKey);
+            deferredResultUnionTask = new DeferredResultUnionTask(taskKey,method);
             deferredResultUnionTask.doRun(callable);
             runningTaskMap.put(taskKey, deferredResultUnionTask);
         }
@@ -65,9 +67,11 @@ public class AsyncContextTaskManager {
     private static class DeferredResultUnionTask {
         private List<AsyncContext> deferredResultList = new ArrayList<>();
         private String taskKey;
+        private  Method method;
 
-        public DeferredResultUnionTask(String taskKey) {
+        public DeferredResultUnionTask(String taskKey, Method method) {
             this.taskKey = taskKey;
+            this.method = method;
         }
 
         public void addCallbackDeferredResult(AsyncContext deferredResult) {
@@ -86,10 +90,10 @@ public class AsyncContextTaskManager {
 
                         for (AsyncContext asyncContext : deferredResultList) {
 
-                            HttpServletRequest request = (HttpServletRequest) asyncContext.getRequest();
+                            HttpParsedRequest request = (HttpParsedRequest) asyncContext.getRequest();
                             HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
 
-                            ResultRenderMisc.renderAndAfterInvoke(invokeResult, null, request, response);
+                            ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, request, response);
 
                             asyncContext.complete();
                         }
