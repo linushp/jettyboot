@@ -2,11 +2,11 @@ package cn.ubibi.jettyboot.framework.rest;
 
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.util.annotation.Name;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +79,9 @@ public class JettyBootServer extends Server {
         this.handlerCollection.addHandler(contextHandler);
     }
 
+    public void addHandler(Handler handler) {
+        this.handlerCollection.addHandler(handler);
+    }
 
     public void doScanPackage(Class mainServerClass) throws Exception {
 

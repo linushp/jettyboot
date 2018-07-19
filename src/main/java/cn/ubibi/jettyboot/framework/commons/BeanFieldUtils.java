@@ -27,7 +27,7 @@ public class BeanFieldUtils {
     private static final Map<Class, List<Method>> beanSetterMethodCacheMap = new ConcurrentHashMap<>();
 
 
-    public static List<Method> getBeanMethods(Class clazz){
+    public static List<Method> getBeanMethods(Class clazz) {
         List<Method> beanFields = beanSetterMethodCacheMap.get(clazz);
         if (beanFields == null) {
             beanFields = getBeanMethodsImpl(clazz);
@@ -82,7 +82,6 @@ public class BeanFieldUtils {
             return false;
         }
     }
-
 
 
     private static List<Method> getBeanMethodsImpl(Class clazz) {

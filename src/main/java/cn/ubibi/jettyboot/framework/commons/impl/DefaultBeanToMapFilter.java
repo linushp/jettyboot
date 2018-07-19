@@ -35,7 +35,7 @@ public class DefaultBeanToMapFilter implements BeanToMapFilter {
         // 根据JSONTextBean注解转换，此时原始的value必须是字符串
         TextBean textBean = field.getAnnotation(TextBean.class);
         if (textBean != null) {
-            if (textBean.textType() == TextBeanTypeEnum.JSON){
+            if (textBean.textType() == TextBeanTypeEnum.JSON) {
                 return JSON.toJSONString(value);
             }
         }

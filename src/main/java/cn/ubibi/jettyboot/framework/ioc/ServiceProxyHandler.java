@@ -1,16 +1,15 @@
 package cn.ubibi.jettyboot.framework.ioc;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
-import cn.ubibi.jettyboot.framework.jdbc.utils.Transactional;
 import cn.ubibi.jettyboot.framework.commons.cache.CacheAnnotationUtils;
 import cn.ubibi.jettyboot.framework.jdbc.ConnectionFactory;
 import cn.ubibi.jettyboot.framework.jdbc.utils.TransactionUtil;
+import cn.ubibi.jettyboot.framework.jdbc.utils.Transactional;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 public class ServiceProxyHandler implements InvocationHandler {
-
 
 
     private Object realServiceObject;
@@ -68,7 +67,6 @@ public class ServiceProxyHandler implements InvocationHandler {
         Object invokeResult = method.invoke(this.realServiceObject, paramsObjects);
         return invokeResult;
     }
-
 
 
 }

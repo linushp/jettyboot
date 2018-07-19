@@ -63,6 +63,7 @@ public class BeanField {
 
     /**
      * 会自动转换
+     *
      * @param bean
      * @param value
      * @throws Exception

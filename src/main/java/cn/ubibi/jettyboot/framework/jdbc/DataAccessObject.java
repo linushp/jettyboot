@@ -12,15 +12,15 @@ import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.*;
 
 
 /**
  * 1.如果想动态选择DB，可以在ConnectionFactory中实现
  * 2.如果想动态选择schemaName,可以在子类中的schemaTableName方法实现.
- *
+ * <p>
  * 固定表名
+ *
  * @param <T> ORM的类名
  */
 public class DataAccessObject<T> {
@@ -37,8 +37,8 @@ public class DataAccessObject<T> {
     /**
      * 创建一个数据访问对象
      *
-     * @param clazz             ORM的类
-     * @param tableName         表名
+     * @param clazz                 ORM的类
+     * @param tableName             表名
      * @param connectionFactoryName 如果想动态选择DB，可以在ConnectionFactory中实现
      */
     public DataAccessObject(Class<T> clazz, String tableName, String connectionFactoryName) {
@@ -250,7 +250,7 @@ public class DataAccessObject<T> {
             pageSize = 30;
         }
 
-        if (pageSize > FrameworkConfig.getInstance().getJbdcMaxPageRowSize()){
+        if (pageSize > FrameworkConfig.getInstance().getJbdcMaxPageRowSize()) {
             pageSize = FrameworkConfig.getInstance().getJbdcMaxPageRowSize();
         }
 
@@ -562,7 +562,7 @@ public class DataAccessObject<T> {
     private static class DefaultIdCharFilter implements CharFilter {
 
 
-        private static final char[] WHITE_LIST = {'-','_','~','.'};
+        private static final char[] WHITE_LIST = {'-', '_', '~', '.'};
 
         /**
          * 判断是否是合法的ID允许出现的字符
@@ -582,8 +582,8 @@ public class DataAccessObject<T> {
                 return true;
             }
 
-            for (int i = 0 ; i < WHITE_LIST.length ; i ++){
-                if (cc == WHITE_LIST[i]){
+            for (int i = 0; i < WHITE_LIST.length; i++) {
+                if (cc == WHITE_LIST[i]) {
                     return true;
                 }
             }

@@ -92,8 +92,6 @@ public class CollectionUtils {
     }
 
 
-
-
     //二维数组转一维数组
     public static List<String> toListAddAll(String[]... array2) {
         List<String> result = new ArrayList<>();
@@ -224,7 +222,7 @@ public class CollectionUtils {
             return null;
         }
         List<T> result = new ArrayList<>();
-        for (T e:array) {
+        for (T e : array) {
             result.add(e);
         }
         return result;

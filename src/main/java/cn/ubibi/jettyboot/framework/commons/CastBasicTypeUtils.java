@@ -239,7 +239,7 @@ public class CastBasicTypeUtils {
             return (Boolean) value;
         }
 
-        if (isNull(value) || integer_0.equals(value) || long_0.equals(value) || empty_str.equals(value)){
+        if (isNull(value) || integer_0.equals(value) || long_0.equals(value) || empty_str.equals(value)) {
             return false;
         }
 

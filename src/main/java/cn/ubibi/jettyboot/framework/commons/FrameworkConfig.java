@@ -33,7 +33,7 @@ public class FrameworkConfig {
     private String dwrGetAllMethodSecretKey = "get_all_controllers";
 
     //所有的Controller的名称都会放在这里
-    private List<String> dwrControllerNameList  = new ArrayList<>();
+    private List<String> dwrControllerNameList = new ArrayList<>();
 
     //jdbc查询中，最多页面条数
     private int jbdcMaxPageRowSize = 50;
@@ -53,7 +53,7 @@ public class FrameworkConfig {
     private boolean cacheAnnotation = true;
 
     //ConnectionFactory存储
-    private Map<String,ConnectionFactory> connectionFactoryMap = new HashMap<>();
+    private Map<String, ConnectionFactory> connectionFactoryMap = new HashMap<>();
 
 
     public boolean isCacheAnnotation() {
@@ -137,11 +137,11 @@ public class FrameworkConfig {
     }
 
     public void addConnectionFactory(ConnectionFactory instance) {
-        connectionFactoryMap.put(DEFAULT_CONNECTION_FACTORY_NAME,instance);
+        connectionFactoryMap.put(DEFAULT_CONNECTION_FACTORY_NAME, instance);
     }
 
     public void addConnectionFactory(String connectionFactoryName, ConnectionFactory instance) {
-        connectionFactoryMap.put(connectionFactoryName,instance);
+        connectionFactoryMap.put(connectionFactoryName, instance);
     }
 
     public ConnectionFactory getConnectionFactory(String connectionFactoryName) {

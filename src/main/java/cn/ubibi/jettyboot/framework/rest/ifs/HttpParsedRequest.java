@@ -26,7 +26,7 @@ public interface HttpParsedRequest extends HttpServletRequest {
 
     <T> T getParameterValuesAsObject(Class<? extends T> clazz);
 
-    Map<String,String> getParameterValuesAsMap();
+    Map<String, String> getParameterValuesAsMap();
 
     String getMatchedControllerPath();
 

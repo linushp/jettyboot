@@ -2,6 +2,7 @@ package cn.ubibi.jettyboot.framework.commons.impl;
 
 import cn.ubibi.jettyboot.framework.commons.BeanField;
 import cn.ubibi.jettyboot.framework.commons.ifs.MapToBeanFilter;
+
 import java.util.Map;
 
 public class DefaultMapToBeanFilter implements MapToBeanFilter {
@@ -20,8 +21,6 @@ public class DefaultMapToBeanFilter implements MapToBeanFilter {
 
         return value;
     }
-
-
 
 
     @Override

@@ -25,11 +25,11 @@ public class ControllerContextHandler extends ContextHandler {
     private HandlerCollection handlerCollection;
 
     public ControllerContextHandler() {
-        this("/",null);
+        this("/", null);
     }
 
     public ControllerContextHandler(String context) {
-        this(context,null);
+        this(context, null);
     }
 
     public ControllerContextHandler(String context, SessionHandler sessionHandler) {
@@ -38,7 +38,7 @@ public class ControllerContextHandler extends ContextHandler {
         this.handlerCollection = new HandlerCollection(this.requestHandler);
 
 
-        if (sessionHandler!=null) {
+        if (sessionHandler != null) {
             sessionHandler.setHandler(this.handlerCollection);
             this.setHandler(sessionHandler);
         } else {
@@ -62,7 +62,7 @@ public class ControllerContextHandler extends ContextHandler {
     public void addController(Object restController) throws Exception {
         Controller x = restController.getClass().getAnnotation(Controller.class);
         String[] pathArr = x.value();
-        for(String path : pathArr){
+        for (String path : pathArr) {
             this.requestHandler.addController(path, restController);
         }
     }

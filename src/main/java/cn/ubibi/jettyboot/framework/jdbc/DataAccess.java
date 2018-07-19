@@ -49,7 +49,6 @@ public class DataAccess {
     }
 
 
-
     public UpdateResult update(String sql, List<Object> args) throws Exception {
         Object[] objects = args.toArray(new Object[args.size()]);
         return update(sql, objects);
@@ -57,14 +56,12 @@ public class DataAccess {
 
     // INSERT, UPDATE, DELETE 操作都可以包含在其中
     public UpdateResult update(String sql, Object... args) throws Exception {
-        emitBeforeUpdateEvent(sql,args);
-
+        emitBeforeUpdateEvent(sql, args);
 
 
         SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
         sql = sqlNdArgs.getSql();
         args = sqlNdArgs.getArgs();
-
 
 
         Connection connection = null;
@@ -102,8 +99,7 @@ public class DataAccess {
             }
 
 
-
-            emitAfterUpdateEvent(sql,args,updateResult);
+            emitAfterUpdateEvent(sql, args, updateResult);
 
             return updateResult;
 
@@ -189,6 +185,7 @@ public class DataAccess {
 
     /**
      * 传入 SQL 语句， 返回 SQL 语句查询到的记录对应的 Map对象的集合
+     *
      * @param clazz 可以为Null
      * @param sql
      * @param args
@@ -201,7 +198,6 @@ public class DataAccess {
         SqlNdArgs sqlNdArgs = parseSqlNdArgs(sql, args);
         sql = sqlNdArgs.getSql();
         args = sqlNdArgs.getArgs();
-
 
 
         List<T> list;
@@ -301,13 +297,13 @@ public class DataAccess {
     }
 
 
-    private SqlNdArgs parseSqlNdArgs(String sql, Object... args){
+    private SqlNdArgs parseSqlNdArgs(String sql, Object... args) {
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
             Map map = (Map) args[0];
             return SQLFormatUtils.formatSQLAndArgs(sql, map);
         }
-        return new SqlNdArgs(sql,args);
+        return new SqlNdArgs(sql, args);
     }
 
 

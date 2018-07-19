@@ -4,15 +4,17 @@ import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
-import cn.ubibi.jettyboot.framework.commons.cache.CacheAnnotationUtils;
-import cn.ubibi.jettyboot.framework.rest.impl.JsonRender;
-import cn.ubibi.jettyboot.framework.rest.impl.TextRender;
+import cn.ubibi.jettyboot.framework.rest.impl.AsyncContextTaskManager;
+import cn.ubibi.jettyboot.framework.rest.impl.DeferredResult;
+import cn.ubibi.jettyboot.framework.rest.impl.InvokeResultCallable;
+import cn.ubibi.jettyboot.framework.rest.impl.ResultRenderMisc;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
 import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -82,13 +84,11 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects();
 
         HttpParsedRequest httpParsedRequest;
-        Object invokeResult;
+        Object invokeResult = null;
         try {
-
 
             //解析HTTP请求
             httpParsedRequest = createHttpParsedRequest(controller, method, request, targetPath);
-
 
             //Aspect前置
             for (ControllerAspect controllerAspect : methodWrappers) {
@@ -98,18 +98,18 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
             //准备参数
             Object[] paramsObjects = getMethodParamsObjects(method, httpParsedRequest, response);
-            //先从缓存里取
-            invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, paramsObjects);
-            if (invokeResult == null) {
-                //方法调用
-                invokeResult = method.invoke(controller, paramsObjects);
-                CacheAnnotationUtils.saveResultToCacheAnnotation(method, paramsObjects, invokeResult);
-            }
 
+            InvokeResultCallable invokeResultCallable = new InvokeResultCallable(method, paramsObjects, controller);
+            AsyncMergeCall unionMethodCall = method.getDeclaredAnnotation(AsyncMergeCall.class);
+            if (unionMethodCall != null) {
 
-            //Aspect后置
-            for (ControllerAspect methodWrapper : methodWrappers) {
-                methodWrapper.afterInvoke(method, httpParsedRequest, invokeResult, response);
+                String taskKey = AsyncContextTaskManager.toTaskKey(method, unionMethodCall, paramsObjects);
+                AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
+                AsyncContextTaskManager.addTask(taskKey, asyncContext, invokeResultCallable);
+                invokeResult = new DeferredResult();
+
+            } else {
+                invokeResult = invokeResultCallable.call();
             }
 
 
@@ -117,22 +117,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             throw e;
         }
 
-
         //2.执行Render
-        if (invokeResult instanceof ResponseRender) {
-            ((ResponseRender) invokeResult).doRender(httpParsedRequest, response);
-        } else if (invokeResult instanceof String) {
-            new TextRender(invokeResult.toString()).doRender(httpParsedRequest, response);
+        if (invokeResult instanceof DeferredResult) {
+            //do nothing
         } else {
-            new JsonRender(invokeResult).doRender(httpParsedRequest, response);
+            ResultRenderMisc.render(invokeResult, method, httpParsedRequest, response);
         }
-
-
-        //Aspect后置
-        for (ControllerAspect methodWrapper : methodWrappers) {
-            methodWrapper.afterRender(method, httpParsedRequest, invokeResult, response);
-        }
-
     }
 
 

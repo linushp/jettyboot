@@ -140,7 +140,7 @@ public class StringUtils {
     }
 
 
-    public static boolean isIntegerNumeric(String str){
+    public static boolean isIntegerNumeric(String str) {
         if (isEmpty(str)) {
             return false;
         }

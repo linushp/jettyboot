@@ -5,7 +5,7 @@ public class CacheObject {
     private Object object;
     private long expireTimeMs;
 
-    public CacheObject(String key,Object object, long expireTimeMs) {
+    public CacheObject(String key, Object object, long expireTimeMs) {
         this.key = key;
         this.object = object;
         this.expireTimeMs = expireTimeMs;

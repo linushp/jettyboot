@@ -54,7 +54,6 @@ public class CacheManager {
     }
 
 
-
     private static void runCheckExpireTimeThread() {
         Thread t = new Thread(new Runnable() {
 
@@ -82,7 +81,7 @@ public class CacheManager {
 
                     try {
                         CacheManager.onExpiredCacheKey(expiredCacheKey);
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -111,7 +110,7 @@ public class CacheManager {
 
 
     public static void removeObject(String key) {
-        synchronized(CacheManager.lock) {
+        synchronized (CacheManager.lock) {
             cacheMap.remove(key);
         }
     }

@@ -5,7 +5,6 @@ public class DataModifyListener {
     }
 
 
-
     public void onAfterDataModify(String sql, Object[] args, UpdateResult updateResult) throws Exception {
     }
 

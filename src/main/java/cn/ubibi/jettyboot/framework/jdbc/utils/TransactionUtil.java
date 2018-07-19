@@ -52,7 +52,6 @@ public class TransactionUtil {
     }
 
 
-
     public static void endTransaction() throws SQLException {
         AtomicInteger atomicInteger = getAtomicInteger();
         int atomicIntegerValue = atomicInteger.decrementAndGet();

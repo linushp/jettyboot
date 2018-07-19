@@ -2,7 +2,6 @@ package cn.ubibi.jettyboot.framework.rest.impl.base;
 
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.ResponseUtils;
-import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
 import cn.ubibi.jettyboot.framework.rest.ifs.ResponseRender;
 
 import javax.servlet.http.HttpServletRequest;

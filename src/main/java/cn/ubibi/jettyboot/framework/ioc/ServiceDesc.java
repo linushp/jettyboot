@@ -3,6 +3,7 @@ package cn.ubibi.jettyboot.framework.ioc;
 public class ServiceDesc {
     private Object serviceObject;
     private Object proxyServiceObject;
+
     public ServiceDesc(Object serviceObject, Object proxyServiceObject) {
         this.serviceObject = serviceObject;
         this.proxyServiceObject = proxyServiceObject;
