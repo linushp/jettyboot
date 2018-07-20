@@ -4,10 +4,7 @@ import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.*;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
-import cn.ubibi.jettyboot.framework.rest.impl.AsyncContextTaskManager;
-import cn.ubibi.jettyboot.framework.rest.impl.VoidResult;
-import cn.ubibi.jettyboot.framework.rest.impl.InvokeResultCallable;
-import cn.ubibi.jettyboot.framework.rest.impl.ResultRenderMisc;
+import cn.ubibi.jettyboot.framework.rest.impl.*;
 import cn.ubibi.jettyboot.framework.rest.model.MethodArgument;
 import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import com.alibaba.fastjson.JSON;
@@ -105,10 +102,14 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             if (unionMethodCall != null) {
 
                 String taskKey = AsyncContextTaskManager.toTaskKey(method, unionMethodCall, paramsObjects);
-                AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
-                AsyncContextTaskManager.addTask(taskKey, method, asyncContext, invokeResultCallable);
-                invokeResult = new VoidResult();
 
+                AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
+                asyncContext.setTimeout(unionMethodCall.timeout());
+                asyncContext.addListener(new AsyncContextListener());
+
+                AsyncContextTaskManager.addTask(taskKey, method, asyncContext, invokeResultCallable);
+
+                invokeResult = new VoidResult();
             } else {
                 invokeResult = invokeResultCallable.call();
             }

@@ -15,4 +15,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsyncMergeMethod {
     int[] paramKey() default {};
+    long timeout() default 30000; // 30s ,asyncContext.setTimeout
 }
