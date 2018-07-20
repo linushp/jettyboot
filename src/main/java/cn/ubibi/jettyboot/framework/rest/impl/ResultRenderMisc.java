@@ -13,10 +13,9 @@ import java.util.List;
 public class ResultRenderMisc {
 
     public static void doRender(Object invokeResult, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws IOException {
-        if (invokeResult instanceof VoidResult){
+        if (invokeResult instanceof VoidResult) {
             //do nothing
-        }
-        else if (invokeResult instanceof ResponseRender) {
+        } else if (invokeResult instanceof ResponseRender) {
             ((ResponseRender) invokeResult).doRender(httpParsedRequest, response);
         } else if (invokeResult instanceof String) {
             new TextRender(invokeResult.toString()).doRender(httpParsedRequest, response);
@@ -33,7 +32,7 @@ public class ResultRenderMisc {
             methodWrapper.afterInvoke(method, httpParsedRequest, invokeResult, response);
         }
 
-        doRender(invokeResult,httpParsedRequest,response);
+        doRender(invokeResult, httpParsedRequest, response);
 
         //Aspect后置
         for (ControllerAspect methodWrapper : methodWrappers) {

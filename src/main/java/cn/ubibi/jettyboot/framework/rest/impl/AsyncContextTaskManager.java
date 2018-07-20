@@ -2,16 +2,10 @@ package cn.ubibi.jettyboot.framework.rest.impl;
 
 
 import cn.ubibi.jettyboot.framework.rest.annotation.AsyncMergeMethod;
-import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -19,28 +13,48 @@ import java.util.concurrent.Executors;
 
 public class AsyncContextTaskManager {
 
-    private static Logger logger = LoggerFactory.getLogger(AsyncContextTaskManager.class);
 
-    private static ExecutorService execPools = Executors.newFixedThreadPool(10);
+    //线程池
+    private static ExecutorService execPools = null;
 
-    //正在执行的
-    private static final Map<String, DeferredResultUnionTask> runningTaskMap = new HashMap<>();
+    //正在执行的任务
+    private static final Map<String, AsyncContextTask> runningTaskMap = new HashMap<>();
 
-    public static synchronized void addTask(String taskKey, Method method,AsyncContext deferredResult, Callable callable) {
-        DeferredResultUnionTask deferredResultUnionTask = runningTaskMap.get(taskKey);
-        if (deferredResultUnionTask == null) {
-            deferredResultUnionTask = new DeferredResultUnionTask(taskKey,method);
-            deferredResultUnionTask.doRun(callable);
-            runningTaskMap.put(taskKey, deferredResultUnionTask);
+    public static synchronized void addTask(String taskKey, Method method, AsyncContext asyncContext, Callable callable) {
+
+        AsyncContextTask asyncRequestTask = runningTaskMap.get(taskKey);
+
+        if (asyncRequestTask == null) {
+
+            asyncRequestTask = new AsyncContextTask(taskKey, method, callable);
+
+            asyncRequestTask.addCallbackAsyncContext(asyncContext);
+
+            getExecutorService().execute(asyncRequestTask);
+
+            runningTaskMap.put(taskKey, asyncRequestTask);
+        } else {
+            asyncRequestTask.addCallbackAsyncContext(asyncContext);
         }
-        deferredResultUnionTask.addCallbackDeferredResult(deferredResult);
     }
 
 
-    private static synchronized void removeTask(String taskKey) {
+    public static synchronized void removeTask(String taskKey) {
         runningTaskMap.remove(taskKey);
     }
 
+
+    public static void setExecutorService(ExecutorService execPools) {
+        AsyncContextTaskManager.execPools = execPools;
+    }
+
+
+    private static ExecutorService getExecutorService() {
+        if (AsyncContextTaskManager.execPools == null) {
+            AsyncContextTaskManager.execPools = Executors.newScheduledThreadPool(10);
+        }
+        return AsyncContextTaskManager.execPools;
+    }
 
     public static String toTaskKey(Method method, AsyncMergeMethod unionMethodCall, Object[] params) {
 
@@ -63,44 +77,4 @@ public class AsyncContextTaskManager {
     }
 
 
-    private static class DeferredResultUnionTask {
-        private List<AsyncContext> deferredResultList = new ArrayList<>();
-        private String taskKey;
-        private  Method method;
-
-        public DeferredResultUnionTask(String taskKey, Method method) {
-            this.taskKey = taskKey;
-            this.method = method;
-        }
-
-        public void addCallbackDeferredResult(AsyncContext deferredResult) {
-            deferredResultList.add(deferredResult);
-        }
-
-        public void doRun(Callable callable) {
-            execPools.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        Object invokeResult = callable.call();
-
-                        AsyncContextTaskManager.removeTask(taskKey);
-
-                        for (AsyncContext asyncContext : deferredResultList) {
-
-                            HttpParsedRequest request = (HttpParsedRequest) asyncContext.getRequest();
-                            HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-
-                            ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, request, response);
-
-                            asyncContext.complete();
-                        }
-                    } catch (Exception e) {
-                        logger.error("", e);
-                    }
-                }
-            });
-        }
-    }
 }

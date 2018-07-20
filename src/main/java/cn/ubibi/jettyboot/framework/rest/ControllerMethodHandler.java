@@ -100,12 +100,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             Object[] paramsObjects = getMethodParamsObjects(method, httpParsedRequest, response);
 
             InvokeResultCallable invokeResultCallable = new InvokeResultCallable(method, paramsObjects, controller);
+
             AsyncMergeMethod unionMethodCall = method.getDeclaredAnnotation(AsyncMergeMethod.class);
             if (unionMethodCall != null) {
 
                 String taskKey = AsyncContextTaskManager.toTaskKey(method, unionMethodCall, paramsObjects);
                 AsyncContext asyncContext = request.startAsync(httpParsedRequest, response);
-                AsyncContextTaskManager.addTask(taskKey, method,asyncContext, invokeResultCallable);
+                AsyncContextTaskManager.addTask(taskKey, method, asyncContext, invokeResultCallable);
                 invokeResult = new VoidResult();
 
             } else {

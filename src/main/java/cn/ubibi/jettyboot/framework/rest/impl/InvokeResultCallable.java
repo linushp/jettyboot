@@ -20,7 +20,7 @@ public class InvokeResultCallable implements Callable {
     @Override
     public Object call() throws Exception {
 
-        if (CacheAnnotationUtils.isNeedCache(method)){
+        if (CacheAnnotationUtils.isNeedCache(method)) {
             //先从缓存里取
             Object invokeResult = CacheAnnotationUtils.getResultFromCacheAnnotation(method, paramsObjects);
             if (invokeResult == null) {
@@ -29,7 +29,7 @@ public class InvokeResultCallable implements Callable {
                 CacheAnnotationUtils.saveResultToCacheAnnotation(method, paramsObjects, invokeResult);
             }
             return invokeResult;
-        }else {
+        } else {
             return method.invoke(controller, paramsObjects);
         }
     }
