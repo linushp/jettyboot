@@ -39,8 +39,6 @@ public class JettyBootServer extends Server {
     private HandlerCollection handlerCollection = new HandlerCollection();
 
     private SessionHandler controllerSessionHandler = null;
-    private String controllerContext = "/";
-    private ControllerContextHandler controllerContextHandler;
 
 
     public JettyBootServer(int port) {
@@ -65,14 +63,8 @@ public class JettyBootServer extends Server {
         this.controllerSessionHandler = sessionHandler; //默认的
     }
 
-
     public void setServerName(String name) {
         FrameworkConfig.getInstance().setResponseServerName(name);
-    }
-
-
-    public void setControllerContext(String controllerContext) {
-        this.controllerContext = controllerContext;
     }
 
     public void addContextHandler(ContextHandler contextHandler) {
@@ -83,11 +75,16 @@ public class JettyBootServer extends Server {
         this.handlerCollection.addHandler(handler);
     }
 
-    public void doScanPackage(Class mainServerClass) throws Exception {
+
+    public void setControllerSessionHandler(SessionHandler sessionHandler) {
+        this.controllerSessionHandler = sessionHandler;
+    }
+
+    public void doScanPackage(String controllerContext,Class mainServerClass) throws Exception {
 
         String packageName = mainServerClass.getPackage().getName();
 
-        ControllerContextHandler controllerContextHandler = this.getControllerContextHandler();
+        ControllerContextHandler controllerContextHandler = new ControllerContextHandler(controllerContext, this.controllerSessionHandler);
 
         controllerContextHandler.usingDefaultDwrScript();
 
@@ -96,18 +93,6 @@ public class JettyBootServer extends Server {
         addContextHandler(controllerContextHandler);
     }
 
-
-    public void setControllerSessionHandler(SessionHandler sessionHandler) {
-        this.controllerSessionHandler = sessionHandler;
-    }
-
-
-    public ControllerContextHandler getControllerContextHandler() {
-        if (this.controllerContextHandler == null) {
-            this.controllerContextHandler = new ControllerContextHandler(this.controllerContext, this.controllerSessionHandler);
-        }
-        return this.controllerContextHandler;
-    }
 
 
     public void startAndJoin() throws Exception {
