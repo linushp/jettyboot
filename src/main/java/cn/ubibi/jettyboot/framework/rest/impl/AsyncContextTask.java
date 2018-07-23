@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 
 public class AsyncContextTask implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(AsyncContextTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncContextTask.class);
 
     private List<AsyncContext> callbackAsyncContext = new ArrayList<>();
     private String taskKey;
@@ -32,24 +32,46 @@ public class AsyncContextTask implements Runnable {
 
     @Override
     public void run() {
+
+        boolean isCallException = false;
+        Object invokeResult = null;
         try {
-
-            Object invokeResult = callable.call();
-
+            invokeResult = callable.call();
             AsyncContextTaskManager.removeTask(taskKey);
+        } catch (Exception e) {
+            isCallException = true;
+            LOGGER.error("", e);
+        }
 
-            for (AsyncContext asyncContext : callbackAsyncContext) {
+
+        //调用出现异常
+        if (isCallException) {
+            completeAsyncContext();
+            return;
+        }
+
+
+        for (AsyncContext asyncContext : callbackAsyncContext) {
+
+            try {
 
                 HttpParsedRequest request = (HttpParsedRequest) asyncContext.getRequest();
                 HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-
                 ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, request, response);
 
+            } catch (Exception e) {
+                LOGGER.error("", e);
+            } finally {
                 asyncContext.complete();
-
             }
-        } catch (Exception e) {
-            logger.error("", e);
+
+        }
+
+    }
+
+    private void completeAsyncContext() {
+        for (AsyncContext asyncContext : callbackAsyncContext) {
+            asyncContext.complete();
         }
     }
 }
