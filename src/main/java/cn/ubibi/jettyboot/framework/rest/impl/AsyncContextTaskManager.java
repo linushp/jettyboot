@@ -20,13 +20,13 @@ public class AsyncContextTaskManager {
     //正在执行的任务
     private static final Map<String, AsyncContextTask> runningTaskMap = new HashMap<>();
 
-    public static synchronized void addTask(String taskKey, Method method, AsyncContext asyncContext, Callable callable) {
+    public static synchronized void addTask(String taskKey, AsyncResultCallback asyncResultCallback, AsyncContext asyncContext, Callable callable) {
 
         AsyncContextTask asyncRequestTask = runningTaskMap.get(taskKey);
 
         if (asyncRequestTask == null) {
 
-            asyncRequestTask = new AsyncContextTask(taskKey, method, callable);
+            asyncRequestTask = new AsyncContextTask(taskKey, asyncResultCallback, callable);
 
             asyncRequestTask.addCallbackAsyncContext(asyncContext);
 

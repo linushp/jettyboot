@@ -107,7 +107,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 asyncContext.setTimeout(unionMethodCall.timeout());
                 asyncContext.addListener(new AsyncContextListener());
 
-                AsyncContextTaskManager.addTask(taskKey, method, asyncContext, invokeResultCallable);
+                AsyncResultCallback asyncResultCallback = new DefaultAsyncResultCallback(method);
+                AsyncContextTaskManager.addTask(taskKey, asyncResultCallback, asyncContext, invokeResultCallable);
 
                 invokeResult = new VoidResult();
             } else {

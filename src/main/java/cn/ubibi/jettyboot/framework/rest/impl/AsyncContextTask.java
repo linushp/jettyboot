@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,12 +19,12 @@ public class AsyncContextTask implements Runnable {
 
     private List<AsyncContext> callbackAsyncContext = new ArrayList<>();
     private String taskKey;
-    private Method method;  //just for renderAndAfterInvoke
+    private AsyncResultCallback asyncResultCallback;  //just for renderAndAfterInvoke
     private Callable callable;
 
-    public AsyncContextTask(String taskKey, Method method, Callable callable) {
+    public AsyncContextTask(String taskKey, AsyncResultCallback asyncResultCallback, Callable callable) {
         this.taskKey = taskKey;
-        this.method = method;
+        this.asyncResultCallback = asyncResultCallback;
         this.callable = callable;
     }
 
@@ -55,9 +57,9 @@ public class AsyncContextTask implements Runnable {
 
             try {
 
-                HttpParsedRequest request = (HttpParsedRequest) asyncContext.getRequest();
-                HttpServletResponse response = (HttpServletResponse) asyncContext.getResponse();
-                ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, request, response);
+                ServletRequest request = asyncContext.getRequest();
+                ServletResponse response = asyncContext.getResponse();
+                asyncResultCallback.callback(invokeResult,request,response);
 
             } catch (Exception e) {
                 LOGGER.error("", e);
