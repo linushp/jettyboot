@@ -229,6 +229,12 @@ public class DataAccessObject<T> {
         return findPage(pageNo, pageSize, "", "");
     }
 
+
+    public Page<T> findPage(int pageNo, int pageSize, String whereSql, String orderBy, List<Object> whereArgs) throws Exception {
+        Object[] whereArgArray = whereArgs.toArray(new Object[whereArgs.size()]);
+        return findPage(pageNo, pageSize, whereSql, orderBy, whereArgArray);
+    }
+
     /**
      * 分页查询
      *
@@ -322,6 +328,18 @@ public class DataAccessObject<T> {
         return (Long) CastBasicTypeUtils.toBasicTypeOf(totalCount, Long.class);
     }
 
+    /**
+     * 统计数量多少
+     *
+     * @param whereSql  条件
+     * @param whereArgs 条件参数
+     * @return 数量
+     */
+    public Long countByWhereSql(String whereSql, List<Object> whereArgs) throws Exception {
+        Object[] whereArgArray = whereArgs.toArray(new Object[whereArgs.size()]);
+        return countByWhereSql(whereSql, whereArgArray);
+    }
+
 
     /**
      * 根据Id删除
@@ -356,6 +374,7 @@ public class DataAccessObject<T> {
         return deleteByWhereSql(mm.whereSql, mm.whereArgs);
     }
 
+
     /**
      * 删除
      *
@@ -366,6 +385,19 @@ public class DataAccessObject<T> {
         String sql = "delete from " + schemaTableName() + " " + whereSql;
         return dataAccess.update(sql, whereArgs);
     }
+
+
+    /**
+     * 删除
+     *
+     * @param whereSql  条件
+     * @param whereArgs 参数
+     */
+    public UpdateResult deleteByWhereSql(String whereSql, List<Object> whereArgs) throws Exception {
+        Object[] whereArgArray = whereArgs.toArray(new Object[whereArgs.size()]);
+        return deleteByWhereSql(whereSql, whereArgArray);
+    }
+
 
 
     public UpdateResult updateById(T entity, Object id) throws Exception {
