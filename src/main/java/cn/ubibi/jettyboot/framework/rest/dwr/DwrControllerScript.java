@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.rest.dwr;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
+import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ControllerContextHandler;
 import cn.ubibi.jettyboot.framework.rest.ControllerMethodHandler;
@@ -86,6 +87,7 @@ public class DwrControllerScript {
 
     //如果浏览器不支持Promise，返回一个非常简单的Promise，只支持一层then函数
     private static String toScript(String controllers, String functions, String exportAs, String controllerPrefix) {
+
         return "(function (exports) {\n" +
                 "\n" +
                 "\n" +
@@ -157,7 +159,9 @@ public class DwrControllerScript {
                 "    for (var i = 0; i < controllers.length; i++) {\n" +
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"" + controllerPrefix + "\"+controllerName] = buildController(controllerName);\n" +
-                "    }\n" +
+                "    }" +
+                "    exports['jb_dwr_controllers_'] = controllers ;\n" +
+                "    exports['jb_dwr_functions_'] = functions ;\n" +
                 "})(" + exportAs + ");";
     }
 
