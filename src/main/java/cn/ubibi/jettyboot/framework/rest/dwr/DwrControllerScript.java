@@ -109,8 +109,8 @@ public class DwrControllerScript {
                 "        },function(err){\n" +
                 "            that.cbError && that.cbError(err);\n" +
                 "        });\n" +
-                "    };" +
-                "" +
+                "    };\n" +
+                "\n" +
                 "    function ajaxPost(url, args, callback) {\n" +
                 "        var data = JSON.stringify(args);\n" +
                 "        var xhr = new XMLHttpRequest();\n" +
@@ -121,28 +121,39 @@ public class DwrControllerScript {
                 "            if (xhr.readyState == 4) {\n" +
                 "                if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {\n" +
                 "                    var responseText = xhr.responseText;\n" +
-                "                    callback(null, responseText);\n" +
+                "                    callback(null, responseText,xhr);\n" +
                 "                } else {\n" +
-                "                    callback(xhr.status);\n" +
+                "                    callback(xhr.status,null,xhr);\n" +
                 "                }\n" +
                 "            }\n" +
                 "        };\n" +
                 "        xhr.send(data);\n" +
                 "    }\n" +
-                "    function toFunction(url){\n" +
-                "        return function (){\n" +
-                "            var args = Array.prototype.slice.call(arguments);\n" +
-                "            return new Promise(function (resolve, reject) {\n" +
-                "                ajaxPost(url, args, function (err, data) {\n" +
-                "                    if (err) {\n" +
-                "                        reject(err);\n" +
-                "                    } else {\n" +
-                "                        resolve(data);\n" +
-                "                    }\n" +
-                "                });\n" +
-                "            });\n" +
+                "" +
+                "" +
+                "        function default_promise_factory(func) {\n" +
+                "            return new Promise(func);\n" +
                 "        }\n" +
-                "    }\n" +
+                "" +
+                "" +
+                "        function toFunction(url){\n" +
+                "            return function (){\n" +
+                "                var args = Array.prototype.slice.call(arguments);\n" +
+                "                var promise_factory  = window.jb_dwr_promise_factory || default_promise_factory;\n" +
+                "                return promise_factory(function (resolve, reject) {\n" +
+                "                    ajaxPost(url, args, function (err, data, xhr) {\n" +
+                "                        if (err) {\n" +
+                "                            reject({err:err,xhr:xhr});\n" +
+                "                        } else {\n" +
+                "                            resolve({data:data,xhr:xhr});\n" +
+                "                        }\n" +
+                "                    });\n" +
+                "                });\n" +
+                "            }\n" +
+                "        }\n" +
+                "" +
+                "" +
+                "" +
                 "    function buildController(controller) {\n" +
                 "        var map = {};\n" +
                 "        for (var i = functions.length - 1; i >= 0; i--) {\n" +
@@ -160,8 +171,8 @@ public class DwrControllerScript {
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"" + controllerPrefix + "\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
-                "    exports['jb_dwr_controllers_'] = controllers ;\n" +
-                "    exports['jb_dwr_functions_'] = functions ;\n" +
+                "    exports['jb_dwr_controllers'] = controllers ;\n" +
+                "    exports['jb_dwr_functions'] = functions ;\n" +
                 "})(" + exportAs + ");";
     }
 
