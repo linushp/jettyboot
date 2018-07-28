@@ -264,27 +264,45 @@ public class CollectionUtils {
     }
 
 
-
-    public static List getFieldValues(List list ,String fieldName){
+    public static List getFieldValues(List list, String fieldName) {
         List result = new ArrayList();
-        if (isEmpty(list)){
+        if (isEmpty(list)) {
             return result;
         }
 
-        for (Object object : list){
+        for (Object object : list) {
             try {
-                if (object ==null){
+                if (object == null) {
                     result.add(null);
-                }else {
+                } else {
                     ReflectObject reflectObject = new ReflectObject(object);
                     Object fieldValue = reflectObject.getFieldValue(fieldName);
                     result.add(fieldValue);
                 }
-            }catch (Exception e){
-                LOGGER.error("",e);
+            } catch (Exception e) {
+                LOGGER.error("", e);
             }
         }
         return result;
     }
+
+
+    public static void setFieldValues(List list, String fieldName, Object fieldValue) {
+        if (isEmpty(list)) {
+            return;
+        }
+
+        for (Object object : list) {
+            try {
+                if (object != null) {
+                    ReflectObject reflectObject = new ReflectObject(object);
+                    reflectObject.setFieldValue(fieldName, fieldValue);
+                }
+            } catch (Exception e) {
+                LOGGER.error("", e);
+            }
+        }
+    }
+
 
 }
