@@ -163,6 +163,12 @@ public class DataAccessObject<T> {
 
     public List<T> findByIdList(String idFieldName, List idList, CharFilter idCharFilter) throws Exception {
 
+        //移除null
+        idList = CollectionUtils.removeNull(idList);
+
+        //移除重复的
+        idList = CollectionUtils.uniqueList(idList);
+
         //过滤出合法的Id类型。避免SQL注入的问题。
         idList = CollectionUtils.filterOnlyLegalItems(idList, idCharFilter);
 

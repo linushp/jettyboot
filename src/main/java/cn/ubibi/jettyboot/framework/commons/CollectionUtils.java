@@ -126,8 +126,8 @@ public class CollectionUtils {
      * @return id List
      */
     public static List filterOnlyLegalItems(List idList, CharFilter idCharFilter) {
-        if (idList == null) {
-            return null;
+        if (isEmpty(idList)) {
+            return idList;
         }
 
         List result = new ArrayList();
@@ -208,8 +208,8 @@ public class CollectionUtils {
         return map == null || map.isEmpty();
     }
 
-    public static boolean isEmpty(List idList) {
-        return idList == null || idList.isEmpty();
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
 
     public static boolean isEmpty(Object[] stringArray) {
@@ -305,4 +305,28 @@ public class CollectionUtils {
     }
 
 
+    //移除重复元素
+    public static List uniqueList(List list) {
+        if (isEmpty(list)) {
+            return list;
+        }
+        Set set = new LinkedHashSet(list);
+        return new ArrayList(set);
+    }
+
+
+    //移除null的元素
+    public static List removeNull(List list) {
+        if (isEmpty(list)) {
+            return list;
+        }
+
+        List result = new ArrayList();
+        for (Object obj : list) {
+            if (obj != null) {
+                result.add(obj);
+            }
+        }
+        return result;
+    }
 }
