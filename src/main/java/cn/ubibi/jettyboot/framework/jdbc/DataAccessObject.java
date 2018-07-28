@@ -139,6 +139,7 @@ public class DataAccessObject<T> {
     }
 
     public T findOneByWhere(String whereSql, Object... args) throws Exception {
+        whereSql = whereSql + " limit 0,1";
         List<T> list = findByWhere(whereSql, args);
         return CollectionUtils.getFirstElement(list);
     }

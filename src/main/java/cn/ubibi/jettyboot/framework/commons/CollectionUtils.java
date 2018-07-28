@@ -2,12 +2,15 @@ package cn.ubibi.jettyboot.framework.commons;
 
 import cn.ubibi.jettyboot.framework.commons.ifs.CharFilter;
 import cn.ubibi.jettyboot.framework.commons.ifs.ObjectFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.util.*;
 
 public class CollectionUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CollectionUtils.class);
 
     /**
      * 对集合中的每一个元素变成字符串后添加前缀和后缀
@@ -258,6 +261,30 @@ public class CollectionUtils {
             list.add(object);
         }
         return list;
+    }
+
+
+
+    public static List getFieldValues(List list ,String fieldName){
+        List result = new ArrayList();
+        if (isEmpty(list)){
+            return result;
+        }
+
+        for (Object object : list){
+            try {
+                if (object ==null){
+                    result.add(null);
+                }else {
+                    ReflectObject reflectObject = new ReflectObject(object);
+                    Object fieldValue = reflectObject.getFieldValue(fieldName);
+                    result.add(fieldValue);
+                }
+            }catch (Exception e){
+                LOGGER.error("",e);
+            }
+        }
+        return result;
     }
 
 }
