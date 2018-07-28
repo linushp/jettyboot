@@ -159,7 +159,7 @@ public class DwrControllerScript {
                 "    for (var i = 0; i < controllers.length; i++) {\n" +
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"" + controllerPrefix + "\"+controllerName] = buildController(controllerName);\n" +
-                "    }" +
+                "    }\n" +
                 "    exports['jb_dwr_controllers_'] = controllers ;\n" +
                 "    exports['jb_dwr_functions_'] = functions ;\n" +
                 "})(" + exportAs + ");";
