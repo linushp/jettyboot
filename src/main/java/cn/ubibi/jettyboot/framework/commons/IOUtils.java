@@ -1,10 +1,15 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class IOUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IOUtils.class);
 
     public static byte[] inputStreamToByteArray(InputStream inStream)
             throws IOException {
@@ -22,6 +27,17 @@ public class IOUtils {
 
 
         return in2b;
+    }
+
+    public static void tryClose(InputStream inStream) {
+        if (inStream == null){
+            return;
+        }
+        try {
+            inStream.close();
+        }catch (Exception e){
+            LOGGER.info("tryClose exception");
+        }
     }
 
 }

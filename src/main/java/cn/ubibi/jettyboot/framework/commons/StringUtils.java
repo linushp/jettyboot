@@ -18,6 +18,17 @@ public class StringUtils {
         return isEmpty(str) || str.trim().isEmpty();
     }
 
+
+    public static boolean isBlankString(Object value) {
+        if (value == null) {
+            return true;
+        }
+        if (value instanceof String) {
+            return isBlank((String) value);
+        }
+        return false;
+    }
+
     public static String join(Collection collection, String flag) {
         return join(collection, flag, null);
     }

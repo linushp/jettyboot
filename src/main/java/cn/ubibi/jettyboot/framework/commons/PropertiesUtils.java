@@ -37,14 +37,14 @@ public class PropertiesUtils {
             filePath = (filePath.charAt(0) == '/' ? filePath.substring(1) : filePath);
             inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(filePath);
         } else {
-            String filePath = fileName;
-            filePath = (filePath.charAt(0) == '/' ? filePath.substring(1) : filePath);
             inStream = PropertiesUtils.class.getClassLoader().getResourceAsStream(fileName);
         }
 
 
         Properties properties = new Properties();
         properties.load(inStream);
+
+        IOUtils.tryClose(inStream);
 
         //放入缓存
         propertiesMap.put(fileName, properties);
@@ -123,4 +123,12 @@ public class PropertiesUtils {
         T b = BeanUtils.mapToBean(tClass, m);
         return b;
     }
+
+
+    public static void configBeanWithProperties(String fileName, Object targetBeanObject) throws Exception {
+        Properties p = getProperties(fileName);
+        Map<String, Object> m = toMap(p);
+        BeanUtils.mapToBeanObject(m, targetBeanObject);
+    }
+
 }

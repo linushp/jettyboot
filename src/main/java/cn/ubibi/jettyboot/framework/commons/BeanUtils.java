@@ -208,4 +208,28 @@ public class BeanUtils {
 
         return beanToMap(entity, beanFieldFilter);
     }
+
+
+
+
+    public static <T> T mapToBeanObject(Map<String, Object> fromMap, T targetObject) {
+        if (targetObject == null){
+            return null;
+        }
+
+        List<BeanField> fields = BeanFieldUtils.getBeanFields(targetObject.getClass());
+        if (!CollectionUtils.isEmpty(fields)) {
+            for (BeanField field : fields) {
+                Object value = fromMap.get(field.getFieldName());
+                if (value != null && !StringUtils.isBlankString(value)) {
+                    try {
+                        field.setBeanValue_autoConvert(targetObject, value);
+                    } catch (Exception e) {
+                        LOGGER.error("", e);
+                    }
+                }
+            }
+        }
+        return targetObject;
+    }
 }
