@@ -212,7 +212,7 @@ public class BeanUtils {
 
 
 
-    public static <T> T mapToBeanObject(Map<String, Object> fromMap, T targetObject) {
+    public static <T> T mapToBeanObject(Map<String, ?> fromMap, T targetObject) {
         if (targetObject == null){
             return null;
         }

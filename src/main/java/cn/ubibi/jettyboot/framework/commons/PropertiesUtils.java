@@ -62,8 +62,8 @@ public class PropertiesUtils {
     }
 
 
-    public static Map<String, Object> toMap(Properties p) {
-        Map<String, Object> map = new HashMap<>();
+    public static Map<String, String> toMap(Properties p) {
+        Map<String, String> map = new HashMap<>();
         if (p == null) {
             return map;
         }
@@ -73,9 +73,9 @@ public class PropertiesUtils {
             Object x = entry.getValue();
             Object k = entry.getKey();
             if (x != null && k != null) {
-                String xs = x.toString();
-                String keyString = k.toString();
-                map.put(keyString, xs);
+                String valueString = x.toString().trim();
+                String keyString = k.toString().trim();
+                map.put(keyString, valueString);
             }
         }
 
@@ -119,16 +119,18 @@ public class PropertiesUtils {
 
     public static <T> T getBeanByProperties(String fileName, Class<T> tClass) throws Exception {
         Properties p = getProperties(fileName);
-        Map<String, Object> m = toMap(p);
+        Map<String, String> m = toMap(p);
         T b = BeanUtils.mapToBean(tClass, m);
         return b;
     }
 
 
+
     public static void configBeanWithProperties(String fileName, Object targetBeanObject) throws Exception {
         Properties p = getProperties(fileName);
-        Map<String, Object> m = toMap(p);
+        Map<String, String> m = toMap(p);
         BeanUtils.mapToBeanObject(m, targetBeanObject);
     }
+
 
 }
