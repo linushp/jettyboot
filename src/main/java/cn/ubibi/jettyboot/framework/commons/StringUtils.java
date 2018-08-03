@@ -151,6 +151,8 @@ public class StringUtils {
     }
 
 
+
+
     public static boolean isIntegerNumeric(String str) {
         if (isEmpty(str)) {
             return false;
@@ -164,6 +166,39 @@ public class StringUtils {
         }
         return true;
     }
+
+
+
+    public static String ignoreSuffix(String str, String suffix){
+        if (isEmpty(str)){
+            return str;
+        }
+
+        if (str.endsWith(suffix)){
+            int endIndex = str.length() - suffix.length();
+            return str.substring(0,endIndex);
+        }
+        return str;
+    }
+
+    public static String ignorePrefix(String str, String prefix){
+        if (isEmpty(str)){
+            return str;
+        }
+
+        if (str.startsWith(prefix)){
+            int endIndex = str.length();
+            int startIndex = prefix.length();
+            return str.substring(startIndex,endIndex);
+        }
+        return str;
+    }
+
+
+//    public static void main(String [] args){
+//        String ss = ignorePrefix("123.html","123.htm");
+//        System.out.println(ss);
+//    }
 
 
 }
