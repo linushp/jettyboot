@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 
 public class JsonRender extends TextRespRenderAdapter {
 
-    private Object data;
+    protected Object data;
 
     public JsonRender(Object data) {
         this.data = data;

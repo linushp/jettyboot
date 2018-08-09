@@ -12,20 +12,47 @@ public class MethodArgument {
     private Method method;
     private Type type;
     private Annotation[] annotations;
-    private boolean dwr;
     private int argIndex;
     private JSONArray dwrJSONArray;
+    private String requestMethod;
 
-
-    public MethodArgument(Method method, Type type, Annotation[] annotations, int argIndex, boolean isDWR, JSONArray dwrJSONArray) {
+    public MethodArgument(Method method, Type type, Annotation[] annotations, int argIndex, JSONArray dwrJSONArray,String request_method) {
         this.method = method;
         this.type = type;
         this.annotations = annotations;
-        this.dwr = isDWR;
         this.argIndex = argIndex;
+        this.dwrJSONArray = dwrJSONArray;
+        this.requestMethod = request_method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setAnnotations(Annotation[] annotations) {
+        this.annotations = annotations;
+    }
+
+
+    public void setArgIndex(int argIndex) {
+        this.argIndex = argIndex;
+    }
+
+    public void setDwrJSONArray(JSONArray dwrJSONArray) {
         this.dwrJSONArray = dwrJSONArray;
     }
 
+    public String getRequestMethod() {
+        return requestMethod;
+    }
+
+    public void setRequestMethod(String requestMethod) {
+        this.requestMethod = requestMethod;
+    }
 
     public Method getMethod() {
         return method;
@@ -69,9 +96,6 @@ public class MethodArgument {
         return false;
     }
 
-    public boolean isDwr() {
-        return this.dwr;
-    }
 
     public int getArgIndex() {
         return argIndex;

@@ -38,7 +38,6 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
-
         this.controllerClazz = controllerClazz;
         this.controllerClazzSimpleName = controllerClazz.getSimpleName();
     }
@@ -49,8 +48,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
     public boolean isDWR() {
-        return "dwr".equals(supportRequestMethod);
+        return supportRequestMethod.startsWith("dwr_");
     }
+
+    public boolean isDWR_JSON(){
+        return "dwr_json".equals(supportRequestMethod);
+    }
+
 
     //判断是否支持
     boolean isSupportRequest(HttpServletRequest request) {
@@ -96,6 +100,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             //准备参数
             Object[] paramsObjects = getMethodParamsObjects(method, httpParsedRequest, response);
 
+
+            //除AsyncMergeMethod注解以外的其他处理
             InvokeResultCallable invokeResultCallable = new InvokeResultCallable(method, paramsObjects, controller);
 
             AsyncMergeMethod unionMethodCall = method.getDeclaredAnnotation(AsyncMergeMethod.class);
@@ -141,13 +147,17 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private Object[] getMethodParamsObjects(Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
-        boolean isDWR = this.isDWR();
-        JSONArray dwrArgArray = null;
-        if (isDWR) {
+        boolean isDwrJSON = this.isDWR_JSON();
+        //如果是DWR的方式，默认只支持json的序列化协议
+        //如果用其他的序列化协议，可以实现MethodArgumentResolver
+        String request_method = this.supportRequestMethod;
+
+        JSONArray dwrArgJSONArray = null;
+        if (isDwrJSON) {
             Charset requestBodyCharset = FrameworkConfig.getInstance().getRequestBodyCharset();
             String jsonString = httpParsedRequest.getRequestBodyAsString(requestBodyCharset);
             if (!StringUtils.isEmpty(jsonString)) {
-                dwrArgArray = JSON.parseArray(jsonString);
+                dwrArgJSONArray = JSON.parseArray(jsonString);
             }
         }
 
@@ -169,7 +179,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             Type type = paramsTypes[argIndex];
             Annotation[] annotations = paramAnnotations[argIndex];
 
-            MethodArgument methodArgument = new MethodArgument(method, type, annotations, argIndex, isDWR, dwrArgArray);
+            MethodArgument methodArgument = new MethodArgument(method, type, annotations, argIndex, dwrArgJSONArray,request_method);
 
             Object object = null;
 
@@ -181,8 +191,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             }
 
             //使用DWR的参数来补充
-            if (object == null && isDWR) {
-                object = getDwrMethodParamObject(methodArgument, dwrArgArray, argIndex);
+            if (object == null && isDwrJSON) {
+                object = getDwrMethodParamJSONObject(methodArgument, dwrArgJSONArray, argIndex);
             }
 
 
@@ -194,7 +204,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object getDwrMethodParamObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) throws Exception {
+    private Object getDwrMethodParamJSONObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) throws Exception {
 
         if (requestBodyArray == null) {
             return null;

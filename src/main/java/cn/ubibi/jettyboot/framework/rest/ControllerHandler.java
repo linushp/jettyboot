@@ -70,7 +70,8 @@ public class ControllerHandler {
                 } else if (methodAnnotation4 != null) {
                     controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation4.value(), "delete", classPath, method);
                 } else if (methodAnnotation5 != null) {
-                    controllerMethodHandler = toControllerMethodHandler(clazz, null, "dwr", classPath, method);
+                    String request_method = "dwr_" + methodAnnotation5.serializeType();
+                    controllerMethodHandler = toControllerMethodHandler(clazz, null, request_method, classPath, method);
                 }
 
                 if (controllerMethodHandler != null && !controllerMethodHandler.isEmpty()) {
@@ -102,9 +103,8 @@ public class ControllerHandler {
     //对于一个方法配置多个路径的情况
     private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz, String[] value, String request_method, String classPath, Method method) {
         List<ControllerMethodHandler> result = new ArrayList<>(1);
-
-        if ("dwr".equals(request_method)) {
-            String methodPath = "dwr_" + method.getName();
+        if (request_method.startsWith("dwr_")) {
+            String methodPath = method.getName();
             result.add(new ControllerMethodHandler(clazz, methodPath, request_method, classPath, method));
         } else if (value != null) {
             for (String methodPath : value) {

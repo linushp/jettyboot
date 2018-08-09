@@ -8,4 +8,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DwrFunction {
+    String serializeType() default "json"; //默认只支持json
 }
