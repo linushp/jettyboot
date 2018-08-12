@@ -21,6 +21,10 @@ public class RequestHandler extends AbstractHandler {
 
     private final List<ControllerHandler> controllerHandlers = new ArrayList<>();
     private final List<ControllerExceptionHandler> exceptionHandlers = new ArrayList<>();
+    private final String my_context;
+    public RequestHandler(String my_context) {
+        this.my_context = my_context;
+    }
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
@@ -87,7 +91,8 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + clazz.getName());
-        controllerHandlers.add(new ControllerHandler(path, clazz));
+        String context = this.my_context;
+        controllerHandlers.add(new ControllerHandler(context,path, clazz));
     }
 
     public void addController(String path, Object restController) throws Exception {
@@ -95,7 +100,8 @@ public class RequestHandler extends AbstractHandler {
             throw new Exception("addController can not null");
         }
         LOGGER.info("addController " + path + "  :  " + restController.getClass().getName());
-        controllerHandlers.add(new ControllerHandler(path, restController));
+        String context = this.my_context;
+        controllerHandlers.add(new ControllerHandler(context,path, restController));
     }
 
 

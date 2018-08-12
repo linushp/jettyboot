@@ -98,4 +98,16 @@ public class ReflectObject {
         }
         return null;
     }
+
+
+    public static Method findMethod(Class aClass , String methodName){
+        List<Method> methodList = BeanFieldUtils.getBeanMethods(aClass);
+        for (Method method:methodList){
+            if (methodName.equals(method.getName())){
+                return method;
+            }
+        }
+        return null;
+    }
+
 }

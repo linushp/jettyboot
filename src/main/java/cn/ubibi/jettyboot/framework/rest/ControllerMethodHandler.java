@@ -29,12 +29,13 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     private String supportRequestMethod;
     private Method method;
 
-
+    private String my_context;
     private Class<?> controllerClazz;
     private String controllerClazzSimpleName;
 
 
-    ControllerMethodHandler(Class<?> controllerClazz, String methodPath, String supportRequestMethod, String classPath, Method method) {
+    ControllerMethodHandler(String my_context, Class<?> controllerClazz, String methodPath, String supportRequestMethod, String classPath, Method method) {
+        this.my_context = my_context;
         this.targetPath = pathJoin(classPath, methodPath);
         this.supportRequestMethod = supportRequestMethod;
         this.method = method;
@@ -82,7 +83,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     //处理请求
     void doHandleRequest(Object controller, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects();
+        List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects(this.my_context);
 
         HttpParsedRequest httpParsedRequest;
         Object invokeResult = null;
@@ -113,7 +114,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 asyncContext.setTimeout(unionMethodCall.timeout());
                 asyncContext.addListener(new AsyncContextListener());
 
-                AsyncResultCallback asyncResultCallback = new DefaultAsyncResultCallback(method);
+                AsyncResultCallback asyncResultCallback = new DefaultAsyncResultCallback(method,this.my_context);
                 AsyncContextTaskManager.addTask(taskKey, asyncResultCallback, asyncContext, invokeResultCallable);
 
                 invokeResult = new VoidResult();
@@ -130,7 +131,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         if (invokeResult instanceof VoidResult) {
             //do nothing
         } else {
-            ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, httpParsedRequest, response);
+            ResultRenderMisc.renderAndAfterInvoke(invokeResult, method, httpParsedRequest, response, this.my_context);
         }
     }
 
@@ -226,7 +227,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private MethodArgumentResolver findMethodArgumentResolver(MethodArgument methodArgument) throws Exception {
 
-        List<MethodArgumentResolver> methodArgumentResolvers = SlotComponentManager.getInstance().getMethodArgumentResolverList();
+        List<MethodArgumentResolver> methodArgumentResolvers = SlotComponentManager.getInstance().getMethodArgumentResolverList(this.my_context);
 
         for (MethodArgumentResolver resolver : methodArgumentResolvers) {
             if (resolver.isSupport(methodArgument)) {

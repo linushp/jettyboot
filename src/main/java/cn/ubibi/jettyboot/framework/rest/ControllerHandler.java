@@ -22,18 +22,21 @@ public class ControllerHandler {
     private Class<?> restControllerClazz;
     private Object restController;
     private String path;
+    private String my_context;
 
     private List<ControllerMethodHandler> controllerMethodList;
 
 
-    public ControllerHandler(String path, Class<?> clazz) {
+    public ControllerHandler(String my_context, String path, Class<?> clazz) {
+        this.my_context = my_context;
         this.restControllerClazz = clazz;
         this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList();
     }
 
 
-    public ControllerHandler(String path, Object restController) {
+    public ControllerHandler(String my_context, String path, Object restController) {
+        this.my_context = my_context;
         this.restController = restController;
         this.path = formatClassPath(path);
         this.controllerMethodList = buildMethodHandlerList();
@@ -102,13 +105,16 @@ public class ControllerHandler {
 
     //对于一个方法配置多个路径的情况
     private List<ControllerMethodHandler> toControllerMethodHandler(Class<?> clazz, String[] value, String request_method, String classPath, Method method) {
+
+        String context = this.my_context;
+
         List<ControllerMethodHandler> result = new ArrayList<>(1);
         if (request_method.startsWith("dwr_")) {
             String methodPath = method.getName();
-            result.add(new ControllerMethodHandler(clazz, methodPath, request_method, classPath, method));
+            result.add(new ControllerMethodHandler(context,clazz, methodPath, request_method, classPath, method));
         } else if (value != null) {
             for (String methodPath : value) {
-                result.add(new ControllerMethodHandler(clazz, methodPath, request_method, classPath, method));
+                result.add(new ControllerMethodHandler(context,clazz, methodPath, request_method, classPath, method));
             }
         }
         return result;

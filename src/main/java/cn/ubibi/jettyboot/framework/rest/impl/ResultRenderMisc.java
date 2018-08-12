@@ -25,9 +25,10 @@ public class ResultRenderMisc {
     }
 
 
-    public static void renderAndAfterInvoke(Object invokeResult, Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
+    public static void renderAndAfterInvoke(Object invokeResult, Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response,String context) throws Exception {
+
         //Aspect后置
-        List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects();
+        List<ControllerAspect> methodWrappers = SlotComponentManager.getInstance().getControllerAspects(context);
         for (ControllerAspect methodWrapper : methodWrappers) {
             methodWrapper.afterInvoke(method, httpParsedRequest, invokeResult, response);
         }

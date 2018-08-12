@@ -1,5 +1,6 @@
 package cn.ubibi.jettyboot.framework.slot;
 
+import cn.ubibi.jettyboot.framework.commons.MultiListMap;
 import cn.ubibi.jettyboot.framework.rest.ifs.ControllerAspect;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpParsedRequestFactory;
 import cn.ubibi.jettyboot.framework.rest.ifs.HttpPathComparator;
@@ -9,6 +10,8 @@ import cn.ubibi.jettyboot.framework.rest.impl.DefaultHttpPathComparator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SlotComponentManager {
 
@@ -18,12 +21,11 @@ public class SlotComponentManager {
         return instance;
     }
 
+    //会自动注入服务
+    private final MultiListMap controllerAspectMap = new MultiListMap(new ConcurrentHashMap());
 
     //会自动注入服务
-    private final List<ControllerAspect> controllerAspects = new ArrayList<>();
-
-    //会自动注入服务
-    private final List<MethodArgumentResolver> methodArgumentResolverList = new ArrayList<>();
+    private final MultiListMap methodArgumentResolverMap =  new MultiListMap(new ConcurrentHashMap());
 
     //会自动注入服务
     private HttpParsedRequestFactory httpParsedRequestFactory = new DefaultHttpParsedRequestFactory();
@@ -32,12 +34,12 @@ public class SlotComponentManager {
     private HttpPathComparator httpPathComparator = new DefaultHttpPathComparator();
 
 
-    public List<MethodArgumentResolver> getMethodArgumentResolverList() {
-        return methodArgumentResolverList;
+    public List<MethodArgumentResolver> getMethodArgumentResolverList(String context) {
+        return methodArgumentResolverMap.getListNotNull(context);
     }
 
-    public List<ControllerAspect> getControllerAspects() {
-        return controllerAspects;
+    public List<ControllerAspect> getControllerAspects(String context) {
+        return controllerAspectMap.getListNotNull(context);
     }
 
 

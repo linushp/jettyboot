@@ -9,12 +9,14 @@ import java.lang.reflect.Method;
 
 public class DefaultAsyncResultCallback implements AsyncResultCallback {
     private Method method;
-    public DefaultAsyncResultCallback(Method method) {
+    private String context;
+    public DefaultAsyncResultCallback(Method method,String context) {
         this.method  = method;
+        this.context = context;
     }
 
     @Override
     public void callback(Object invokeResult, ServletRequest request, ServletResponse response) throws Exception {
-        ResultRenderMisc.renderAndAfterInvoke(invokeResult,method,(HttpParsedRequest) request,(HttpServletResponse) response);
+        ResultRenderMisc.renderAndAfterInvoke(invokeResult,method,(HttpParsedRequest) request,(HttpServletResponse) response,context);
     }
 }

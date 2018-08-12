@@ -51,7 +51,7 @@ public class AsyncContextTaskManager {
 
     private static ExecutorService getExecutorService() {
         if (AsyncContextTaskManager.execPools == null) {
-            AsyncContextTaskManager.execPools = Executors.newScheduledThreadPool(10);
+            AsyncContextTaskManager.execPools = Executors.newFixedThreadPool(20);
         }
         return AsyncContextTaskManager.execPools;
     }
