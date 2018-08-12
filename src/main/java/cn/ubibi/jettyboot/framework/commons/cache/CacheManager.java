@@ -1,12 +1,17 @@
 package cn.ubibi.jettyboot.framework.commons.cache;
 
+import cn.ubibi.jettyboot.framework.commons.MultiListMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 
 public class CacheManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheManager.class);
     private static final Map<String, CacheObject> cacheMap = new HashMap<>();
-    private static final Map<String, List<CacheExpiredListener>> cacheExpiredListeners = new HashMap<>();
+    private static final MultiListMap<CacheExpiredListener> cacheExpiredListeners = new MultiListMap<>();
     private static final Integer lock = 0;
     private static boolean isCheckExpireTimeThreadRunning = false;
 
@@ -29,24 +34,19 @@ public class CacheManager {
 
 
     public static void addCacheExpiredListener(String cacheKey, CacheExpiredListener cacheExpiredListener) {
-        List<CacheExpiredListener> list = cacheExpiredListeners.get(cacheKey);
-        if (list == null) {
-            list = new ArrayList<>();
-            cacheExpiredListeners.put(cacheKey, list);
-        }
-        list.add(cacheExpiredListener);
+        cacheExpiredListeners.putElement(cacheKey, cacheExpiredListener);
     }
 
 
     private static void onExpiredCacheKey(List<String> expiredCacheKey) {
         for (String cacheKey : expiredCacheKey) {
-            List<CacheExpiredListener> list = cacheExpiredListeners.get(cacheKey);
+            List<CacheExpiredListener> list = cacheExpiredListeners.getList(cacheKey);
             if (list != null) {
                 for (CacheExpiredListener listener : list) {
                     try {
                         listener.onCacheExpired();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("", e);
                     }
                 }
             }
@@ -62,12 +62,13 @@ public class CacheManager {
                 while (true) {
 
                     try {
-                        Thread.sleep(1000 * 60 * 5); //5分钟
+                        Thread.sleep(1000 * 30); //30 s
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("", e);
                     }
 
                     List<String> expiredCacheKey = new ArrayList<>();
+
                     synchronized (CacheManager.lock) {
                         Map<String, CacheObject> cache0 = CacheManager.cacheMap;
                         Collection<CacheObject> values = new ArrayList<>(cache0.values());
@@ -82,7 +83,7 @@ public class CacheManager {
                     try {
                         CacheManager.onExpiredCacheKey(expiredCacheKey);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("", e);
                     }
 
                 }
