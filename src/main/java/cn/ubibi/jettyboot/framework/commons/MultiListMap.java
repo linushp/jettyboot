@@ -1,6 +1,7 @@
 package cn.ubibi.jettyboot.framework.commons;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MultiListMap<T> {
 
@@ -14,19 +15,19 @@ public class MultiListMap<T> {
         this.map = map;
     }
 
-    public void putElement(String key, T object) {
+    public synchronized void putElement(String key, T object) {
         List<T> list = getListNotNull(key);
         list.add(object);
     }
 
-    public List<T> getList(String key){
+    public List<T> getList(String key) {
         return map.get(key);
     }
 
-    public List<T> getListNotNull(String key){
+    public synchronized List<T> getListNotNull(String key) {
         List<T> list = map.get(key);
         if (list == null) {
-            list = new ArrayList<T>();
+            list = new CopyOnWriteArrayList<>();
             map.put(key, list);
         }
         return list;
