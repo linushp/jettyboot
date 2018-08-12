@@ -40,14 +40,12 @@ public class CacheManager {
 
     private static void onExpiredCacheKey(List<String> expiredCacheKey) {
         for (String cacheKey : expiredCacheKey) {
-            List<CacheExpiredListener> list = cacheExpiredListeners.getList(cacheKey);
-            if (list != null) {
-                for (CacheExpiredListener listener : list) {
-                    try {
-                        listener.onCacheExpired();
-                    } catch (Exception e) {
-                        LOGGER.error("", e);
-                    }
+            List<CacheExpiredListener> list = cacheExpiredListeners.getListNotNull(cacheKey);
+            for (CacheExpiredListener listener : list) {
+                try {
+                    listener.onCacheExpired();
+                } catch (Exception e) {
+                    LOGGER.error("", e);
                 }
             }
         }
