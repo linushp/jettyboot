@@ -1,4 +1,4 @@
-package cn.ubibi.jettyboot.framework.rest;
+package cn.ubibi.jettyboot.framework.rest.handlers;
 
 import cn.ubibi.jettyboot.framework.rest.ifs.ResourceHandlerFilter;
 import org.eclipse.jetty.server.Request;

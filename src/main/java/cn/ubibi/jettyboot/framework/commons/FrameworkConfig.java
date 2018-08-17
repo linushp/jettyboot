@@ -52,6 +52,9 @@ public class FrameworkConfig {
     //Controller的请求是否可以被缓存
     private boolean cacheAnnotation = true;
 
+    //FileProxyForwardHandler缓存文件路径
+    private String fileProxyTempCachePath = "/tmp/FileProxyForwardHandler";
+
     //ConnectionFactory存储
     private Map<String, ConnectionFactory> connectionFactoryMap = new HashMap<>();
 
@@ -148,5 +151,11 @@ public class FrameworkConfig {
         return connectionFactoryMap.get(connectionFactoryName);
     }
 
+    public String getFileProxyTempCachePath() {
+        return fileProxyTempCachePath;
+    }
 
+    public void setFileProxyTempCachePath(String fileProxyTempCachePath) {
+        this.fileProxyTempCachePath = fileProxyTempCachePath;
+    }
 }
