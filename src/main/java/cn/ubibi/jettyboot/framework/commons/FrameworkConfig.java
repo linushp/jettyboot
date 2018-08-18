@@ -23,17 +23,17 @@ public class FrameworkConfig {
     }
 
 
-    //DWR脚本文件的路径
-    private String dwrScriptPath = "/script_dwr_controller";
+    //RPC脚本文件的路径
+    private String rpcScriptPath = "/script_rpc_controller";
 
-    //DwrController的路径前缀
-    private String dwrPrefix = "/dwr_controller/";
+    //RpcController的路径前缀
+    private String rpcPrefix = "/rpc_controller/";
 
-    //获取所有dwr方法时的秘密参数
-    private String dwrGetAllMethodSecretKey = "get_all_controllers";
+    //获取所有rpc方法时的秘密参数
+    private String rpcGetAllMethodSecretKey = "get_all_controllers";
 
     //所有的Controller的名称都会放在这里
-    private List<String> dwrControllerNameList = new ArrayList<>();
+    private List<String> rpcControllerNameList = new ArrayList<>();
 
     //jdbc查询中，最多页面条数
     private int jbdcMaxPageRowSize = 50;
@@ -83,20 +83,20 @@ public class FrameworkConfig {
         return maxRequestBodySize;
     }
 
-    public String getDwrPrefix() {
-        return dwrPrefix;
+    public String getRpcPrefix() {
+        return rpcPrefix;
     }
 
-    public void setDwrPrefix(String dwrPrefix) {
-        this.dwrPrefix = dwrPrefix;
+    public void setRpcPrefix(String rpcPrefix) {
+        this.rpcPrefix = rpcPrefix;
     }
 
-    public String getDwrScriptPath() {
-        return dwrScriptPath;
+    public String getRpcScriptPath() {
+        return rpcScriptPath;
     }
 
-    public void setDwrScriptPath(String dwrScriptPath) {
-        this.dwrScriptPath = dwrScriptPath;
+    public void setRpcScriptPath(String rpcScriptPath) {
+        this.rpcScriptPath = rpcScriptPath;
     }
 
     public String getResponseServerName() {
@@ -115,20 +115,20 @@ public class FrameworkConfig {
         this.requestBodyCharset = requestBodyCharset;
     }
 
-    public void addDwrControllerName(String simpleName) {
-        this.dwrControllerNameList.add(simpleName);
+    public void addRpcControllerName(String simpleName) {
+        this.rpcControllerNameList.add(simpleName);
     }
 
-    public List<String> getDwrControllerNameList() {
-        return dwrControllerNameList;
+    public List<String> getRpcControllerNameList() {
+        return rpcControllerNameList;
     }
 
-    public String getDwrGetAllMethodSecretKey() {
-        return dwrGetAllMethodSecretKey;
+    public String getRpcGetAllMethodSecretKey() {
+        return rpcGetAllMethodSecretKey;
     }
 
-    public void setDwrGetAllMethodSecretKey(String dwrGetAllMethodSecretKey) {
-        this.dwrGetAllMethodSecretKey = dwrGetAllMethodSecretKey;
+    public void setRpcGetAllMethodSecretKey(String rpcGetAllMethodSecretKey) {
+        this.rpcGetAllMethodSecretKey = rpcGetAllMethodSecretKey;
     }
 
     public int getJbdcMaxPageRowSize() {

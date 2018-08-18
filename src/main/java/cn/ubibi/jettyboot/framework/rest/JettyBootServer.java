@@ -86,7 +86,7 @@ public class JettyBootServer extends Server {
 
         ControllerContextHandler controllerContextHandler = new ControllerContextHandler(controllerContext, this.controllerSessionHandler);
 
-        controllerContextHandler.usingDefaultDwrScript();
+        controllerContextHandler.usingDefaultRpcScript();
 
         PackageScannerUtils.addByPackageScanner(packageName, controllerContextHandler, this);
 

@@ -4,10 +4,10 @@ import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.annotation.Controller;
-import cn.ubibi.jettyboot.framework.rest.annotation.DwrController;
+import cn.ubibi.jettyboot.framework.rest.annotation.RpcController;
 import cn.ubibi.jettyboot.framework.rest.annotation.Service;
 import cn.ubibi.jettyboot.framework.rest.ifs.*;
-import cn.ubibi.jettyboot.framework.rest.impl.DefaultDwrScriptController;
+import cn.ubibi.jettyboot.framework.rest.impl.DefaultRpcScriptController;
 import cn.ubibi.jettyboot.framework.slot.SlotComponentManager;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -80,9 +80,9 @@ public class ControllerContextHandler extends ContextHandler {
         }
 
 
-        DwrController y = aClass.getDeclaredAnnotation(DwrController.class);
+        RpcController y = aClass.getDeclaredAnnotation(RpcController.class);
         if (y != null) {
-            this.addDwrController(controllerObject);
+            this.addRpcController(controllerObject);
             isAddSuccess = true;
         }
 
@@ -93,11 +93,11 @@ public class ControllerContextHandler extends ContextHandler {
     }
 
 
-    public void addDwrController(Object controllerObject) throws Exception {
+    public void addRpcController(Object controllerObject) throws Exception {
 
         Class<?> aClass = controllerObject.getClass();
 
-        DwrController x = aClass.getAnnotation(DwrController.class);
+        RpcController x = aClass.getAnnotation(RpcController.class);
 
         String cp = x.value(); //
         if ("/".equals(cp)) {
@@ -113,8 +113,8 @@ public class ControllerContextHandler extends ContextHandler {
         }
 
 
-        String path = FrameworkConfig.getInstance().getDwrPrefix() + cp + aClass.getSimpleName();
-        FrameworkConfig.getInstance().addDwrControllerName(aClass.getSimpleName());
+        String path = FrameworkConfig.getInstance().getRpcPrefix() + cp + aClass.getSimpleName();
+        FrameworkConfig.getInstance().addRpcControllerName(aClass.getSimpleName());
         this.requestHandler.addController(path, controllerObject);
     }
 
@@ -173,8 +173,8 @@ public class ControllerContextHandler extends ContextHandler {
         SlotComponentManager.getInstance().setHttpPathComparator(httpPathComparator);
     }
 
-    public void usingDefaultDwrScript() throws Exception {
-        addController(FrameworkConfig.getInstance().getDwrScriptPath(), new DefaultDwrScriptController());
+    public void usingDefaultRpcScript() throws Exception {
+        addController(FrameworkConfig.getInstance().getRpcScriptPath(), new DefaultRpcScriptController());
     }
 
     public void addResourceHandler(ResourceHandler resourceHandler) {
@@ -188,7 +188,7 @@ public class ControllerContextHandler extends ContextHandler {
 
 
     /**
-     * 报漏给外界，为了用户扩展需要，比如用户自己实现一个DWR框架
+     * 报漏给外界，为了用户扩展需要，比如用户自己实现一个RPC框架
      *
      * @return
      */

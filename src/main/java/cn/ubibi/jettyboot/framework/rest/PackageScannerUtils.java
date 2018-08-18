@@ -58,9 +58,9 @@ public class PackageScannerUtils {
                                 controllerContextHandler.addController(controllerPath1, clazz);
                             }
                         }
-                    } else if (annotation.annotationType() == DwrController.class) {
+                    } else if (annotation.annotationType() == RpcController.class) {
                         Object controllerObject = clazz.newInstance();
-                        controllerContextHandler.addDwrController(controllerObject);
+                        controllerContextHandler.addRpcController(controllerObject);
                     }
 
                     //2

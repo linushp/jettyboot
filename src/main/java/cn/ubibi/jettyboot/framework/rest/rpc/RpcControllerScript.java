@@ -1,7 +1,6 @@
-package cn.ubibi.jettyboot.framework.rest.dwr;
+package cn.ubibi.jettyboot.framework.rest.rpc;
 
 import cn.ubibi.jettyboot.framework.commons.CollectionUtils;
-import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.ioc.ServiceManager;
 import cn.ubibi.jettyboot.framework.rest.ControllerContextHandler;
 import cn.ubibi.jettyboot.framework.rest.ControllerMethodHandler;
@@ -11,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class DwrControllerScript {
+public class RpcControllerScript {
 
 
-    public static String toDwrScript(List<String> controllerArray, String exportAs, String controllerPrefix) throws Exception {
+    public static String toRpcScript(List<String> controllerArray, String exportAs, String controllerPrefix) throws Exception {
 
         List<ApiModel> apis = getApiModelList(controllerArray);
 
@@ -43,7 +42,7 @@ public class DwrControllerScript {
 
         for (ControllerMethodHandler methodHandler : methods) {
 
-            if (methodHandler.isDWR()) {
+            if (methodHandler.isRPC()) {
 
                 String controllerName = methodHandler.getControllerClazzSimpleName();
 
@@ -139,7 +138,7 @@ public class DwrControllerScript {
                 "        function toFunction(url){\n" +
                 "            return function (){\n" +
                 "                var args = Array.prototype.slice.call(arguments);\n" +
-                "                var promise_factory  = window.jb_dwr_promise_factory || default_promise_factory;\n" +
+                "                var promise_factory  = window.jb_rpc_promise_factory || default_promise_factory;\n" +
                 "                return promise_factory(function (resolve, reject) {\n" +
                 "                    ajaxPost(url, args, function (err, data, xhr) {\n" +
                 "                        if (err) {\n" +
@@ -171,8 +170,8 @@ public class DwrControllerScript {
                 "        var controllerName = controllers[i];\n" +
                 "        exports[\"" + controllerPrefix + "\"+controllerName] = buildController(controllerName);\n" +
                 "    }\n" +
-                "    exports['jb_dwr_controllers'] = controllers ;\n" +
-                "    exports['jb_dwr_functions'] = functions ;\n" +
+                "    exports['jb_rpc_controllers'] = controllers ;\n" +
+                "    exports['jb_rpc_functions'] = functions ;\n" +
                 "})(" + exportAs + ");";
     }
 

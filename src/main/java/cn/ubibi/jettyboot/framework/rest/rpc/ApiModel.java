@@ -1,4 +1,4 @@
-package cn.ubibi.jettyboot.framework.rest.dwr;
+package cn.ubibi.jettyboot.framework.rest.rpc;
 
 public class ApiModel {
     private String method;

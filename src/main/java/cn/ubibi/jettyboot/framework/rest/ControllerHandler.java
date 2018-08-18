@@ -60,7 +60,7 @@ public class ControllerHandler {
                 PostMapping methodAnnotation2 = method.getAnnotation(PostMapping.class);
                 PutMapping methodAnnotation3 = method.getAnnotation(PutMapping.class);
                 DeleteMapping methodAnnotation4 = method.getAnnotation(DeleteMapping.class);
-                DwrFunction methodAnnotation5 = method.getAnnotation(DwrFunction.class);
+                RpcFunction methodAnnotation5 = method.getAnnotation(RpcFunction.class);
 
 
                 List<ControllerMethodHandler> controllerMethodHandler = null;
@@ -73,7 +73,7 @@ public class ControllerHandler {
                 } else if (methodAnnotation4 != null) {
                     controllerMethodHandler = toControllerMethodHandler(clazz, methodAnnotation4.value(), "delete", classPath, method);
                 } else if (methodAnnotation5 != null) {
-                    String request_method = "dwr_" + methodAnnotation5.serializeType();
+                    String request_method = "rpc_" + methodAnnotation5.serializeType();
                     controllerMethodHandler = toControllerMethodHandler(clazz, null, request_method, classPath, method);
                 }
 
@@ -109,7 +109,7 @@ public class ControllerHandler {
         String context = this.my_context;
 
         List<ControllerMethodHandler> result = new ArrayList<>(1);
-        if (request_method.startsWith("dwr_")) {
+        if (request_method.startsWith("rpc_")) {
             String methodPath = method.getName();
             result.add(new ControllerMethodHandler(context,clazz, methodPath, request_method, classPath, method));
         } else if (value != null) {

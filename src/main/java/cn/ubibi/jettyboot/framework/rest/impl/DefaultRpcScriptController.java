@@ -6,16 +6,16 @@ import cn.ubibi.jettyboot.framework.commons.StringUtils;
 import cn.ubibi.jettyboot.framework.commons.cache.CacheMethod;
 import cn.ubibi.jettyboot.framework.rest.annotation.GetMapping;
 import cn.ubibi.jettyboot.framework.rest.annotation.RequestParam;
-import cn.ubibi.jettyboot.framework.rest.dwr.DwrControllerScript;
+import cn.ubibi.jettyboot.framework.rest.rpc.RpcControllerScript;
 
 import java.util.List;
 
-public class DefaultDwrScriptController {
+public class DefaultRpcScriptController {
 
 
     @GetMapping("/")
-    @CacheMethod(cacheKey = "DefaultDwrScriptController_toDwrScript", activeTime = 1000L * 60 * 5, paramKey = {0, 1, 2})
-    public ScriptRender toDwrScript(@RequestParam("controllers") String controllers,
+    @CacheMethod(cacheKey = "DefaultRpcScriptController_toRpcScript", activeTime = 1000L * 60 * 5, paramKey = {0, 1, 2})
+    public ScriptRender toRpcScript(@RequestParam("controllers") String controllers,
                                     @RequestParam("exportAs") String exportAs,
                                     @RequestParam("controllerPrefix") String controllerPrefix) throws Exception {
 
@@ -28,14 +28,14 @@ public class DefaultDwrScriptController {
         }
 
         List<String> controllerArray = null;
-        if (FrameworkConfig.getInstance().getDwrGetAllMethodSecretKey().equals(controllers)) {
-            controllerArray = FrameworkConfig.getInstance().getDwrControllerNameList();
+        if (FrameworkConfig.getInstance().getRpcGetAllMethodSecretKey().equals(controllers)) {
+            controllerArray = FrameworkConfig.getInstance().getRpcControllerNameList();
         } else {
             controllerArray = CollectionUtils.toList(controllers.split(";"));
         }
 
 
-        String script = DwrControllerScript.toDwrScript(controllerArray, exportAs, controllerPrefix);
+        String script = RpcControllerScript.toRpcScript(controllerArray, exportAs, controllerPrefix);
         return new ScriptRender(script);
     }
 }

@@ -48,12 +48,12 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
         return controllerClazzSimpleName;
     }
 
-    public boolean isDWR() {
-        return supportRequestMethod.startsWith("dwr_");
+    public boolean isRPC() {
+        return supportRequestMethod.startsWith("rpc_");
     }
 
-    public boolean isDWR_JSON(){
-        return "dwr_json".equals(supportRequestMethod);
+    public boolean isRPC_JSON(){
+        return "rpc_json".equals(supportRequestMethod);
     }
 
 
@@ -62,8 +62,8 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
         String supportRequestMethod = this.supportRequestMethod;
 
-        //DWR使用的是POST请求
-        if (isDWR()) {
+        //RPC使用的是POST请求
+        if (isRPC()) {
             supportRequestMethod = "post";
         }
 
@@ -148,17 +148,17 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
 
     private Object[] getMethodParamsObjects(Method method, HttpParsedRequest httpParsedRequest, HttpServletResponse response) throws Exception {
 
-        boolean isDwrJSON = this.isDWR_JSON();
-        //如果是DWR的方式，默认只支持json的序列化协议
+        boolean isRpcJSON = this.isRPC_JSON();
+        //如果是RPC的方式，默认只支持json的序列化协议
         //如果用其他的序列化协议，可以实现MethodArgumentResolver
         String request_method = this.supportRequestMethod;
 
-        JSONArray dwrArgJSONArray = null;
-        if (isDwrJSON) {
+        JSONArray rpcArgJSONArray = null;
+        if (isRpcJSON) {
             Charset requestBodyCharset = FrameworkConfig.getInstance().getRequestBodyCharset();
             String jsonString = httpParsedRequest.getRequestBodyAsString(requestBodyCharset);
             if (!StringUtils.isEmpty(jsonString)) {
-                dwrArgJSONArray = JSON.parseArray(jsonString);
+                rpcArgJSONArray = JSON.parseArray(jsonString);
             }
         }
 
@@ -180,7 +180,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
             Type type = paramsTypes[argIndex];
             Annotation[] annotations = paramAnnotations[argIndex];
 
-            MethodArgument methodArgument = new MethodArgument(method, type, annotations, argIndex, dwrArgJSONArray,request_method);
+            MethodArgument methodArgument = new MethodArgument(method, type, annotations, argIndex, rpcArgJSONArray,request_method);
 
             Object object = null;
 
@@ -191,9 +191,9 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
                 object = getMethodParamObjectByAnnotation(methodArgument, httpParsedRequest, response);
             }
 
-            //使用DWR的参数来补充
-            if (object == null && isDwrJSON) {
-                object = getDwrMethodParamJSONObject(methodArgument, dwrArgJSONArray, argIndex);
+            //使用RPC的参数来补充
+            if (object == null && isRpcJSON) {
+                object = getRpcMethodParamJSONObject(methodArgument, rpcArgJSONArray, argIndex);
             }
 
 
@@ -205,7 +205,7 @@ public class ControllerMethodHandler implements Comparable<ControllerMethodHandl
     }
 
 
-    private Object getDwrMethodParamJSONObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) throws Exception {
+    private Object getRpcMethodParamJSONObject(MethodArgument methodArgument, JSONArray requestBodyArray, int index) throws Exception {
 
         if (requestBodyArray == null) {
             return null;

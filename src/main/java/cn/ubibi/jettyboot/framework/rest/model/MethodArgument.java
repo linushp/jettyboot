@@ -13,15 +13,15 @@ public class MethodArgument {
     private Type type;
     private Annotation[] annotations;
     private int argIndex;
-    private JSONArray dwrJSONArray;
+    private JSONArray rpcJSONArray;
     private String requestMethod;
 
-    public MethodArgument(Method method, Type type, Annotation[] annotations, int argIndex, JSONArray dwrJSONArray,String request_method) {
+    public MethodArgument(Method method, Type type, Annotation[] annotations, int argIndex, JSONArray rpcJSONArray,String request_method) {
         this.method = method;
         this.type = type;
         this.annotations = annotations;
         this.argIndex = argIndex;
-        this.dwrJSONArray = dwrJSONArray;
+        this.rpcJSONArray = rpcJSONArray;
         this.requestMethod = request_method;
     }
 
@@ -42,8 +42,8 @@ public class MethodArgument {
         this.argIndex = argIndex;
     }
 
-    public void setDwrJSONArray(JSONArray dwrJSONArray) {
-        this.dwrJSONArray = dwrJSONArray;
+    public void setRpcJSONArray(JSONArray rpcJSONArray) {
+        this.rpcJSONArray = rpcJSONArray;
     }
 
     public String getRequestMethod() {
@@ -101,7 +101,7 @@ public class MethodArgument {
         return argIndex;
     }
 
-    public JSONArray getDwrJSONArray() {
-        return dwrJSONArray;
+    public JSONArray getRpcJSONArray() {
+        return rpcJSONArray;
     }
 }
