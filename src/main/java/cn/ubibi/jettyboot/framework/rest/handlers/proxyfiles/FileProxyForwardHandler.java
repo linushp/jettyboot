@@ -39,7 +39,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
     public void handle(final String request_path, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         try {
-            final HttpProxyEntity httpProxyEntity = getMatchedHttpProxyEntity(request_path,httpProxyEntityGetter);
+            final HttpProxyEntity httpProxyEntity = getMatchedHttpProxyEntity(request_path, httpProxyEntityGetter);
             if (httpProxyEntity == null) {
                 return;
             }
