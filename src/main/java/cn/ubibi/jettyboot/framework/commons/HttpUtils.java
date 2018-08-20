@@ -1,6 +1,5 @@
-package cn.ubibi.jettyboot.framework;
+package cn.ubibi.jettyboot.framework.commons;
 
-import cn.ubibi.jettyboot.framework.commons.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

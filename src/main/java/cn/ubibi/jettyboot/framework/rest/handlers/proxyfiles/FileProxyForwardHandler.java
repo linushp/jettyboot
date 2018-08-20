@@ -1,6 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.handlers.proxyfiles;
 
-import cn.ubibi.jettyboot.framework.HttpUtils;
+import cn.ubibi.jettyboot.framework.commons.HttpUtils;
 import cn.ubibi.jettyboot.framework.commons.FileUtils;
 import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
 import cn.ubibi.jettyboot.framework.commons.StringUtils;
