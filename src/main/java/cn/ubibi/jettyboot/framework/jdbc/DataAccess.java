@@ -284,7 +284,7 @@ public class DataAccess {
     }
 
 
-    private SqlSession getSqlSession() throws Exception {
+    public SqlSession getSqlSession() throws Exception {
 
         SqlSession connection1 = TransactionUtil.getSqlSession();
         if (connection1 != null) {
@@ -297,7 +297,7 @@ public class DataAccess {
     }
 
 
-    private SqlNdArgs parseSqlNdArgs(String sql, Object... args) {
+    public SqlNdArgs parseSqlNdArgs(String sql, Object... args) {
         //允许第一个参数传递过来一个Map，如果第一个参数是一个map，后面其他参数均忽略
         if (args.length > 0 && args[0] instanceof Map) {
             Map map = (Map) args[0];
@@ -307,7 +307,7 @@ public class DataAccess {
     }
 
 
-    private void release(ResultSet resultSet, Statement statement, SqlSession connection) throws SQLException {
+    public void release(ResultSet resultSet, Statement statement, SqlSession connection) throws SQLException {
 
         if (resultSet != null) {
             try {
