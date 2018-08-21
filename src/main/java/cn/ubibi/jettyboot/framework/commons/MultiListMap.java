@@ -1,11 +1,13 @@
 package cn.ubibi.jettyboot.framework.commons;
 
+import cn.ubibi.jettyboot.framework.commons.ifs.Getter;
+
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class MultiListMap<T> {
+public class MultiListMap<S,T> {
 
-    private Map<String, List<T>> map;
+    private Map<S, List<T>> map;
 
     public MultiListMap() {
         this.map = new HashMap<>();
@@ -15,16 +17,23 @@ public class MultiListMap<T> {
         this.map = map;
     }
 
-    public synchronized void putElement(String key, T object) {
+    public synchronized void putElement(S key, T object) {
         List<T> list = getListNotNull(key);
         list.add(object);
     }
 
-    public List<T> getList(String key) {
+    public synchronized void putElements(Getter<T,S> keyGetter,List<T> objectList){
+        for (T obj : objectList){
+            S key = keyGetter.doGet(obj);
+            putElement(key,obj);
+        }
+    }
+
+    public List<T> getList(S key) {
         return map.get(key);
     }
 
-    public synchronized List<T> getListNotNull(String key) {
+    public synchronized List<T> getListNotNull(S key) {
         List<T> list = map.get(key);
         if (list == null) {
             list = new CopyOnWriteArrayList<>();

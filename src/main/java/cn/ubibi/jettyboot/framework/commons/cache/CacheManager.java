@@ -11,7 +11,7 @@ public class CacheManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheManager.class);
     private static final Map<String, CacheObject> cacheMap = new HashMap<>();
-    private static final MultiListMap<CacheExpiredListener> cacheExpiredListeners = new MultiListMap<>();
+    private static final MultiListMap<String,CacheExpiredListener> cacheExpiredListeners = new MultiListMap<>();
     private static final Integer lock = 0;
     private static boolean isCheckExpireTimeThreadRunning = false;
 
