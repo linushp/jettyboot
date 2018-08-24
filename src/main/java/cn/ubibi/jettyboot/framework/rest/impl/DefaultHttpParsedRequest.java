@@ -117,6 +117,8 @@ public class DefaultHttpParsedRequest implements HttpParsedRequest {
 
     @Override
     public List<String> getParameterValuesAsList(String name) {
+        httpServletRequest.getParameterMap();
+
         String[] array = httpServletRequest.getParameterValues(name);
         if (CollectionUtils.isEmpty(array)) {
             return new ArrayList<>();
