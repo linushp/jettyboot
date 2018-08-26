@@ -588,6 +588,30 @@ public class DataAccessObject<T> {
     }
 
 
+    public T findOneByField(String fieldName, Object value) throws Exception {
+        return this.findOneByWhere(toFieldWhereSql(fieldName), value);
+    }
+
+    public List<T> findListByField(String fieldName, Object value) throws Exception {
+        return this.findByWhere(toFieldWhereSql(fieldName), value);
+    }
+
+    public UpdateResult deleteByField(String fieldName, Object value) throws Exception {
+        return this.deleteByWhereSql(toFieldWhereSql(fieldName), value);
+    }
+
+    public UpdateResult updateByField(Map<String, Object> newValues,String fieldName, Object value) throws Exception {
+        return this.updateByWhereSql(newValues,toFieldWhereSql(fieldName),value);
+    }
+
+    public Long countByField(String fieldName, Object value) throws Exception {
+        return this.countByWhereSql(toFieldWhereSql(fieldName), value);
+    }
+
+    private String toFieldWhereSql(String fieldName) {
+        return "where `" + fieldName + "` = ?";
+    }
+
     protected static class WhereSqlAndArgs {
         public String whereSql;
         public Object[] whereArgs;
