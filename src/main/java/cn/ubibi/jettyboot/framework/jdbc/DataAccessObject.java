@@ -608,7 +608,11 @@ public class DataAccessObject<T> {
         return this.countByWhereSql(toFieldWhereSql(fieldName), value);
     }
 
-    private String toFieldWhereSql(String fieldName) {
+    private String toFieldWhereSql(String fieldName) throws Exception {
+        fieldName = fieldName.trim();
+        if (fieldName.isEmpty()){
+            throw new Exception("fieldName can not be empty");
+        }
         return "where `" + fieldName + "` = ?";
     }
 
