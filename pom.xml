@@ -9,7 +9,7 @@
     <version>1.0.50</version>
     <name>jettyboot</name>
     <description>jetty boot Library, simple mvc and data ORM framework</description>
-    <url>https://github.com/luanhaipeng/jettyboot</url>
+    <url>https://github.com/linushp/jettyboot</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
             <name>luanhaipeng</name>
             <email>910010653@qq.com</email>
             <organization>ubibi.cn</organization>
-            <organizationUrl>https://github.com/luanhaipeng</organizationUrl>
+            <organizationUrl>https://github.com/linushp</organizationUrl>
         </developer>
     </developers>
 
