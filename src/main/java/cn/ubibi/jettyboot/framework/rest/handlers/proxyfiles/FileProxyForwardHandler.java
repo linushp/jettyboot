@@ -18,10 +18,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class FileProxyForwardHandler extends AbstractHandler {
@@ -38,6 +35,11 @@ public class FileProxyForwardHandler extends AbstractHandler {
     @Override
     public void handle(final String request_path, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
+
+        LOGGER.info("handle :  " + request_path);
+
+
+
         try {
             final HttpProxyEntity httpProxyEntity = getMatchedHttpProxyEntity(request_path, httpProxyEntityGetter);
             if (httpProxyEntity == null) {
@@ -52,7 +54,9 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
             MyAsyncResultCallback myAsyncResultCallback = new MyAsyncResultCallback();
 
-            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path,httpProxyEntityGetter);
+            Map<String, String[]> parameterMap = request.getParameterMap();
+
+            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path,httpProxyEntityGetter,parameterMap);
 
             AsyncContextTaskManager.addTask(taskKey, myAsyncResultCallback, asyncContext, myInvokeCallable);
 
@@ -84,11 +88,13 @@ public class FileProxyForwardHandler extends AbstractHandler {
         private HttpProxyEntity httpProxyEntity;
         private String request_path;
         private HttpProxyEntityGetter httpProxyEntityGetter;
+        private Map<String, String[]> parameterMap;
 
-        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path,HttpProxyEntityGetter httpProxyEntityGetter) {
+        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path,HttpProxyEntityGetter httpProxyEntityGetter, Map<String, String[]> parameterMap ) {
             this.httpProxyEntity = httpProxyEntity;
             this.request_path = request_path;
             this.httpProxyEntityGetter = httpProxyEntityGetter;
+            this.parameterMap = parameterMap;
         }
 
         @Override
@@ -103,9 +109,9 @@ public class FileProxyForwardHandler extends AbstractHandler {
                 http_target_path = httpProxyEntity.getTarget();
             }
 
-            LOGGER.info("proxy http:" + http_target_path);
+            http_target_path = httpProxyEntityGetter.wrapperHttpTargetPath(http_target_path,parameterMap);
 
-            http_target_path = httpProxyEntityGetter.wrapperHttpTargetPath(http_target_path);
+            LOGGER.info("proxy http:" + http_target_path);
 
             String disk_path = getDiskCacheFilePath(http_target_path);
 

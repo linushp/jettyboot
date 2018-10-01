@@ -7,15 +7,13 @@ import javax.servlet.AsyncContext;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class AsyncContextTaskManager {
 
 
     //线程池
-    private static ExecutorService execPools = null;
+    private static Executor execPools = null;
 
     //正在执行的任务
     private static final Map<String, AsyncContextTask> runningTaskMap = new HashMap<>();
@@ -30,7 +28,7 @@ public class AsyncContextTaskManager {
 
             asyncRequestTask.addCallbackAsyncContext(asyncContext);
 
-            getExecutorService().execute(asyncRequestTask);
+            getExecutor().execute(asyncRequestTask);
 
             runningTaskMap.put(taskKey, asyncRequestTask);
         } else {
@@ -44,14 +42,14 @@ public class AsyncContextTaskManager {
     }
 
 
-    public static void setExecutorService(ExecutorService execPools) {
+    public static void setExecutor(Executor execPools) {
         AsyncContextTaskManager.execPools = execPools;
     }
 
 
-    private static ExecutorService getExecutorService() {
+    private static Executor getExecutor() {
         if (AsyncContextTaskManager.execPools == null) {
-            AsyncContextTaskManager.execPools = Executors.newFixedThreadPool(20);
+            AsyncContextTaskManager.execPools = new ThreadPoolExecutor(10, 100,  5L, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(10000));
         }
         return AsyncContextTaskManager.execPools;
     }
