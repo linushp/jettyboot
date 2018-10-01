@@ -1,9 +1,6 @@
 package cn.ubibi.jettyboot.framework.rest.handlers.proxyfiles;
 
-import cn.ubibi.jettyboot.framework.commons.HttpUtils;
-import cn.ubibi.jettyboot.framework.commons.FileUtils;
-import cn.ubibi.jettyboot.framework.commons.FrameworkConfig;
-import cn.ubibi.jettyboot.framework.commons.StringUtils;
+import cn.ubibi.jettyboot.framework.commons.*;
 import cn.ubibi.jettyboot.framework.rest.impl.AsyncContextTaskManager;
 import cn.ubibi.jettyboot.framework.rest.impl.AsyncResultCallback;
 import org.eclipse.jetty.server.Request;
@@ -25,7 +22,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
     private HttpProxyEntityGetter httpProxyEntityGetter;
 
-    public FileProxyForwardHandler(HttpProxyEntityGetter httpProxyEntityGetter){
+    public FileProxyForwardHandler(HttpProxyEntityGetter httpProxyEntityGetter) {
         this.httpProxyEntityGetter = httpProxyEntityGetter;
     }
 
@@ -37,7 +34,6 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
 
         LOGGER.info("handle :  " + request_path);
-
 
 
         try {
@@ -56,7 +52,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
             Map<String, String[]> parameterMap = request.getParameterMap();
 
-            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path,httpProxyEntityGetter,parameterMap);
+            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path, httpProxyEntityGetter, parameterMap);
 
             AsyncContextTaskManager.addTask(taskKey, myAsyncResultCallback, asyncContext, myInvokeCallable);
 
@@ -90,7 +86,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
         private HttpProxyEntityGetter httpProxyEntityGetter;
         private Map<String, String[]> parameterMap;
 
-        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path,HttpProxyEntityGetter httpProxyEntityGetter, Map<String, String[]> parameterMap ) {
+        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path, HttpProxyEntityGetter httpProxyEntityGetter, Map<String, String[]> parameterMap) {
             this.httpProxyEntity = httpProxyEntity;
             this.request_path = request_path;
             this.httpProxyEntityGetter = httpProxyEntityGetter;
@@ -109,7 +105,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
                 http_target_path = httpProxyEntity.getTarget();
             }
 
-            http_target_path = httpProxyEntityGetter.wrapperHttpTargetPath(http_target_path,parameterMap);
+            http_target_path = httpProxyEntityGetter.wrapperHttpTargetPath(http_target_path, parameterMap);
 
             LOGGER.info("proxy http:" + http_target_path);
 
@@ -126,7 +122,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
                     saveToFile(httpResult.getInputStream(), disk_file);
                     return disk_path;
                 } else {
-                    LOGGER.error("HttpGetFileRequest of " + http_target_path +" , ResponseCode:  " + httpResult.getResponseCode());
+                    LOGGER.error("HttpGetFileRequest of " + http_target_path + " , ResponseCode:  " + httpResult.getResponseCode());
                     return httpResult.getResponseCode();
                 }
             }
@@ -150,7 +146,6 @@ public class FileProxyForwardHandler extends AbstractHandler {
     }
 
 
-
     private static void sendErrorResponse(int statusCode, HttpServletResponse response) throws IOException {
         response.setStatus(statusCode);
         response.getWriter().write("Error Occur");
@@ -158,7 +153,6 @@ public class FileProxyForwardHandler extends AbstractHandler {
         response.getWriter().close();
         response.flushBuffer();
     }
-
 
 
     private static void sendFile(HttpServletResponse response, File disk_file) throws IOException {
@@ -190,7 +184,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
         String contentType = FileContentTypeEnum.getContentTypeBySuffix(file_suffix);
         boolean isTextContent = FileContentTypeEnum.isTextContentTypeBySuffix(file_suffix);
         if (isTextContent) {
-            return contentType ;//+ "; charset=" + FrameworkConfig.getInstance().getCharset().name();
+            return contentType;//+ "; charset=" + FrameworkConfig.getInstance().getCharset().name();
         }
         return contentType;
     }
@@ -207,13 +201,22 @@ public class FileProxyForwardHandler extends AbstractHandler {
             p = http_target_path.substring("//".length());
         }
 
+
+        int indexOfW = p.indexOf("?");
+        if (indexOfW > 0) {
+            String p1 = p.substring(0, indexOfW);
+            String p2 = p.substring(indexOfW);
+            String p2m = HashCryptoUtils.encrypt_md5_base58(p2);
+            p = p1 + "?pm=" + p2m;
+        }
+
+
         return FrameworkConfig.getInstance().getFileProxyTempCachePath() + "/" + p;
     }
 
 
-
     //路由选择
-    private static HttpProxyEntity getMatchedHttpProxyEntity(String request_path,HttpProxyEntityGetter httpProxyEntityGetter) throws Exception {
+    private static HttpProxyEntity getMatchedHttpProxyEntity(String request_path, HttpProxyEntityGetter httpProxyEntityGetter) throws Exception {
 
 
         List<HttpProxyEntity> proxyEntities = httpProxyEntityGetter.getHttpProxyEntityList();
