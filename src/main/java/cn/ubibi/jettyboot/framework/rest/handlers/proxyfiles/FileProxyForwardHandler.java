@@ -52,7 +52,7 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
             MyAsyncResultCallback myAsyncResultCallback = new MyAsyncResultCallback();
 
-            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path);
+            MyInvokeCallable myInvokeCallable = new MyInvokeCallable(httpProxyEntity, request_path,httpProxyEntityGetter);
 
             AsyncContextTaskManager.addTask(taskKey, myAsyncResultCallback, asyncContext, myInvokeCallable);
 
@@ -83,10 +83,12 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
         private HttpProxyEntity httpProxyEntity;
         private String request_path;
+        private HttpProxyEntityGetter httpProxyEntityGetter;
 
-        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path) {
+        public MyInvokeCallable(HttpProxyEntity httpProxyEntity, String request_path,HttpProxyEntityGetter httpProxyEntityGetter) {
             this.httpProxyEntity = httpProxyEntity;
             this.request_path = request_path;
+            this.httpProxyEntityGetter = httpProxyEntityGetter;
         }
 
         @Override
@@ -102,6 +104,8 @@ public class FileProxyForwardHandler extends AbstractHandler {
             }
 
             LOGGER.info("proxy http:" + http_target_path);
+
+            http_target_path = httpProxyEntityGetter.wrapperHttpTargetPath(http_target_path);
 
             String disk_path = getDiskCacheFilePath(http_target_path);
 
