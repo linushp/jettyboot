@@ -162,8 +162,9 @@ public class FileProxyForwardHandler extends AbstractHandler {
         response.setContentType(getContentType(disk_file));
         response.setHeader("Content-Length", "" + file_size);
         response.setHeader("Server", FrameworkConfig.getInstance().getResponseServerName());
-        response.setHeader("Connection", "keep-alive");
         response.setHeader("cache-control", "public,max-age=25920000");
+        response.setHeader("connection","close");
+
         response.setStatus(HttpServletResponse.SC_OK);
 
         ServletOutputStream outputStream = response.getOutputStream();
