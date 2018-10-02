@@ -180,6 +180,12 @@ public class FileProxyForwardHandler extends AbstractHandler {
 
     private static String getContentType(File disk_file) {
         String file_name = disk_file.getName();
+
+        int indexOfW = file_name.indexOf('?');
+        if (indexOfW >= 0) {
+            file_name = file_name.substring(0, indexOfW);
+        }
+
         String file_suffix = FileContentTypeEnum.getFileNameSuffix(file_name);
         String contentType = FileContentTypeEnum.getContentTypeBySuffix(file_suffix);
         boolean isTextContent = FileContentTypeEnum.isTextContentTypeBySuffix(file_suffix);
