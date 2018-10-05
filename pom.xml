@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.luanhaipeng</groupId>
+    <groupId>com.github.linushp</groupId>
     <artifactId>jettyboot</artifactId>
-    <version>1.0.51</version>
+    <version>1.0.0</version>
     <name>jettyboot</name>
     <description>jetty boot Library, simple mvc and data ORM framework</description>
     <url>https://github.com/linushp/jettyboot</url>
@@ -17,18 +17,18 @@
 
     <developers>
         <developer>
-            <name>luanhaipeng</name>
+            <name>linushp</name>
             <email>910010653@qq.com</email>
-            <organization>ubibi.cn</organization>
+            <organization>com.github.linushp</organization>
             <organizationUrl>https://github.com/linushp</organizationUrl>
         </developer>
     </developers>
 
 
     <scm>
-        <connection>scm:git:git@github.com:luanhaipeng/jettyboot.git</connection>
-        <developerConnection>scm:git:git@github.com:luanhaipeng/jettyboot.git</developerConnection>
-        <url>git@github.com:luanhaipeng/jettyboot.git</url>
+        <connection>scm:git:git@github.com:linushp/jettyboot.git</connection>
+        <developerConnection>scm:git:git@github.com:linushp/jettyboot.git</developerConnection>
+        <url>git@github.com:linushp/jettyboot.git</url>
     </scm>
 
     <licenses>
